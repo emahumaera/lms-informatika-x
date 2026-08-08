@@ -58,7 +58,6 @@
             text-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
         }
 
-        /* Header & Navigation UI Gradient Redesign */
         header {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
@@ -118,7 +117,6 @@
             filter: brightness(1.05);
         }
 
-        /* Main Container & Sections with Glassmorphism */
         main { 
             max-width: 1250px; margin: 30px auto; padding: 35px; 
             background: rgba(255, 255, 255, 0.85); 
@@ -131,7 +129,6 @@
         .section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Modern Gradient Cards & Hero */
         .card { 
             background: linear-gradient(135deg, rgba(243, 232, 255, 0.6), rgba(255, 255, 255, 0.9)); 
             border-left: 6px solid #7C3AED; 
@@ -152,7 +149,6 @@
         .hero h1 { color: #FFFFFF; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.15); }
         .hero h2 { font-size: 18px; font-weight: 400; opacity: 0.95; color: #F3E8FF; }
 
-        /* Form Controls */
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: var(--text-dark); }
         .form-group input, .form-group textarea, .form-group select {
@@ -178,7 +174,6 @@
         .btn-submit:hover { filter: brightness(1.1); box-shadow: 0 6px 25px rgba(124, 58, 237, 0.45); transform: translateY(-1px); }
         .btn-danger { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3); }
 
-        /* Tables with Gradient Header & Glass Row effects */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 16px; overflow: hidden; }
         table, th, td { border: 1px solid rgba(168, 85, 247, 0.15); }
         th, td { padding: 14px 18px; text-align: left; font-size: 14px; color: var(--text-dark); }
@@ -189,7 +184,6 @@
         .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; }
         .badge-done { background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        /* Embedded File Viewers */
         .file-preview {
             width: 100%; height: 550px; border: 2px solid rgba(168, 85, 247, 0.2);
             border-radius: 18px; margin-top: 12px; background: #FFFFFF; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1);
@@ -199,7 +193,6 @@
         .file-link { display: inline-block; background: rgba(124, 58, 237, 0.1); color: #7C3AED; padding: 8px 16px; border-radius: 10px; font-size: 13px; text-decoration: none; font-weight: 600; margin-top: 8px; border: 1px solid rgba(124, 58, 237, 0.3); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.08); }
         .file-link:hover { filter: brightness(1.1); background: rgba(124, 58, 237, 0.18); }
 
-        /* Slide Deck Viewer Styling */
         .slide-container {
             background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
             color: #FFFFFF;
@@ -224,7 +217,6 @@
         .slide-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .slide-btn:disabled { background: rgba(255, 255, 255, 0.1); color: #64748B; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* Custom CSS untuk TPS Terintegrasi */
         .kasus-box { background: rgba(255, 250, 205, 0.8); border-left: 5px solid #f1c40f; padding: 15px; margin-bottom: 20px; max-height: 250px; overflow-y: auto; border-radius: 14px; border: 1px solid rgba(241, 196, 15, 0.3); }
         .kasus-box table { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .kasus-box th, .kasus-box td { text-align: left; padding: 8px; border-bottom: 1px solid rgba(241, 196, 15, 0.5); }
@@ -243,7 +235,6 @@
 </head>
 <body>
 
-    <!-- MODAL LOGIN -->
     <div class="modal-overlay" id="loginModal">
         <div class="login-card">
             <h2 style="color:var(--accent-yellow); margin-bottom:5px; font-weight:700; text-shadow:0 0 15px rgba(250,204,21,0.4);">Sistem LMS Informatika</h2>
@@ -276,7 +267,6 @@
         </div>
     </div>
 
-    <!-- HEADER & NAVBAR -->
     <header>
         <div class="logo-area">
             <div style="font-size: 28px;">💻</div>
@@ -289,9 +279,7 @@
         <nav id="navbarMenu"></nav>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main>
-        <!-- ================= SISWA SECTIONS ================= -->
         <section id="s_beranda" class="section">
             <div class="hero">
                 <h1>Selamat Datang Murid hebat di Pembelajaran Informatika!!</h1>
@@ -444,7 +432,7 @@
             <div id="contentKuisSiswa"></div>
         </section>
 
-        <!-- Menu Portofolio Siswa -->
+        <!-- Menu Portofolio Siswa (Diperbarui dengan Fitur Absensi) -->
         <section id="s_portofolio" class="section">
             <h2 style="color:var(--primary-purple);">🏆 Portofolio & Rekapitulasi Nilai Saya</h2>
             <div class="card" id="rekapPortofolioSiswa">
@@ -452,8 +440,6 @@
             </div>
         </section>
 
-
-        <!-- ================= GURU SECTIONS ================= -->
 
         <!-- Guru: Portofolio Murid Standar -->
         <section id="g_portofolio" class="section">
@@ -692,6 +678,8 @@
                 </div>
                 <div id="tabelDaftarKuisGuru"></div>
             </div>
+            
+            <!-- Tempat untuk menampilkan rekapan hasil kuis -->
             <div id="containerHasilKuisGuru" style="margin-top: 20px; display:none;"></div>
         </section>
     </main>
@@ -828,7 +816,7 @@
                 `;
                 showSection('s_beranda');
                 populatePertemuanSiswaSelects();
-                loadRekapPortofolioSiswa();
+                loadRekapPortofolioSiswa(); // Muat data portofolio termasuk absen
             } else {
                 badge.innerHTML = `<span>👩‍🏫</span> Guru: Bu Ema Humaera`;
                 nav.innerHTML = `
@@ -1188,27 +1176,54 @@ ${tugas.share}`;
 
         function loadRekapPortofolioSiswa() {
             const container = document.getElementById('rekapPortofolioSiswa');
-            const mySubs = APP_DATA.submissions.filter(s => s.namaSiswa === currentUser.name);
+            
+            // Hitung statistik absensi
+            let h = 0, s = 0, i = 0, a = 0;
+            if (APP_DATA.absensi[currentUser.name]) {
+                for(let col=1; col<=30; col++) {
+                    const status = APP_DATA.absensi[currentUser.name][col] || "";
+                    if(status === 'H') h++;
+                    if(status === 'S') s++;
+                    if(status === 'I') i++;
+                    if(status === 'A') a++;
+                }
+            }
+            
+            // Blok HTML Absensi
+            let htmlAbsensi = `
+                <h3 style="color:var(--primary-purple); margin-top:0;">📅 Rekap Kehadiran Kelas</h3>
+                <div style="display:flex; gap:15px; margin-bottom: 25px; flex-wrap: wrap;">
+                    <div style="background:rgba(16,185,129,0.15); padding:10px 15px; border-radius:10px; border:1px solid rgba(16,185,129,0.3); color:#059669; font-weight:600;">✅ Hadir: ${h} Pertemuan</div>
+                    <div style="background:rgba(239,68,68,0.15); padding:10px 15px; border-radius:10px; border:1px solid rgba(239,68,68,0.3); color:#DC2626; font-weight:600;">🤒 Sakit: ${s} Pertemuan</div>
+                    <div style="background:rgba(245,158,11,0.15); padding:10px 15px; border-radius:10px; border:1px solid rgba(245,158,11,0.3); color:#D97706; font-weight:600;">📩 Izin: ${i} Pertemuan</div>
+                    <div style="background:rgba(249,115,22,0.15); padding:10px 15px; border-radius:10px; border:1px solid rgba(249,115,22,0.3); color:#EA580C; font-weight:600;">❌ Alfa: ${a} Pertemuan</div>
+                </div>
+                <h3 style="color:var(--primary-purple); border-top:1px solid rgba(168,85,247,0.2); padding-top:20px;">📝 Rekap Tugas & LKPD</h3>
+            `;
+
+            const mySubs = APP_DATA.submissions.filter(sub => sub.namaSiswa === currentUser.name);
+            let finalHtml = htmlAbsensi;
             
             if(mySubs.length === 0) {
-                container.innerHTML = '<p>Anda belum mengumpulkan tugas apa pun.</p>';
+                finalHtml += '<p style="color:var(--text-light);">Anda belum mengumpulkan tugas apa pun.</p>';
+                container.innerHTML = finalHtml;
                 return;
             }
             
-            let html = `<table><thead><tr><th>Pertemuan</th><th>Jawaban Anda</th><th>Nilai</th><th>Catatan Guru</th></tr></thead><tbody>`;
-            mySubs.forEach(s => {
-                const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuanId);
-                html += `
+            finalHtml += `<table><thead><tr><th>Pertemuan</th><th>Jawaban Anda</th><th>Nilai</th><th>Catatan Guru</th></tr></thead><tbody>`;
+            mySubs.forEach(sub => {
+                const p = APP_DATA.pertemuan.find(x => x.id == sub.pertemuanId);
+                finalHtml += `
                     <tr>
                         <td>${p ? p.judul : '-'}</td>
-                        <td>${s.jawaban.substring(0, 30)}...</td>
-                        <td><span class="badge ${s.nilai > 0 ? 'badge-done' : ''}">${s.nilai > 0 ? s.nilai : 'Belum dinilai'}</span></td>
-                        <td>${s.catatan || '-'}</td>
+                        <td>${sub.jawaban.substring(0, 30)}...</td>
+                        <td><span class="badge ${sub.nilai > 0 ? 'badge-done' : ''}">${sub.nilai > 0 ? sub.nilai : 'Belum dinilai'}</span></td>
+                        <td>${sub.catatan || '-'}</td>
                     </tr>
                 `;
             });
-            html += `</tbody></table>`;
-            container.innerHTML = html;
+            finalHtml += `</tbody></table>`;
+            container.innerHTML = finalHtml;
         }
 
         function renderDaftarSiswaTable() {
@@ -1486,6 +1501,7 @@ ${tugas.share}`;
                     <td><strong>${k.judul}</strong></td>
                     <td>${k.soal.length} Soal</td>
                     <td>
+                        <button class="btn-submit" style="padding:6px 12px; font-size:12px; margin-right:5px; background: linear-gradient(135deg, #10B981, #059669);" onclick="lihatHasilKuis(${k.id})">Lihat Hasil</button>
                         <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button>
                     </td>
                 </tr>`;
@@ -1494,11 +1510,56 @@ ${tugas.share}`;
             container.innerHTML = html;
         }
 
+        // Fitur Baru: Melihat hasil rekapan kuis untuk guru
+        function lihatHasilKuis(kuisId) {
+            const kuis = APP_DATA.kuisList.find(k => k.id == kuisId);
+            const scores = APP_DATA.kuisScores.filter(s => s.kuisId == kuisId);
+            const container = document.getElementById('containerHasilKuisGuru');
+            
+            container.style.display = 'block';
+            
+            let html = `<div class="card" style="border-left: 6px solid #10B981;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="color:#059669; margin:0;">📊 Hasil Rekapan: ${kuis.judul}</h3>
+                    <button class="btn-danger" onclick="document.getElementById('containerHasilKuisGuru').style.display='none'">Tutup</button>
+                </div>`;
+                
+            if(scores.length === 0) {
+                html += `<p style="color:var(--text-light);">Belum ada siswa yang mengerjakan kuis ini.</p></div>`;
+                container.innerHTML = html;
+                return;
+            }
+
+            html += `<table><thead><tr><th>No</th><th>Nama Murid</th><th>Nilai Akhir</th><th>Benar</th><th>Salah</th></tr></thead><tbody>`;
+            
+            // Urutkan siswa berdasarkan nama
+            scores.sort((a,b) => a.namaSiswa.localeCompare(b.namaSiswa)).forEach((s, idx) => {
+                const jmlSoal = kuis.soal.length;
+                const betul = Math.round((s.score * jmlSoal) / 100);
+                const salah = jmlSoal - betul;
+                
+                html += `<tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${s.namaSiswa}</strong></td>
+                    <td><span class="badge ${s.score >= 75 ? 'badge-done' : ''}" style="${s.score < 75 ? 'background:rgba(239,68,68,0.15); color:#DC2626; border:1px solid rgba(239,68,68,0.3);' : ''}">${s.score}</span></td>
+                    <td style="color:#059669; font-weight:bold;">${betul}</td>
+                    <td style="color:#DC2626; font-weight:bold;">${salah}</td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+        }
+
         function hapusKuis(id) {
             if(confirm("Hapus kuis ini?")) {
                 APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
+                // Bersihkan score yang terkait jika kuis dihapus (opsional)
+                APP_DATA.kuisScores = APP_DATA.kuisScores.filter(s => s.kuisId !== id);
+                
                 saveDB();
                 switchKuisKategoriGuru(document.getElementById('g_kuisKategori').value, null);
+                document.getElementById('containerHasilKuisGuru').style.display = 'none';
                 showToast("Kuis Dihapus.");
             }
         }
