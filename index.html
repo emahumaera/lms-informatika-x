@@ -215,64 +215,30 @@
             border: 1px solid rgba(168, 85, 247, 0.3);
             margin-bottom: 20px;
         }
-        .slide-header-tag {
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #C084FC;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        .slide-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #FFFFFF;
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-        .slide-desc {
-            font-size: 16px;
-            color: #E2E8F0;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .slide-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            padding-top: 15px;
-            font-size: 12px;
-            color: #94A3B8;
-        }
-        .slide-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .slide-btn {
-            background: linear-gradient(135deg, #7C3AED, #9333EA);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-        }
-        .slide-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .slide-btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: #64748B;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
+        .slide-header-tag { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #C084FC; font-weight: 700; margin-bottom: 15px; }
+        .slide-title { font-size: 28px; font-weight: 700; color: #FFFFFF; margin-bottom: 15px; line-height: 1.3; }
+        .slide-desc { font-size: 16px; color: #E2E8F0; line-height: 1.6; margin-bottom: 20px; }
+        .slide-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 15px; font-size: 12px; color: #94A3B8; }
+        .slide-controls { display: flex; gap: 10px; align-items: center; }
+        .slide-btn { background: linear-gradient(135deg, #7C3AED, #9333EA); color: white; border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
+        .slide-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .slide-btn:disabled { background: rgba(255, 255, 255, 0.1); color: #64748B; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* Custom CSS untuk TPS Terintegrasi */
+        .kasus-box { background: rgba(255, 250, 205, 0.8); border-left: 5px solid #f1c40f; padding: 15px; margin-bottom: 20px; max-height: 250px; overflow-y: auto; border-radius: 14px; border: 1px solid rgba(241, 196, 15, 0.3); }
+        .kasus-box table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .kasus-box th, .kasus-box td { text-align: left; padding: 8px; border-bottom: 1px solid rgba(241, 196, 15, 0.5); }
+        .kasus-box th { background: transparent; color: #B45309; text-shadow: none; }
+        
+        .tps-step { background: rgba(14, 165, 233, 0.05); padding: 20px; margin-bottom: 15px; border-radius: 14px; border: 1px solid rgba(14, 165, 233, 0.2); }
+        .tps-step h3 { margin-top: 0; color: #0284C7; font-size: 16px; font-weight: 700; margin-bottom: 10px;}
+        
+        .portofolio-item { background-color: #f9f9f9; border-left: 5px solid #2ecc71; padding: 15px; margin-bottom: 15px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .jawaban-teks { white-space: pre-wrap; max-height: 400px; overflow-y: auto; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; line-height: 1.5; font-family: monospace; }
+        
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .toast { background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 12px 20px; margin-top: 10px; border-radius: 10px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px); font-size: 14px; font-weight: 500; }
+        .toast.show { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -325,9 +291,7 @@
 
     <!-- MAIN CONTAINER -->
     <main>
-
         <!-- ================= SISWA SECTIONS ================= -->
-        
         <section id="s_beranda" class="section">
             <div class="hero">
                 <h1>Selamat Datang Murid hebat di Pembelajaran Informatika!!</h1>
@@ -351,12 +315,14 @@
             <div class="card">
                 <h3 style="color: var(--primary-purple);">📌 Petunjuk Sistem Belajar:</h3>
                 <p>1. Menu <strong>Materi Ajar</strong>: Akses seluruh modul bacaan, dokumen PDF, dan presentasi PPT interaktif.</p>
-                <p>2. Menu <strong>Tugas & LKPD</strong>: Kerjakan Lembar Kerja Peserta Didik (LKPD) secara langsung di LMS, sematkan tautan, atau unggah file jawaban Anda.</p>
-                <p>3. Menu <strong>Kuis</strong>: Dapatkan uji pemahaman lewat 4 tipe sub-menu interaktif.</p>
-                <p>4. Menu <strong>Portofolio Saya</strong>: Pantau nilai asesmen awal, proses, akhir, serta catatan dari Ibu Ema.</p>
+                <p>2. Menu <strong>Tugas & LKPD</strong>: Kerjakan Lembar Kerja Peserta Didik (LKPD) secara langsung di LMS.</p>
+                <p>3. Menu <strong>LKPD Diskusi (TPS)</strong>: Ruang diskusi studi kasus menggunakan metode Think-Pair-Share.</p>
+                <p>4. Menu <strong>Kuis</strong>: Dapatkan uji pemahaman lewat 4 tipe sub-menu interaktif.</p>
+                <p>5. Menu <strong>Portofolio Saya</strong>: Pantau nilai asesmen awal, proses, akhir, serta catatan dari Ibu Ema.</p>
+            </div>
         </section>
 
-        <!-- Menu Baru Siswa: Khusus Materi -->
+        <!-- Menu Materi Siswa -->
         <section id="s_materi" class="section">
             <h2 style="color:var(--primary-purple);">📚 Materi Pembelajaran</h2>
             <div class="form-group" style="max-width: 400px;">
@@ -366,7 +332,7 @@
             <div id="contentMateriSiswa"></div>
         </section>
 
-        <!-- Menu Baru Siswa: Khusus Tugas & LKPD -->
+        <!-- Menu Tugas & LKPD Standar -->
         <section id="s_tugas" class="section">
             <h2 style="color:var(--primary-purple);">📝 Tugas & Lembar Kerja Peserta Didik (LKPD)</h2>
             <div class="form-group" style="max-width: 400px;">
@@ -376,11 +342,92 @@
             <div id="contentTugasSiswa"></div>
         </section>
 
+        <!-- Menu Tambahan LKPD TPS (Think-Pair-Share) -->
+        <section id="s_tps" class="section">
+            <h2 style="color:var(--primary-purple);">🤝 LKPD Diskusi: Model Think-Pair-Share</h2>
+            <div class="card">
+                <p>Baca studi kasus pemrograman dasar di bawah ini, pilih satu, dan ikuti langkah diskusinya bersama teman kelompokmu.</p>
+                
+                <div class="kasus-box">
+                    <strong>Daftar 17 Studi Kasus Pemrograman (Pilih Salah Satu):</strong>
+                    <table>
+                        <tr><th>No</th><th>Deskripsi Kasus</th></tr>
+                        <tr><td>1</td><td>Membuat program kasir sederhana untuk menghitung total belanja dan kembalian.</td></tr>
+                        <tr><td>2</td><td>Menentukan apakah sebuah angka yang dimasukkan genap atau ganjil.</td></tr>
+                        <tr><td>3</td><td>Menghitung luas dan keliling bangun datar (Persegi dan Segitiga).</td></tr>
+                        <tr><td>4</td><td>Membuat program penentu nilai huruf (A, B, C, D) dari nilai angka raport.</td></tr>
+                        <tr><td>5</td><td>Menentukan tahun kabisat atau bukan.</td></tr>
+                        <tr><td>6</td><td>Menghitung total diskon belanja jika pembeli memiliki kartu member.</td></tr>
+                        <tr><td>7</td><td>Mengubah suhu dari Celcius ke Fahrenheit dan Reamur.</td></tr>
+                        <tr><td>8</td><td>Program login sederhana (cek kesesuaian username dan password).</td></tr>
+                        <tr><td>9</td><td>Menghitung denda keterlambatan mengembalikan buku perpustakaan.</td></tr>
+                        <tr><td>10</td><td>Menentukan bilangan terbesar dari 3 angka yang dimasukkan.</td></tr>
+                        <tr><td>11</td><td>Menghitung tarif parkir kendaraan berdasarkan lama jam parkir.</td></tr>
+                        <tr><td>12</td><td>Membuat simulasi kalkulator sederhana (tambah, kurang, kali, bagi).</td></tr>
+                        <tr><td>13</td><td>Program penentu kelulusan siswa berdasarkan nilai ujian dan kehadiran.</td></tr>
+                        <tr><td>14</td><td>Menghitung gaji bersih karyawan setelah dipotong pajak.</td></tr>
+                        <tr><td>15</td><td>Mengubah ukuran satuan panjang (Meter ke Centimeter dan Milimeter).</td></tr>
+                        <tr><td>16</td><td>Menentukan golongan usia (Anak-anak, Remaja, Dewasa, Lansia).</td></tr>
+                        <tr><td>17</td><td>Membuat daftar urutan angka 1 sampai 10 menggunakan perulangan.</td></tr>
+                    </table>
+                </div>
+
+                <form id="form-lkpd-tps" onsubmit="kirimTugasTPS(event)">
+                    <div class="form-group">
+                        <label><b>Nama Anggota Kelompok:</b></label>
+                        <input type="text" id="tps_nama_siswa" placeholder="Contoh: Budi dan Siti" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><b>Kasus Nomor Berapa yang Dipilih?</b></label>
+                        <input type="number" id="tps_nomor_kasus" min="1" max="17" placeholder="Contoh: 3" required>
+                    </div>
+
+                    <div class="tps-step">
+                        <h3>1. Orientasi Masalah</h3>
+                        <div class="form-group">
+                            <label>Masalah apa yang mau kalian pecahkan dari kasus ini?</label>
+                            <textarea id="tps_orientasi" rows="3" placeholder="Tuliskan pemahaman kalian tentang masalahnya di sini..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="tps-step">
+                        <h3>2. THINK (Berpikir Sendiri)</h3>
+                        <div class="form-group">
+                            <label>Data atau variabel apa saja yang dibutuhkan?</label>
+                            <textarea id="tps_think_data" rows="2" placeholder="Contoh: Butuh variabel panjang, lebar, dan luas" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Bagaimana cara menyelesaikannya? (Tulis urutan langkah-langkahnya)</label>
+                            <textarea id="tps_think_langkah" rows="4" placeholder="1. Mulai... 2. Masukkan angka..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="tps-step">
+                        <h3>3. PAIR (Berdiskusi Berpasangan)</h3>
+                        <div class="form-group">
+                            <label>Coba diskusi dengan teman kelompok. Apakah ada yang perlu diperbaiki dari langkah sebelumnya? Tulis perbaikannya di sini:</label>
+                            <textarea id="tps_pair" rows="3" placeholder="Setelah berdiskusi, kami memperbaiki bagian..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="tps-step">
+                        <h3>4. SHARE (Berbagi Hasil)</h3>
+                        <div class="form-group">
+                            <label>Tuliskan kesimpulan akhir dari solusi program kalian:</label>
+                            <textarea id="tps_share" rows="3" placeholder="Kesimpulan dari solusi kami adalah..." required></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" style="width: 100%;">Kirim Tugas ke Bu Ema</button>
+                </form>
+            </div>
+        </section>
+
         <!-- Menu Kuis Siswa -->
         <section id="s_kuis" class="section">
             <h2 style="color:var(--primary-purple);">🧠 Asesmen & Kuis Interaktif</h2>
             <div class="card">
-                <!-- Sub Menu Kuis (Siswa) -->
                 <div class="login-tab" style="margin-bottom:20px; overflow-x: auto; white-space: nowrap; display: flex; gap: 5px;">
                     <button class="active" onclick="switchKuisKategoriSiswa('Asesmen Diagnostik', this)">Asesmen Diagnostik</button>
                     <button onclick="switchKuisKategoriSiswa('Pretest', this)">Pretest</button>
@@ -397,15 +444,18 @@
             <div id="contentKuisSiswa"></div>
         </section>
 
-        <!-- Menu Siswa: Portofolio & Nilai Saya -->
+        <!-- Menu Portofolio Siswa -->
         <section id="s_portofolio" class="section">
             <h2 style="color:var(--primary-purple);">🏆 Portofolio & Rekapitulasi Nilai Saya</h2>
-            <div id="rekapPortofolioSiswa"></div>
+            <div class="card" id="rekapPortofolioSiswa">
+                <p style="color:var(--text-light);">Rekapitulasi portofolio Anda akan tampil di sini.</p>
+            </div>
         </section>
+
 
         <!-- ================= GURU SECTIONS ================= -->
 
-        <!-- Guru: Portofolio Murid (Tabel Lengkap) -->
+        <!-- Guru: Portofolio Murid Standar -->
         <section id="g_portofolio" class="section">
             <h2 style="color:var(--primary-purple);">📂 Portofolio Hasil Kerja & Penilaian Murid</h2>
             <div class="card">
@@ -422,18 +472,27 @@
                     <thead>
                         <tr>
                             <th>Nama Murid</th>
-                            <th>Kelas</th>
                             <th>Pertemuan Ke</th>
-                            <th style="width: 250px;">Hasil Unggahan (LKPD/Asesmen)</th>
-                            <th style="width: 100px;">Nilai Awal</th>
-                            <th style="width: 100px;">Nilai Proses</th>
-                            <th style="width: 100px;">Nilai Akhir</th>
-                            <th style="width: 150px;">Keterangan</th>
-                            <th style="width: 80px;">Aksi</th>
+                            <th style="width: 250px;">Hasil Unggahan</th>
+                            <th style="width: 100px;">Nilai</th>
+                            <th style="width: 150px;">Catatan Guru</th>
+                            <th style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelPortofolioGuru"></tbody>
+                    <tbody id="tabelPortofolioGuru">
+                        <tr><td colspan="6" style="text-align:center;">Pilih pertemuan untuk melihat data murid.</td></tr>
+                    </tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- Guru: Jawaban LKPD TPS -->
+        <section id="g_tps" class="section">
+            <h2 style="color:var(--primary-purple);">💬 Hasil LKPD Diskusi (TPS) Murid</h2>
+            <div class="card">
+                <p>Data kiriman jawaban LKPD berbasis metode Think-Pair-Share dari kelompok murid.</p>
+                <button onclick="hapusSemuaDataTPS()" class="btn-danger" style="margin-bottom: 20px;">Bersihkan Semua Data TPS</button>
+                <div id="daftar-jawaban-tps"></div>
             </div>
         </section>
 
@@ -488,7 +547,6 @@
                             </div>
                         </div>
                     </div>
-
                     <button type="submit" class="btn-submit" style="width:100%; padding:14px; font-size:16px;">Terbitkan Pertemuan</button>
                 </form>
             </div>
@@ -612,11 +670,13 @@
                         <textarea id="g_kuisDesc" rows="2" placeholder="Petunjuk pengerjaan kuis..."></textarea>
                     </div>
 
-                    <h3 style="color:var(--primary-purple); margin-top:20px;">Daftar Soal Pilihan Ganda</h3>
+                    <h3 style="color:var(--primary-purple); margin-top:20px;">Daftar Soal Kuis</h3>
                     <div id="containerSoalGuru">
                         <!-- Dynamic Question Blocks -->
                     </div>
-                    <button type="button" class="btn-submit" style="background:linear-gradient(135deg, #D97706, #B45309); margin-bottom:20px;" onclick="tambahFormSoal()">+ Tambah Soal</button>
+                    <div style="margin-bottom: 20px;">
+                        <button type="button" class="btn-submit" style="width:100%; padding:14px; border:2px dashed #7C3AED; background:rgba(124, 58, 237, 0.05); color:#7C3AED; font-weight:700; box-shadow:none; transition:0.3s;" onclick="tambahFormSoal()" onmouseover="this.style.background='rgba(124, 58, 237, 0.1)'" onmouseout="this.style.background='rgba(124, 58, 237, 0.05)'">+ Tambah Nomor Soal Baru</button>
+                    </div>
                     
                     <button type="submit" class="btn-submit" style="width:100%; padding:14px; font-size:16px;">Terbitkan Kuis Ini</button>
                 </form>
@@ -624,23 +684,19 @@
 
             <div class="card">
                 <h3 style="color:var(--primary-purple);">📋 Daftar Kuis Aktif</h3>
-                
-                <!-- Sub Menu Kuis (Guru) -->
                 <div class="login-tab" style="margin-bottom:20px; overflow-x: auto; white-space: nowrap; display: flex; gap: 5px;">
                     <button class="active" onclick="switchKuisKategoriGuru('Asesmen Diagnostik', this)">Asesmen Diagnostik</button>
                     <button onclick="switchKuisKategoriGuru('Pretest', this)">Pretest</button>
                     <button onclick="switchKuisKategoriGuru('Postest', this)">Postest</button>
                     <button onclick="switchKuisKategoriGuru('Kuis', this)">Kuis</button>
                 </div>
-
                 <div id="tabelDaftarKuisGuru"></div>
             </div>
-
-             <!-- Area Tampilan Detail Hasil Kuis Murid -->
             <div id="containerHasilKuisGuru" style="margin-top: 20px; display:none;"></div>
         </section>
-
     </main>
+
+    <div id="toast-container"></div>
 
     <script>
         // Data Default 35 Nama Murid
@@ -659,131 +715,50 @@
             "ZAMIR ALFAD'GTHA"
         ];
 
-        // Data Slide Presentasi Interaktif
-        const slidesData = [
-            { tag: "PENDAHULUAN", title: "Materi Pembelajaran", desc: "Selamat datang di modul pembelajaran. Silakan pelajari materi yang telah disediakan dengan seksama." },
-            { tag: "EKSPLORASI", title: "Inti Pembelajaran", desc: "Pahami konsep-konsep utama dan catat poin-poin penting yang ada di dalam dokumen materi atau presentasi." },
-            { tag: "PENUTUP", title: "Kesimpulan & Evaluasi", desc: "Setelah memahami materi, silakan kerjakan tugas, LKPD, atau kuis yang tersedia pada menu." }
-        ];
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => { 
+                toast.classList.remove('show'); 
+                setTimeout(() => { container.removeChild(toast); }, 300);
+            }, 3000);
+        }
 
-        // Custom Notification UI Modals (Replaces Browser Alerts)
         function showNotification(msg, title = "Informasi LMS") {
-            let modal = document.getElementById('customNotifModal');
-            if(!modal) {
-                modal = document.createElement('div');
-                modal.id = 'customNotifModal';
-                modal.className = 'modal-overlay';
-                modal.style.zIndex = '2000';
-                modal.innerHTML = `
-                    <div class="login-card" style="max-width:400px; padding:30px;">
-                        <h3 id="notifTitle" style="color:var(--primary-purple); margin-top:0; font-weight:700;"></h3>
-                        <p id="notifMsg" style="color:var(--text-dark); font-size:14px; margin:15px 0 25px 0; line-height:1.5;"></p>
-                        <button class="btn-submit" style="width:100%;" onclick="document.getElementById('customNotifModal').style.display='none'">Tutup</button>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-            document.getElementById('notifTitle').innerText = title;
-            document.getElementById('notifMsg').innerText = msg;
-            modal.style.display = 'flex';
+            showToast(`${title}: ${msg}`);
         }
 
-        function showConfirm(msg, onConfirm) {
-            let modal = document.getElementById('customConfirmModal');
-            if(!modal) {
-                modal = document.createElement('div');
-                modal.id = 'customConfirmModal';
-                modal.className = 'modal-overlay';
-                modal.style.zIndex = '2000';
-                modal.innerHTML = `
-                    <div class="login-card" style="max-width:400px; padding:30px;">
-                        <h3 style="color:var(--danger-red); margin-top:0; font-weight:700;">Konfirmasi Tindakan</h3>
-                        <p id="confirmMsg" style="color:var(--text-dark); font-size:14px; margin:15px 0 25px 0; line-height:1.5;"></p>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn-danger" style="flex:1; padding:12px; font-weight:600;" id="btnConfirmYes">Ya, Lanjutkan</button>
-                            <button class="btn-submit" style="flex:1; padding:12px; background:#64748B;" onclick="document.getElementById('customConfirmModal').style.display='none'">Batal</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-            document.getElementById('confirmMsg').innerText = msg;
-            const btnYes = document.getElementById('btnConfirmYes');
-            btnYes.onclick = function() {
-                modal.style.display = 'none';
-                if(onConfirm) onConfirm();
-            };
-            modal.style.display = 'flex';
-        }
-
-        // INISIALISASI DATA (LOCAL STORAGE V10)
+        // ================= DATABASE LOCAL STORAGE =================
         let APP_DATA = JSON.parse(localStorage.getItem('LMS_EMA_DATA_V10'));
-
         if (!APP_DATA) {
-            const oldData = JSON.parse(localStorage.getItem('LMS_EMA_DATA_V9'));
-            if (oldData) {
-                APP_DATA = oldData;
-                listMuridTetap.forEach(s => {
-                    if (!APP_DATA.students.includes(s)) APP_DATA.students.push(s);
-                });
-            } else {
-                APP_DATA = {
-                    students: [...listMuridTetap],
-                    classroomUrl: "https://classroom.google.com",
-                    pertemuan: [
-                        {
-                            id: 1,
-                            judul: "Pertemuan 1: Struktur Data dan Algoritma Standar",
-                            materiText: "Materi lengkap mengenai struktur data (Array, Stack, Queue) dan algoritma standar (Searching & Sorting).",
-                            isSlideDeck: true,
-                            lkpdText: "Pelajari materi slide di atas, identifikasi fitur aplikasi chat dan selesaikan studi kasus bersama kelompok!",
-                            lkpdLink: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                            lkpdFile: null,
-                            rubrikText: "Skor 100 jika langkah logis dan lengkap.",
-                            rubrikFile: null,
-                        }
-                    ],
-                    submissions: [],
-                    grades: [],
-                    absensi: [],
-                    kuisList: [
-                        {
-                            id: 101,
-                            judul: "Kuis 1: Konsep Dasar Struktur Data",
-                            kategori: "Kuis",
-                            desc: "Pilih jawaban yang paling tepat untuk menguji pemahaman struktur data Anda.",
-                            questions: [
-                                { soal: "Prinsip Last In, First Out (LIFO) merupakan ciri khas dari struktur data...", opsi: ["Array", "Queue", "Stack", "Tree"], kunci: 2 },
-                                { soal: "Prinsip First In, First Out (FIFO) digunakan pada struktur data...", opsi: ["Queue", "Stack", "List", "Graf"], kunci: 0 }
-                            ]
-                        }
-                    ],
-                    kuisScores: []
-                };
-            }
+            APP_DATA = {
+                students: [...listMuridTetap],
+                classroomUrl: "https://classroom.google.com",
+                pertemuan: [],
+                submissions: [], 
+                grades: [],
+                absensi: {}, 
+                absensiDates: {},
+                kuisList: [],
+                kuisScores: [],
+                tpsSubmissions: []
+            };
             saveDB();
-        } else {
-            let changed = false;
-            listMuridTetap.forEach(s => {
-                if (!APP_DATA.students.includes(s)) {
-                    APP_DATA.students.push(s);
-                    changed = true;
-                }
-            });
-            if(changed) saveDB();
         }
-
-        if(!APP_DATA.grades) APP_DATA.grades = [];
-        if(!APP_DATA.absensi) APP_DATA.absensi = [];
+        
+        // Pengecekan atribut struktur lama
+        if(!APP_DATA.tpsSubmissions) APP_DATA.tpsSubmissions = [];
+        if(!APP_DATA.submissions) APP_DATA.submissions = [];
+        if(!APP_DATA.absensi) APP_DATA.absensi = {};
+        if(!APP_DATA.absensiDates) APP_DATA.absensiDates = {};
         if(!APP_DATA.kuisList) APP_DATA.kuisList = [];
         if(!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
-        if(!APP_DATA.submissions) APP_DATA.submissions = [];
-        
-        let currentUser = null; 
 
-        // State Kategori Kuis
-        let currentKuisKatSiswa = 'Asesmen Diagnostik';
-        let currentKuisKatGuru = 'Asesmen Diagnostik';
+        let currentUser = null; 
 
         function saveDB() {
             localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(APP_DATA));
@@ -812,7 +787,7 @@
                 currentUser = { role: 'siswa', name: found };
                 initApp();
             } else {
-                showNotification('Nama Anda belum terdaftar di sistem kelas. Pastikan mengeja nama sesuai data Gunakan Huruf Kapital.', 'Akses Ditolak');
+                showNotification('Nama Anda belum terdaftar di sistem.', 'Akses Ditolak');
             }
         }
 
@@ -823,7 +798,7 @@
                 currentUser = { role: 'guru', name: 'Bu Ema Humaera' };
                 initApp();
             } else {
-                showNotification('PIN Akses Guru Salah! Masukkan PIN yang benar.', 'Akses Ditolak');
+                showNotification('PIN Akses Guru Salah!', 'Akses Ditolak');
             }
         }
 
@@ -836,45 +811,50 @@
             document.getElementById('loginModal').style.display = 'none';
             const nav = document.getElementById('navbarMenu');
             const badge = document.getElementById('userBadge');
+            
+            // Muat settingan
+            document.getElementById('btnBukaClassroom').href = APP_DATA.classroomUrl;
 
             if(currentUser.role === 'siswa') {
                 badge.innerHTML = `<span>👤</span> ${currentUser.name}`;
                 nav.innerHTML = `
                     <button class="nav-btn active" onclick="showSection('s_beranda', this)">Beranda</button>
                     <button class="nav-btn" onclick="showSection('s_materi', this)">Materi Ajar</button>
-                    <button class="nav-btn" onclick="showSection('s_tugas', this)">Tugas & LKPD</button>
+                    <button class="nav-btn" onclick="showSection('s_tugas', this)">Tugas Biasa</button>
+                    <button class="nav-btn" onclick="showSection('s_tps', this)">LKPD Diskusi (TPS)</button>
                     <button class="nav-btn" onclick="showSection('s_kuis', this)">Kuis</button>
                     <button class="nav-btn" onclick="showSection('s_portofolio', this)">Portofolio Saya</button>
                     <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
                 `;
                 showSection('s_beranda');
                 populatePertemuanSiswaSelects();
-                populateKuisSiswaSelect();
-                renderPortofolioSaya();
+                loadRekapPortofolioSiswa();
             } else {
                 badge.innerHTML = `<span>👩‍🏫</span> Guru: Bu Ema Humaera`;
                 nav.innerHTML = `
                     <button class="nav-btn active" onclick="showSection('g_portofolio', this)">Portofolio Murid</button>
-                    <button class="nav-btn" onclick="showSection('g_daftar_pertemuan', this)">Daftar Pertemuan</button>
+                    <button class="nav-btn" onclick="showSection('g_tps', this)">Hasil LKPD TPS</button>
+                    <button class="nav-btn" onclick="showSection('g_daftar_pertemuan', this)">Modul Materi</button>
                     <button class="nav-btn" onclick="showSection('g_kelola', this)">+ Buat Pertemuan</button>
                     <button class="nav-btn" onclick="showSection('g_kuis', this)">Kelola Kuis</button>
                     <button class="nav-btn" onclick="showSection('g_siswa', this)">Data Murid</button>
                     <button class="nav-btn" onclick="showSection('g_absensi', this)">Absensi</button>
                     <button class="nav-btn" onclick="showSection('g_classroom', this)">Classroom</button>
-                    <a href="${APP_DATA.classroomUrl}" target="_blank" class="btn-action-highlight" style="text-decoration:none; display:inline-block; font-size:14px; text-align:center;">Classroom</a>
                     <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
                 `;
                 showSection('g_portofolio');
-                populateFilterPertemuanGuru();
-                renderPortofolioTabel();
                 renderDaftarPertemuanGuru();
-                populateGuruPreviewSelect();
+                loadTugasTPS();
                 renderDaftarSiswaTable();
-                renderAbsensiForm();
-                renderDaftarKuisGuru();
-                if(document.getElementById('containerSoalGuru').children.length === 0) {
-                    tambahFormSoal();
-                }
+                
+                // Set dropdown absensi
+                let optCol = "";
+                for(let i=1; i<=30; i++) optCol += `<option value="${i}">Pertemuan ${i}</option>`;
+                document.getElementById('absensiKolomPilih').innerHTML = optCol;
+                renderAbsensiMatrix();
+                
+                document.getElementById('g_classroomUrl').value = APP_DATA.classroomUrl;
+                switchKuisKategoriGuru('Asesmen Diagnostik', document.querySelector('#g_kuis .login-tab button'));
             }
         }
 
@@ -883,27 +863,6 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(btn) btn.classList.add('active');
-
-            if(id === 'g_absensi') renderAbsensiMatrix();
-            if(id === 'g_daftar_pertemuan') {
-                renderDaftarPertemuanGuru();
-                populateGuruPreviewSelect();
-            }
-            if(id === 's_kuis') {
-                populateKuisSiswaSelect();
-            }
-            if(id === 'g_kuis') {
-                renderDaftarKuisGuru();
-            }
-            if(id === 's_materi') {
-                loadMateriSiswa();
-            }
-            if(id === 's_tugas') {
-                loadTugasSiswa();
-            }
-            if(id === 's_portofolio') {
-                renderPortofolioSaya();
-            }
         }
 
         function readFileAsBase64(file) {
@@ -911,1060 +870,340 @@
                 if (!file) resolve(null);
                 else {
                     const reader = new FileReader();
-                    reader.onload = () => resolve({ 
-                        name: file.name, 
-                        type: file.type, 
-                        data: reader.result 
-                    });
+                    reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
                     reader.onerror = error => reject(error);
                     reader.readAsDataURL(file);
                 }
             });
         }
 
-        function renderFileInline(fileObj) {
-            if(!fileObj) return '';
-            const mime = fileObj.type || '';
+        // ================= FUNGSIONALITAS TPS =================
+        function kirimTugasTPS(e) {
+            e.preventDefault();
+            const tugasBaru = {
+                id: Date.now(),
+                waktu: new Date().toLocaleString('id-ID'),
+                nama: document.getElementById('tps_nama_siswa').value,
+                kasus: document.getElementById('tps_nomor_kasus').value,
+                orientasi: document.getElementById('tps_orientasi').value,
+                think_data: document.getElementById('tps_think_data').value,
+                think_langkah: document.getElementById('tps_think_langkah').value,
+                pair: document.getElementById('tps_pair').value,
+                share: document.getElementById('tps_share').value
+            };
+            APP_DATA.tpsSubmissions.push(tugasBaru);
+            saveDB();
+            document.getElementById('form-lkpd-tps').reset();
+            showToast('Bagus sekali! Tugas TPS berhasil dikirim ke Bu Guru.');
+            showSection('s_beranda');
+        }
+
+        function loadTugasTPS() {
+            const container = document.getElementById('daftar-jawaban-tps');
+            container.innerHTML = '';
             
-            if(mime.startsWith('image/')) {
-                return `<div style="margin-top:10px;"><img src="${fileObj.data}" class="img-preview" alt="Preview Gambar">
-                        <br><a href="${fileObj.data}" download="${fileObj.name}" class="file-link">💾 Unduh Gambar (${fileObj.name})</a></div>`;
-            } 
-            else if(mime === 'application/pdf') {
-                return `<div style="margin-top:10px;"><iframe src="${fileObj.data}" class="file-preview"></iframe>
-                        <br><a href="${fileObj.data}" download="${fileObj.name}" class="file-link">💾 Unduh PDF (${fileObj.name})</a></div>`;
+            if(!APP_DATA.tpsSubmissions || APP_DATA.tpsSubmissions.length === 0) {
+                container.innerHTML = '<p style="color:#7f8c8d; font-style:italic;">Belum ada tugas LKPD TPS yang dikirim oleh siswa.</p>';
+                return;
             }
-            else if(mime.startsWith('video/')) {
-                return `<div style="margin-top:10px;"><video controls class="video-preview"><source src="${fileObj.data}" type="${mime}">Browser Anda tidak mendukung pemutar video.</video>
-                        <br><a href="${fileObj.data}" download="${fileObj.name}" class="file-link">💾 Unduh Video (${fileObj.name})</a></div>`;
-            }
-            else {
-                return `<div style="margin-top:10px;"><a href="${fileObj.data}" download="${fileObj.name}" class="file-link">📁 Unduh Lampiran: <b>${fileObj.name}</b></a></div>`;
+
+            [...APP_DATA.tpsSubmissions].reverse().forEach(tugas => {
+                const item = document.createElement('div');
+                item.className = 'portofolio-item';
+                
+                const teksJawaban = `Tanggal Kirim: ${tugas.waktu}
+Kelompok : ${tugas.nama}
+Pilihan  : Kasus No. ${tugas.kasus}
+
+--- TAHAP 1: ORIENTASI MASALAH ---
+${tugas.orientasi}
+
+--- TAHAP 2: THINK ---
+> Data/Variabel: 
+${tugas.think_data}
+
+> Langkah-langkah:
+${tugas.think_langkah}
+
+--- TAHAP 3: PAIR (Diskusi) ---
+${tugas.pair}
+
+--- TAHAP 4: SHARE (Kesimpulan) ---
+${tugas.share}`;
+
+                item.innerHTML = `
+                    <h3 style="margin-top:0; color:#2c3e50;">Kelompok: ${tugas.nama} (Kasus ${tugas.kasus})</h3>
+                    <div class="jawaban-teks">${teksJawaban}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function hapusSemuaDataTPS() {
+            if(confirm('Apakah Anda yakin ingin menghapus semua data tugas TPS siswa?')) {
+                APP_DATA.tpsSubmissions = [];
+                saveDB();
+                loadTugasTPS();
+                showToast('Semua data TPS berhasil dibersihkan.');
             }
         }
 
+        // ================= PENYELESAIAN JAVASCRIPT GURU - MODUL & PERTEMUAN =================
         async function simpanPertemuanBaru(e) {
             e.preventDefault();
             const judul = document.getElementById('g_judulPertemuan').value;
             const materiText = document.getElementById('g_materiText').value;
             const lkpdText = document.getElementById('g_lkpdText').value;
             const lkpdLink = document.getElementById('g_lkpdLink').value;
-
             const materiFile = await readFileAsBase64(document.getElementById('g_materiFile').files[0]);
             const lkpdFile = await readFileAsBase64(document.getElementById('g_lkpdFile').files[0]);
-
+            
             const newP = {
-                id: Date.now(),
-                judul: judul,
-                materiText: materiText, materiFile: materiFile,
-                lkpdText: lkpdText, lkpdLink: lkpdLink, lkpdFile: lkpdFile,
+                id: Date.now(), 
+                judul: judul, 
+                materiText: materiText, 
+                materiFile: materiFile,
+                lkpdText: lkpdText, 
+                lkpdLink: lkpdLink, 
+                lkpdFile: lkpdFile
             };
-
+            
             APP_DATA.pertemuan.push(newP);
             saveDB();
-            showNotification('Pertemuan baru berhasil diterbitkan!', 'Sukses');
+            showToast('Pertemuan baru berhasil diterbitkan!');
             e.target.reset();
             renderDaftarPertemuanGuru();
-            populateFilterPertemuanGuru();
-            populateGuruPreviewSelect();
+            
+            // Update dropdown dropdown
             populatePertemuanSiswaSelects();
-            showSection('g_daftar_pertemuan');
         }
 
         function renderDaftarPertemuanGuru() {
             const container = document.getElementById('tabelDaftarPertemuanGuru');
+            
+            // Populating the select element for preview
+            const selectPrev = document.getElementById('selectGuruPreviewPertemuan');
+            const selectFilter = document.getElementById('selectFilterPertemuan');
+            
+            let optionsHTML = '<option value="">-- Pilih Pertemuan --</option>';
+            let optionsFilter = '<option value="ALL">-- Semua Pertemuan --</option>';
+            
             if(APP_DATA.pertemuan.length === 0) {
                 container.innerHTML = "<p>Belum ada pertemuan dibuat.</p>";
+                selectPrev.innerHTML = optionsHTML;
+                selectFilter.innerHTML = optionsFilter;
                 return;
             }
 
-            let html = `<table><thead><tr><th>Judul Pertemuan</th><th>Materi & Pratinjau File</th><th>LKPD & Link Disematkan</th><th>Aksi</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Judul Pertemuan</th><th>Materi & Pratinjau</th><th>LKPD & Link Disematkan</th><th>Aksi</th></tr></thead><tbody>`;
+            
             APP_DATA.pertemuan.forEach(p => {
-                let materiInfo = p.isSlideDeck ? `<p style="margin:0; color:#4C1D95; font-weight:600;">✨ Modul Slide Interaktif (Struktur Data & Algoritma)</p>` : (p.materiText ? `<p style="margin:0 0 8px 0; white-space:pre-line;">${p.materiText}</p>` : "<p style='color:#888; font-style:italic;'>Tanpa Teks</p>");
+                optionsHTML += `<option value="${p.id}">${p.judul}</option>`;
+                optionsFilter += `<option value="${p.id}">${p.judul}</option>`;
+
+                let materiInfo = p.materiText ? `<p style="margin:0 0 8px 0;">${p.materiText}</p>` : "<p style='color:#888; font-style:italic;'>Tanpa Teks</p>";
                 if(p.materiFile) {
                     materiInfo += `<div style="margin-top:8px; padding:10px; background:rgba(76,29,149,0.1); border-radius:10px; border:1px solid rgba(168,85,247,0.2);">
-                        <strong style="color:var(--primary-purple); font-size:12px;">📁 File Materi: ${p.materiFile.name}</strong>
-                    </div>`;
+                        <strong style="color:var(--primary-purple); font-size:12px;">📁 File Materi: ${p.materiFile.name}</strong></div>`;
                 }
 
-                let lkpdInfo = p.lkpdText ? p.lkpdText.substring(0, 40) + "..." : "";
-                if(p.lkpdLink) lkpdInfo += `<br><a href="${p.lkpdLink}" target="_blank" style="color:#2563EB; font-size:12px; font-weight:600;">🔗 Link: ${p.lkpdLink}</a>`;
-                if(p.lkpdFile) lkpdInfo += `<br><span style="color:var(--primary-purple); font-size:12px; font-weight:600;">📁 ${p.lkpdFile.name}</span>`;
+                let lkpdInfo = p.lkpdText ? p.lkpdText.substring(0, 40) + "..." : "<p style='color:#888; font-style:italic;'>Tanpa Teks</p>";
+                if(p.lkpdLink) lkpdInfo += `<br><br><a href="${p.lkpdLink}" target="_blank" style="color:#2563EB; font-size:12px; font-weight:600;">🔗 Link LKPD</a>`;
+                if(p.lkpdFile) lkpdInfo += `<br><br><span style="color:#059669; font-size:12px; font-weight:600;">📄 Ada Lampiran</span>`;
 
                 html += `<tr>
                     <td><strong>${p.judul}</strong></td>
                     <td>${materiInfo}</td>
                     <td>${lkpdInfo}</td>
-                    <td><button onclick="hapusPertemuan(${p.id})" class="btn-danger">Hapus</button></td>
+                    <td>
+                        <button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button>
+                    </td>
                 </tr>`;
             });
             html += `</tbody></table>`;
             container.innerHTML = html;
-        }
-
-        function populateGuruPreviewSelect() {
-            const select = document.getElementById('selectGuruPreviewPertemuan');
-            if(!select) return;
-            select.innerHTML = "";
-            APP_DATA.pertemuan.forEach(p => {
-                select.innerHTML += `<option value="${p.id}">${p.judul}</option>`;
-            });
-            renderGuruMaterialPreview();
-        }
-
-        function renderGuruMaterialPreview() {
-            const select = document.getElementById('selectGuruPreviewPertemuan');
-            const container = document.getElementById('guruMaterialPreviewContainer');
-            if(!select || !container) return;
-
-            const pId = parseInt(select.value);
-            const p = APP_DATA.pertemuan.find(item => item.id === pId);
-            if(!p) {
-                container.innerHTML = "<p>Materi tidak ditemukan.</p>";
-                return;
-            }
-
-            let slideViewerHtml = "";
-            if(p.isSlideDeck) {
-                slideViewerHtml = `
-                    <div class="slide-container" id="guruSlideViewerBox">
-                        <div>
-                            <div class="slide-header-tag" id="guruSlideTag">${slidesData[0].tag}</div>
-                            <div class="slide-title" id="guruSlideTitle">${slidesData[0].title}</div>
-                            <div class="slide-desc" id="guruSlideDesc">${slidesData[0].desc}</div>
-                        </div>
-                        <div class="slide-footer">
-                            <span id="guruSlideCounter">Slide 1 dari ${slidesData.length}</span>
-                            <div class="slide-controls">
-                                <button class="slide-btn" id="guruPrevSlideBtn" onclick="changeGuruSlide(-1)" disabled>❮ Sebelumnya</button>
-                                <button class="slide-btn" id="guruNextSlideBtn" onclick="changeGuruSlide(1)">Selanjutnya ❯</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            let fileViewerHtml = renderFileInline(p.materiFile);
-            let textHtml = p.materiText ? `<div class="card" style="background:#fff; margin-top:15px;"><p style="white-space:pre-line; line-height:1.7;">${p.materiText}</p></div>` : "";
-
-            container.innerHTML = `
-                <div class="card" style="margin-top:15px; background:linear-gradient(135deg, rgba(243, 232, 255, 0.4), rgba(255, 255, 255, 0.9));">
-                    <h4 style="color:var(--primary-purple); margin-top:0;">📚 Pratinjau: ${p.judul}</h4>
-                    ${slideViewerHtml}
-                    ${textHtml}
-                    ${fileViewerHtml}
-                </div>
-            `;
-            window.guruSlideIndex = 0;
-        }
-
-        function changeGuruSlide(direction) {
-            window.guruSlideIndex = (window.guruSlideIndex || 0) + direction;
-            if(window.guruSlideIndex < 0) window.guruSlideIndex = 0;
-            if(window.guruSlideIndex >= slidesData.length) window.guruSlideIndex = slidesData.length - 1;
-
-            const slide = slidesData[window.guruSlideIndex];
-            const tagEl = document.getElementById('guruSlideTag');
-            const titleEl = document.getElementById('guruSlideTitle');
-            const descEl = document.getElementById('guruSlideDesc');
-            const counterEl = document.getElementById('guruSlideCounter');
-            const prevBtn = document.getElementById('guruPrevSlideBtn');
-            const nextBtn = document.getElementById('guruNextSlideBtn');
-
-            if(tagEl) tagEl.innerText = slide.tag;
-            if(titleEl) titleEl.innerText = slide.title;
-            if(descEl) descEl.innerHTML = slide.desc;
-            if(counterEl) counterEl.innerText = `Slide ${window.guruSlideIndex + 1} dari ${slidesData.length}`;
-            if(prevBtn) prevBtn.disabled = window.guruSlideIndex === 0;
-            if(nextBtn) nextBtn.disabled = window.guruSlideIndex === slidesData.length - 1;
+            
+            selectPrev.innerHTML = optionsHTML;
+            selectFilter.innerHTML = optionsFilter;
         }
 
         function hapusPertemuan(id) {
-            showConfirm("Yakin ingin menghapus pertemuan ini? Seluruh data terkait pertemuan ini akan dibersihkan.", () => {
+            if(confirm('Yakin hapus pertemuan ini?')) {
                 APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== id);
                 saveDB();
                 renderDaftarPertemuanGuru();
-                populateGuruPreviewSelect();
-                renderAbsensiMatrix();
-                populateFilterPertemuanGuru();
-                populatePertemuanSiswaSelects();
-                renderPortofolioTabel();
-            });
-        }
-
-        function populateFilterPertemuanGuru() {
-            const select = document.getElementById('selectFilterPertemuan');
-            if(!select) return;
-            select.innerHTML = '<option value="ALL">-- Semua Pertemuan --</option>';
-            APP_DATA.pertemuan.forEach(p => {
-                select.innerHTML += `<option value="${p.id}">${p.judul}</option>`;
-            });
-        }
-
-        function renderPortofolioTabel() {
-            const tbody = document.getElementById('tabelPortofolioGuru');
-            const filterSelect = document.getElementById('selectFilterPertemuan');
-            if(!tbody || !filterSelect) return;
-            const filterId = filterSelect.value;
-
-            let html = "";
-            let filteredPertemuan = filterId === "ALL" ? APP_DATA.pertemuan : APP_DATA.pertemuan.filter(p => p.id == filterId);
-
-            APP_DATA.students.forEach((student, sIdx) => {
-                filteredPertemuan.forEach(p => {
-                    const subs = APP_DATA.submissions.filter(s => s.studentName === student && s.pertemuanId === p.id);
-                    const grade = APP_DATA.grades.find(g => g.studentName === student && g.pertemuanId === p.id) || { nilaiAwal: '', nilaiProses: '', nilaiAkhir: '', keterangan: '' };
-
-                    let subsHtml = "";
-                    if(subs.length === 0) {
-                        subsHtml = '<span style="color:#94A3B8; font-style:italic; font-size:12px;">Belum ada kiriman</span>';
-                    } else {
-                        subs.forEach(sub => {
-                            let fLink = sub.fileName ? `<br><a href="${sub.fileData}" download="${sub.fileName}" class="file-link" style="font-size:11px;">📁 ${sub.fileName}</a>` : '';
-                            let lLink = sub.linkInput ? `<br><a href="${sub.linkInput}" target="_blank" style="font-size:11px; color:#60A5FA;">🔗 Link</a>` : '';
-                            subsHtml += `<div style="margin-bottom:6px; font-size:12px; background:rgba(245,158,11,0.05); padding:6px; border-radius:6px; border:1px solid rgba(245,158,11,0.2);"><strong>${sub.type}:</strong> ${sub.text || '-'} ${fLink} ${lLink}</div>`;
-                        });
-                    }
-
-                    html += `<tr>
-                        <td><strong>${student}</strong></td>
-                        <td>X Keramik A</td>
-                        <td>${p.judul}</td>
-                        <td>${subsHtml}</td>
-                        <td><input type="number" style="width:70px; padding:6px; background:#FFFFFF; border:1px solid rgba(168,85,247,0.3); color:#1E1B4B; border-radius:6px;" id="nAwal_${sIdx}_${p.id}" value="${grade.nilaiAwal}" placeholder="0-100"></td>
-                        <td><input type="number" style="width:70px; padding:6px; background:#FFFFFF; border:1px solid rgba(168,85,247,0.3); color:#1E1B4B; border-radius:6px;" id="nPros_${sIdx}_${p.id}" value="${grade.nilaiProses}" placeholder="0-100"></td>
-                        <td><input type="number" style="width:70px; padding:6px; background:#FFFFFF; border:1px solid rgba(168,85,247,0.3); color:#1E1B4B; border-radius:6px;" id="nAkh_${sIdx}_${p.id}" value="${grade.nilaiAkhir}" placeholder="0-100"></td>
-                        <td><input type="text" style="width:120px; padding:6px; background:#FFFFFF; border:1px solid rgba(168,85,247,0.3); color:#1E1B4B; border-radius:6px;" id="nKet_${sIdx}_${p.id}" value="${grade.keterangan}" placeholder="Catatan..."></td>
-                        <td><button onclick="simpanNilai(${sIdx}, ${p.id})" class="btn-submit" style="padding:6px 12px; font-size:12px;">Simpan</button></td>
-                    </tr>`;
-                });
-            });
-
-            tbody.innerHTML = html || `<tr><td colspan="9" style="text-align:center; color:#94A3B8;">Belum ada data portofolio.</td></tr>`;
-        }
-
-        function simpanNilai(sIdx, pertemuanId) {
-            const studentName = APP_DATA.students[sIdx];
-            const safeId = sIdx;
-            const nAwal = document.getElementById(`nAwal_${safeId}_${pertemuanId}`).value;
-            const nPros = document.getElementById(`nPros_${safeId}_${pertemuanId}`).value;
-            const nAkh = document.getElementById(`nAkh_${safeId}_${pertemuanId}`).value;
-            const nKet = document.getElementById(`nKet_${safeId}_${pertemuanId}`).value;
-
-            let existing = APP_DATA.grades.find(g => g.studentName === studentName && g.pertemuanId === pertemuanId);
-            if(existing) {
-                existing.nilaiAwal = nAwal;
-                existing.nilaiProses = nPros;
-                existing.nilaiAkhir = nAkh;
-                existing.keterangan = nKet;
-            } else {
-                APP_DATA.grades.push({
-                    studentName: studentName,
-                    pertemuanId: pertemuanId,
-                    nilaiAwal: nAwal,
-                    nilaiProses: nPros,
-                    nilaiAkhir: nAkh,
-                    keterangan: nKet
-                });
-            }
-            saveDB();
-            showNotification(`Nilai untuk ${studentName} berhasil disimpan!`, 'Nilai Tersimpan');
-        }
-
-        function renderDaftarSiswaTable() {
-            const tbody = document.getElementById('tabelDaftarSiswa');
-            if(!tbody) return;
-            let html = "";
-            APP_DATA.students.forEach((s, idx) => {
-                html += `<tr>
-                    <td>${idx+1}</td>
-                    <td><strong>${s}</strong></td>
-                    <td><span class="badge badge-done">Aktif / Terdaftar</span></td>
-                    <td><button onclick="hapusSiswa(${idx})" class="btn-danger">Hapus</button></td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function tambahSiswa(e) {
-            e.preventDefault();
-            const name = document.getElementById('g_namaSiswaBaru').value.trim();
-            if(name && !APP_DATA.students.includes(name)) {
-                APP_DATA.students.push(name);
-                saveDB();
-                showNotification(`Murid ${name} berhasil ditambahkan ke whitelist!`, 'Siswa Ditambahkan');
-                e.target.reset();
-                renderDaftarSiswaTable();
-                renderAbsensiMatrix();
-                renderPortofolioTabel();
-            } else {
-                showNotification('Nama murid kosong atau sudah terdaftar di whitelist.', 'Peringatan');
+                showToast("Pertemuan dihapus!");
             }
         }
 
-        function hapusSiswa(index) {
-            const name = APP_DATA.students[index];
-            showConfirm(`Yakin ingin menghapus ${name} dari daftar murid?`, () => {
-                APP_DATA.students.splice(index, 1); 
-                saveDB();
-                renderDaftarSiswaTable();
-                renderAbsensiMatrix();
-                renderPortofolioTabel();
-            });
-        }
-
-        function renderAbsensiForm() {
-            renderAbsensiMatrix();
-        }
-
-        function renderAbsensiMatrix() {
-            const select = document.getElementById('absensiKolomPilih');
-            if(select && select.options.length === 0) {
-                select.innerHTML = "";
-                for(let i=1; i<=30; i++) {
-                    select.innerHTML += `<option value="${i}">Pertemuan ke-${i}</option>`;
-                }
+        function renderGuruMaterialPreview() {
+            const id = document.getElementById('selectGuruPreviewPertemuan').value;
+            const container = document.getElementById('guruMaterialPreviewContainer');
+            if(!id) {
+                container.innerHTML = ''; return;
             }
-
-            const currentMeetingNo = select ? parseInt(select.value) || 1 : 1;
-            
-            const meetingAbsData = APP_DATA.absensi.find(a => a.meetingNo === currentMeetingNo);
-            const tglInput = document.getElementById('absensiTanggalInput');
-            if(tglInput) {
-                tglInput.value = meetingAbsData && meetingAbsData.tanggal ? meetingAbsData.tanggal : '';
-            }
-
-            for(let i=1; i<=30; i++) {
-                const thEl = document.getElementById(`tgl_th_${i}`);
-                if(thEl) {
-                    const match = APP_DATA.absensi.find(a => a.meetingNo === i);
-                    if(match && match.tanggal) {
-                        const dParts = match.tanggal.split('-');
-                        if(dParts.length === 3) {
-                            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-                            const mStr = months[parseInt(dParts[1])-1] || '';
-                            thEl.innerText = `${dParts[2]}-${mStr}`;
-                        } else {
-                            thEl.innerText = match.tanggal;
-                        }
-                    } else {
-                        thEl.innerText = '-';
-                    }
-                }
-            }
-
-            const tbody = document.getElementById('tabelMatriksAbsensiBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-
-            if(APP_DATA.students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="35" style="padding:20px; color:#64748B;">Belum ada data murid terdaftar. Tambahkan murid di menu Data Murid.</td></tr>`;
-                return;
-            }
-
-            APP_DATA.students.forEach((student, sIdx) => {
-                let rowHtml = `<tr>`;
-                rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); padding: 10px; font-weight: 600; text-align: left; background:#F8FAFC;">${sIdx+1}. ${student}</td>`;
-
-                let totalHdr = 0;
-                let totalS = 0;
-                let totalI = 0;
-                let totalA = 0;
-                let recordedMeetingsCount = 0;
-
-                for(let m=1; m<=30; m++) {
-                    const absRecord = APP_DATA.absensi.find(a => a.meetingNo === m);
-                    const status = absRecord && absRecord.records && absRecord.records[student] ? absRecord.records[student] : '-';
-
-                    if(status !== '-') recordedMeetingsCount++;
-                    if(status === 'H') totalHdr++;
-                    if(status === 'S') totalS++;
-                    if(status === 'I') totalI++;
-                    if(status === 'A') totalA++;
-
-                    let badgeColorBg = "#F8FAFC";
-                    let badgeColorText = "#64748B";
-                    if(status === 'H') { badgeColorBg = "rgba(16,185,129,0.15)"; badgeColorText = "#059669"; }
-                    else if(status === 'S') { badgeColorBg = "rgba(239,68,68,0.15)"; badgeColorText = "#DC2626"; }
-                    else if(status === 'I') { badgeColorBg = "rgba(245,158,11,0.15)"; badgeColorText = "#D97706"; }
-                    else if(status === 'A') { badgeColorBg = "rgba(249,115,22,0.15)"; badgeColorText = "#EA580C"; }
-
-                    rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); padding: 4px; cursor:pointer;" onclick="cycleAbsensiStatus(${sIdx}, ${m})" title="Klik ubah status ${student} pertemuan ${m}">
-                        <div style="background:${badgeColorBg}; color:${badgeColorText}; font-weight:700; border-radius:6px; padding:6px 2px; font-size:11px; border:1px solid rgba(168,85,247,0.1);">${status}</div>
-                    </td>`;
-                }
-
-                let pct = recordedMeetingsCount > 0 ? Math.round((totalHdr / recordedMeetingsCount) * 100) : 0;
-                rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); font-weight:700; color:var(--primary-purple); background:rgba(124,58,237,0.08);">${pct}%</td>`;
-                rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); font-weight:600; color:#DC2626; background:rgba(239,68,68,0.05);">${totalS}</td>`;
-                rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); font-weight:600; color:#D97706; background:rgba(245,158,11,0.05);">${totalI}</td>`;
-                rowHtml += `<td style="border: 1px solid rgba(168,85,247,0.15); font-weight:600; color:#EA580C; background:rgba(249,115,22,0.05);">${totalA}</td>`;
-
-                rowHtml += `</tr>`;
-                tbody.innerHTML += rowHtml;
-            });
-        }
-
-        function pilihPertemuanAbsensiGrid(meetingNo) {
-            const select = document.getElementById('absensiKolomPilih');
-            if(select) {
-                select.value = meetingNo;
-                renderAbsensiMatrix();
+            const p = APP_DATA.pertemuan.find(x => x.id == id);
+            if(p) {
+                container.innerHTML = generateMaterialHTML(p);
             }
         }
 
-        function cycleAbsensiStatus(sIdx, meetingNo) {
-            const studentName = APP_DATA.students[sIdx];
-            let absRecord = APP_DATA.absensi.find(a => a.meetingNo === meetingNo);
-            if(!absRecord) {
-                absRecord = { meetingNo: meetingNo, tanggal: new Date().toISOString().split('T')[0], records: {} };
-                APP_DATA.absensi.push(absRecord);
-            }
-            if(!absRecord.records) absRecord.records = {};
-
-            const current = absRecord.records[studentName] || '-';
-            let next = '-';
-            if(current === '-') next = 'H';
-            else if(current === 'H') next = 'S';
-            else if(current === 'S') next = 'I';
-            else if(current === 'I') next = 'A';
-            else if(current === 'A') next = '-';
-
-            absRecord.records[studentName] = next;
-            saveDB();
-            renderAbsensiMatrix();
-        }
-
-        function simpanTanggalAbsensi() {
-            const select = document.getElementById('absensiKolomPilih');
-            const tglInput = document.getElementById('absensiTanggalInput');
-            if(!select || !tglInput) return;
-
-            const meetingNo = parseInt(select.value);
-            const tglVal = tglInput.value;
-
-            let absRecord = APP_DATA.absensi.find(a => a.meetingNo === meetingNo);
-            if(!absRecord) {
-                absRecord = { meetingNo: meetingNo, tanggal: tglVal, records: {} };
-                APP_DATA.absensi.push(absRecord);
-            } else {
-                absRecord.tanggal = tglVal;
-            }
-            saveDB();
-            renderAbsensiMatrix();
-        }
-
-        function simpanUrlClassroom() {
-            APP_DATA.classroomUrl = document.getElementById('g_classroomUrl').value;
-            saveDB();
-            document.getElementById('btnBukaClassroom').href = APP_DATA.classroomUrl;
-            showNotification('URL Google Classroom berhasil diperbarui!', 'Classroom');
-        }
-
+        // ================= PENYELESAIAN JAVASCRIPT SISWA - MATERI & TUGAS =================
         function populatePertemuanSiswaSelects() {
-            const selectMat = document.getElementById('selectPertemuanMateri');
-            const selectTug = document.getElementById('selectPertemuanTugas');
-            if(!selectMat || !selectTug) return;
-            selectMat.innerHTML = ""; selectTug.innerHTML = "";
+            const selMat = document.getElementById('selectPertemuanMateri');
+            const selTug = document.getElementById('selectPertemuanTugas');
             
+            if(!selMat || !selTug) return;
+
+            let html = '<option value="">-- Pilih Pertemuan --</option>';
             APP_DATA.pertemuan.forEach(p => {
-                selectMat.innerHTML += `<option value="${p.id}">${p.judul}</option>`;
-                selectTug.innerHTML += `<option value="${p.id}">${p.judul}</option>`;
+                html += `<option value="${p.id}">${p.judul}</option>`;
             });
-            loadMateriSiswa();
-            loadTugasSiswa();
+
+            selMat.innerHTML = html;
+            selTug.innerHTML = html;
+        }
+
+        function generateMaterialHTML(p) {
+            let html = `<div class="card"><h3 style="color:var(--primary-purple);">${p.judul}</h3>`;
+            if(p.materiText) html += `<p>${p.materiText}</p>`;
+            
+            if(p.materiFile) {
+                if(p.materiFile.type.startsWith('image/')) {
+                    html += `<img src="${p.materiFile.data}" class="img-preview" alt="Materi">`;
+                } else {
+                    html += `<a href="${p.materiFile.data}" download="${p.materiFile.name}" class="file-link">⬇️ Unduh File: ${p.materiFile.name}</a>`;
+                }
+            }
+            html += `</div>`;
+            return html;
         }
 
         function loadMateriSiswa() {
-            const select = document.getElementById('selectPertemuanMateri');
+            const id = document.getElementById('selectPertemuanMateri').value;
             const container = document.getElementById('contentMateriSiswa');
-            if(!select || !container || !select.value) return;
-
-            const pId = parseInt(select.value);
-            const p = APP_DATA.pertemuan.find(item => item.id === pId);
-            if(!p) {
-                container.innerHTML = "<p>Materi tidak ditemukan.</p>";
-                return;
-            }
-
-            let slideViewerHtml = "";
-            if(p.isSlideDeck) {
-                slideViewerHtml = `
-                    <div class="slide-container" id="siswaSlideViewerBox">
-                        <div>
-                            <div class="slide-header-tag" id="siswaSlideTag">${slidesData[0].tag}</div>
-                            <div class="slide-title" id="siswaSlideTitle">${slidesData[0].title}</div>
-                            <div class="slide-desc" id="siswaSlideDesc">${slidesData[0].desc}</div>
-                        </div>
-                        <div class="slide-footer">
-                            <span id="siswaSlideCounter">Slide 1 dari ${slidesData.length}</span>
-                            <div class="slide-controls">
-                                <button class="slide-btn" id="siswaPrevSlideBtn" onclick="changeStudentSlide(-1)" disabled>❮ Sebelumnya</button>
-                                <button class="slide-btn" id="siswaNextSlideBtn" onclick="changeStudentSlide(1)">Selanjutnya ❯</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            let fileViewerHtml = renderFileInline(p.materiFile);
-            let textHtml = p.materiText ? `<div class="card" style="background:#fff; margin-top:15px;"><p style="white-space:pre-line; line-height:1.7;">${p.materiText}</p></div>` : "";
-
-            container.innerHTML = `
-                <div class="card" style="margin-top:15px; background:linear-gradient(135deg, rgba(243, 232, 255, 0.4), rgba(255, 255, 255, 0.9));">
-                    <h3 style="color:var(--primary-purple); margin-top:0;">📚 ${p.judul}</h3>
-                    ${slideViewerHtml}
-                    ${textHtml}
-                    ${fileViewerHtml}
-                </div>
-            `;
-            window.studentSlideIndex = 0;
-        }
-
-        function changeStudentSlide(direction) {
-            window.studentSlideIndex = (window.studentSlideIndex || 0) + direction;
-            if(window.studentSlideIndex < 0) window.studentSlideIndex = 0;
-            if(window.studentSlideIndex >= slidesData.length) window.studentSlideIndex = slidesData.length - 1;
-
-            const slide = slidesData[window.studentSlideIndex];
-            const tagEl = document.getElementById('siswaSlideTag');
-            const titleEl = document.getElementById('siswaSlideTitle');
-            const descEl = document.getElementById('siswaSlideDesc');
-            const counterEl = document.getElementById('siswaSlideCounter');
-            const prevBtn = document.getElementById('siswaPrevSlideBtn');
-            const nextBtn = document.getElementById('siswaNextSlideBtn');
-
-            if(tagEl) tagEl.innerText = slide.tag;
-            if(titleEl) titleEl.innerText = slide.title;
-            if(descEl) descEl.innerHTML = slide.desc;
-            if(counterEl) counterEl.innerText = `Slide ${window.studentSlideIndex + 1} dari ${slidesData.length}`;
-            if(prevBtn) prevBtn.disabled = window.studentSlideIndex === 0;
-            if(nextBtn) nextBtn.disabled = window.studentSlideIndex === slidesData.length - 1;
+            if(!id) { container.innerHTML = ''; return; }
+            
+            const p = APP_DATA.pertemuan.find(x => x.id == id);
+            if(p) container.innerHTML = generateMaterialHTML(p);
         }
 
         function loadTugasSiswa() {
-            const select = document.getElementById('selectPertemuanTugas');
+            const id = document.getElementById('selectPertemuanTugas').value;
             const container = document.getElementById('contentTugasSiswa');
-            if(!select || !container || !select.value) return;
-
-            const pId = parseInt(select.value);
-            const p = APP_DATA.pertemuan.find(item => item.id === pId);
-            if(!p) {
-                container.innerHTML = "<p>Tugas/LKPD tidak ditemukan.</p>";
-                return;
-            }
-
-            const mySubmissions = APP_DATA.submissions.filter(s => s.studentName === currentUser.name && s.pertemuanId === pId);
-
-            let lkpdInfo = `<div class="card" style="background:#FFFBEB; border-left-color:#F59E0B;">
-                <h3 style="color:#D97706; margin-top:0;">📝 Soal / Instruksi LKPD</h3>
-                ${p.lkpdText ? `<p style="white-space:pre-line; color:#92400E;">${p.lkpdText}</p>` : '<p style="color:#92400E;"><i>Tidak ada instruksi khusus.</i></p>'}
-                ${p.lkpdLink ? `<p>🔗 Tautan Pendukung: <a href="${p.lkpdLink}" target="_blank" class="file-link" style="background:rgba(217, 119, 6, 0.1); color:#D97706; border-color:rgba(217, 119, 6, 0.3);">${p.lkpdLink}</a></p>` : ''}
-                ${renderFileInline(p.lkpdFile)}
-            </div>`;
-
-            let rubrikInfo = p.rubrikText || p.rubrikFile ? `<div class="card">
-                <h3 style="color:var(--primary-purple); margin-top:0;">📊 Rubrik Penilaian</h3>
-                ${p.rubrikText ? `<p style="white-space:pre-line;">${p.rubrikText}</p>` : ''}
-                ${renderFileInline(p.rubrikFile)}
-            </div>` : '';
-
-            let formSub = `
-                <div class="card" style="background:linear-gradient(135deg, rgba(243, 232, 255, 0.6), #FFFFFF);">
-                    <h3 style="color:var(--primary-purple); margin-top:0;">📤 Lembar Jawab Langsung & Pengumpulan</h3>
-                    <p style="font-size:13px; color:var(--text-light); margin-bottom:15px;">Anda dapat mengetik langsung jawaban LKPD pada kolom yang disediakan di bawah ini, atau mengunggah file jika diperlukan.</p>
-                    <form onsubmit="kirimTugasSiswa(event, ${pId})">
-                        <div class="form-group">
-                            <label>Jenis Pengumpulan:</label>
-                            <select id="subTipe_${pId}">
-                                <option value="Tugas LKPD">Tugas LKPD</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label style="color:#D97706; font-size:15px; font-weight:700;">✏️ Lembar Kerja Langsung (Ketik Jawaban LKPD Anda di sini):</label>
-                            <textarea id="subTeks_${pId}" rows="8" placeholder="Tuliskan jawaban Anda selengkap-lengkapnya di sini..." style="font-size:14px; line-height:1.6; border-color:rgba(217, 119, 6, 0.4); box-shadow:inset 0 2px 4px rgba(0,0,0,0.05);"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Sematkan Tautan (Opsional: Google Drive / Canva / YouTube / dll):</label>
-                            <input type="url" id="subLink_${pId}" placeholder="https://...">
-                        </div>
-                        <div class="form-group">
-                            <label>Unggah File Tambahan (Opsional):</label>
-                            <input type="file" id="subFile_${pId}">
-                        </div>
-                        <button type="submit" class="btn-submit" style="width:100%; padding:12px;">Kirim Jawaban</button>
-                    </form>
-                </div>
-            `;
-
-            let historyHtml = "";
-            if(mySubmissions.length > 0) {
-                historyHtml = `<div class="card" style="background:#FFFFFF;">
-                    <h4 style="color:var(--primary-purple); margin-top:0;">📌 Riwayat Pengumpulan Anda:</h4>`;
-                mySubmissions.forEach((s) => {
-                    let fLink = s.fileName ? `<br><a href="${s.fileData}" download="${s.fileName}" class="file-link">📁 ${s.fileName}</a>` : '';
-                    let lLink = s.linkInput ? `<br><a href="${s.linkInput}" target="_blank" style="color:#2563EB;">🔗 Link Jawaban</a>` : '';
-                    historyHtml += `
-                        <div style="padding:15px; margin-bottom:10px; background:rgba(245,158,11,0.05); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
-                            <div style="font-size:12px; color:var(--text-light); float:right;">${s.timestamp || ''}</div>
-                            <strong style="color:#D97706;">${s.type}</strong>
-                            <div style="margin-top:8px; white-space:pre-wrap; line-height:1.5; font-size:14px;">${s.text || '-'}</div>
-                            ${fLink}${lLink}
-                        </div>
-                    `;
-                });
-                historyHtml += `</div>`;
-            }
-
-            container.innerHTML = lkpdInfo + rubrikInfo + asesmenInfo + formSub + historyHtml;
-        }
-
-        async function kirimTugasSiswa(e, pertemuanId) {
-            e.preventDefault();
-            const type = document.getElementById(`subTipe_${pertemuanId}`).value;
-            const text = document.getElementById(`subTeks_${pertemuanId}`).value.trim();
-            const linkInput = document.getElementById(`subLink_${pertemuanId}`).value.trim();
-            const fileInput = document.getElementById(`subFile_${pertemuanId}`).files[0];
-
-            if(!text && !linkInput && !fileInput) {
-                showNotification('Mohon isi lembar kerja (jawaban teks), tautan, atau lampirkan file!', 'Form Kosong');
-                return;
-            }
-
-            let fileObj = null;
-            if(fileInput) {
-                fileObj = await readFileAsBase64(fileInput);
-            }
-
-            APP_DATA.submissions.push({
-                id: Date.now(),
-                studentName: currentUser.name,
-                pertemuanId: pertemuanId,
-                type: type,
-                text: text,
-                linkInput: linkInput,
-                fileName: fileObj ? fileObj.name : null,
-                fileData: fileObj ? fileObj.data : null,
-                timestamp: new Date().toLocaleString('id-ID')
-            });
-
-            saveDB();
-            showNotification('Jawaban Anda berhasil dikirim!', 'Pengumpulan Sukses');
-            loadTugasSiswa();
-            renderPortofolioSaya();
-        }
-
-        function renderPortofolioSaya() {
-            const container = document.getElementById('rekapPortofolioSiswa');
-            if(!container || !currentUser || currentUser.role !== 'siswa') return;
-
-            const myGrades = APP_DATA.grades.filter(g => g.studentName === currentUser.name);
-            const myKuisScores = APP_DATA.kuisScores.filter(s => s.studentName === currentUser.name);
-
-            let totalHdr = 0, totalS = 0, totalI = 0, totalA = 0, totalMeetingsRecorded = 0;
-            for(let m=1; m<=30; m++) {
-                const abs = APP_DATA.absensi.find(a => a.meetingNo === m);
-                if(abs && abs.records && abs.records[currentUser.name]) {
-                    const st = abs.records[currentUser.name];
-                    if(st !== '-') totalMeetingsRecorded++;
-                    if(st === 'H') totalHdr++;
-                    if(st === 'S') totalS++;
-                    if(st === 'I') totalI++;
-                    if(st === 'A') totalA++;
-                }
-            }
-            let attendancePct = totalMeetingsRecorded > 0 ? Math.round((totalHdr / totalMeetingsRecorded) * 100) : 0;
-
-            let html = `
-                <div class="card" style="background:linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(255,255,255,0.9)); border-left-color:var(--primary-purple);">
-                    <h3 style="color:var(--primary-purple); margin-top:0;">📊 Ringkasan Kehadiran & Aktivitas</h3>
-                    <div style="display:flex; gap:15px; flex-wrap:wrap; margin-top:10px;">
-                        <div style="padding:12px 20px; background:white; border-radius:12px; border:1px solid rgba(168,85,247,0.2); text-align:center; flex:1; min-width:120px;">
-                            <div style="font-size:22px; font-weight:700; color:var(--primary-purple);">${attendancePct}%</div>
-                            <div style="font-size:12px; color:var(--text-light);">% Kehadiran</div>
-                        </div>
-                        <div style="padding:12px 20px; background:white; border-radius:12px; border:1px solid rgba(16,185,129,0.2); text-align:center; flex:1; min-width:100px;">
-                            <div style="font-size:22px; font-weight:700; color:#059669;">${totalHdr}</div>
-                            <div style="font-size:12px; color:var(--text-light);">Hadir</div>
-                        </div>
-                        <div style="padding:12px 20px; background:white; border-radius:12px; border:1px solid rgba(239,68,68,0.2); text-align:center; flex:1; min-width:100px;">
-                            <div style="font-size:22px; font-weight:700; color:#DC2626;">${totalS}</div>
-                            <div style="font-size:12px; color:var(--text-light);">Sakit</div>
-                        </div>
-                        <div style="padding:12px 20px; background:white; border-radius:12px; border:1px solid rgba(245,158,11,0.2); text-align:center; flex:1; min-width:100px;">
-                            <div style="font-size:22px; font-weight:700; color:#D97706;">${totalI}</div>
-                            <div style="font-size:12px; color:var(--text-light);">Izin</div>
-                        </div>
-                        <div style="padding:12px 20px; background:white; border-radius:12px; border:1px solid rgba(249,115,22,0.2); text-align:center; flex:1; min-width:100px;">
-                            <div style="font-size:22px; font-weight:700; color:#EA580C;">${totalA}</div>
-                            <div style="font-size:12px; color:var(--text-light);">Alfa</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="color:var(--primary-purple); margin-top:0;">📝 Rekapitulasi Nilai Pertemuan</h3>
-                    <table style="background:white; margin-top:10px;">
-                        <thead>
-                            <tr>
-                                <th>Pertemuan</th>
-                                <th>Nilai Awal</th>
-                                <th>Nilai Proses</th>
-                                <th>Nilai Akhir</th>
-                                <th>Catatan / Keterangan Guru</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            if(APP_DATA.pertemuan.length === 0) {
-                html += `<tr><td colspan="5" style="text-align:center; color:#94A3B8;">Belum ada data pertemuan.</td></tr>`;
-            } else {
-                APP_DATA.pertemuan.forEach(p => {
-                    const g = myGrades.find(item => item.pertemuanId === p.id) || { nilaiAwal: '-', nilaiProses: '-', nilaiAkhir: '-', keterangan: '-' };
-                    html += `
-                        <tr>
-                            <td><strong>${p.judul}</strong></td>
-                            <td><span class="badge" style="background:rgba(124,58,237,0.1); color:var(--primary-purple);">${g.nilaiAwal || '-'}</span></td>
-                            <td><span class="badge" style="background:rgba(124,58,237,0.1); color:var(--primary-purple);">${g.nilaiProses || '-'}</span></td>
-                            <td><span class="badge" style="background:rgba(16,185,129,0.15); color:#059669; font-size:13px;">${g.nilaiAkhir || '-'}</span></td>
-                            <td>${g.keterangan || '-'}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card">
-                    <h3 style="color:var(--primary-purple); margin-top:0;">🧠 Rekapitulasi Nilai Kuis Interaktif</h3>
-                    <table style="background:white; margin-top:10px;">
-                        <thead>
-                            <tr>
-                                <th>Kategori</th>
-                                <th>Judul</th>
-                                <th>Tanggal Pengerjaan</th>
-                                <th>Skor</th>
-                                <th>Benar / Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            if(myKuisScores.length === 0) {
-                html += `<tr><td colspan="5" style="text-align:center; color:#94A3B8;">Belum ada kuis yang dikerjakan.</td></tr>`;
-            } else {
-                myKuisScores.forEach(ks => {
-                    const k = APP_DATA.kuisList.find(item => item.id === ks.kuisId);
-                    const kKat = k ? (k.kategori || 'Kuis') : 'Kuis';
-                    const kJud = k ? k.judul : 'Kuis Informatika';
-                    const scoreBg = ks.score >= 75 ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
-                    const scoreColor = ks.score >= 75 ? '#059669' : '#DC2626';
-                    html += `
-                        <tr>
-                            <td><span style="font-size:11px; padding:4px 8px; border-radius:6px; background:rgba(124,58,237,0.1); color:var(--primary-purple); font-weight:600;">${kKat}</span></td>
-                            <td><strong>${kJud}</strong></td>
-                            <td style="font-size:12px;">${ks.timestamp || '-'}</td>
-                            <td><span class="badge" style="font-size:13px; background:${scoreBg}; color:${scoreColor}; font-weight:700;">${ks.score}</span></td>
-                            <td><strong>${ks.correctCount} / ${ks.totalQuestions}</strong></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        function switchKuisKategoriSiswa(kat, btn) {
-            currentKuisKatSiswa = kat;
-            if(btn) {
-                const parent = btn.parentElement;
-                parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-            populateKuisSiswaSelect();
-        }
-
-        function populateKuisSiswaSelect() {
-            const select = document.getElementById('selectKuisSiswa');
-            const container = document.getElementById('contentKuisSiswa');
-            if(!select) return;
+            if(!id) { container.innerHTML = ''; return; }
             
-            select.innerHTML = '';
-            const filteredKuis = APP_DATA.kuisList.filter(k => (k.kategori || 'Kuis') === currentKuisKatSiswa);
-
-            if(filteredKuis.length === 0) {
-                select.innerHTML = '<option value="">-- Tidak Ada Kuis Ditemukan --</option>';
-                if(container) container.innerHTML = `<div class="card" style="text-align:center; padding:30px;"><p style="color:var(--text-light); margin:0;">Belum ada kuis/asesmen yang dibuat untuk kategori <strong>${currentKuisKatSiswa}</strong>.</p></div>`;
-                return;
-            }
-
-            filteredKuis.forEach(k => {
-                select.innerHTML += `<option value="${k.id}">${k.judul}</option>`;
-            });
-
-            loadKuisSiswa();
-        }
-
-        function loadKuisSiswa() {
-            const select = document.getElementById('selectKuisSiswa');
-            const container = document.getElementById('contentKuisSiswa');
-            if(!select || !container || !select.value) return;
-
-            const kId = parseInt(select.value);
-            const kuis = APP_DATA.kuisList.find(k => k.id === kId);
-            if(!kuis) {
-                container.innerHTML = "<p>Kuis tidak ditemukan.</p>";
-                return;
-            }
-
-            const existingScore = APP_DATA.kuisScores.find(s => s.studentName === currentUser.name && s.kuisId === kId);
-
-            let html = `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                        <div>
-                            <span style="font-size:12px; background:rgba(124,58,237,0.12); color:var(--primary-purple); padding:4px 10px; border-radius:20px; font-weight:700;">${kuis.kategori || 'Kuis'}</span>
-                            <h3 style="color:var(--primary-purple); margin:8px 0 4px 0;">${kuis.judul}</h3>
-                            <p style="color:var(--text-light); font-size:14px; margin:0;">${kuis.desc || 'Petunjuk: Jawab semua pertanyaan berikut dengan cermat.'}</p>
-                        </div>
-                        ${existingScore ? `<div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:10px 18px; border-radius:12px; text-align:center;">
-                            <div style="font-size:11px; color:#059669; font-weight:600;">Status: Selesai Dikerjakan</div>
-                            <div style="font-size:20px; font-weight:800; color:#059669;">Nilai: ${existingScore.score}</div>
-                        </div>` : ''}
-                    </div>
-                </div>
-            `;
-
-            if(existingScore) {
+            const p = APP_DATA.pertemuan.find(x => x.id == id);
+            if(p) {
+                let html = `<div class="card"><h3 style="color:var(--primary-purple);">Tugas/LKPD: ${p.judul}</h3>`;
+                if(p.lkpdText) html += `<p>${p.lkpdText}</p>`;
+                if(p.lkpdLink) html += `<p><a href="${p.lkpdLink}" target="_blank" class="file-link">🚀 Buka Tautan Eksternal Tugas</a></p>`;
+                if(p.lkpdFile) html += `<p><a href="${p.lkpdFile.data}" download="${p.lkpdFile.name}" class="file-link">⬇️ Unduh Lampiran LKPD: ${p.lkpdFile.name}</a></p>`;
+                
+                // Form pengumpulan
                 html += `
-                    <div class="card" style="background:#FFFFFF; text-align:center; padding:30px;">
-                        <div style="font-size:48px; margin-bottom:10px;">🎉</div>
-                        <h3 style="color:var(--primary-purple); margin-bottom:5px;">Anda Telah Menyelesaikan Kuis Ini</h3>
-                        <p style="color:var(--text-light); font-size:14px;">Skor Anda: <strong>${existingScore.score}</strong> | Benar: <strong>${existingScore.correctCount} / ${existingScore.totalQuestions}</strong></p>
-                        <p style="font-size:12px; color:#64748B;">Dikerjakan pada: ${existingScore.timestamp}</p>
-                    </div>
-                `;
-            } else {
-                html += `<form onsubmit="submitKuisSiswa(event, ${kId})">`;
-                kuis.questions.forEach((q, qIdx) => {
-                    html += `
-                        <div class="card" style="background:#FFFFFF; margin-bottom:15px;">
-                            <p style="font-weight:600; font-size:15px; color:var(--text-dark); margin-top:0;">${qIdx + 1}. ${q.soal}</p>
-                            <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-                    `;
-                    q.opsi.forEach((opt, optIdx) => {
-                        html += `
-                            <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:#F8FAFC; border:1px solid rgba(168,85,247,0.2); border-radius:10px; cursor:pointer; transition:0.2s;" onmouseenter="this.style.background='rgba(168,85,247,0.08)'" onmouseleave="this.style.background='#F8FAFC'">
-                                <input type="radio" name="q_${qIdx}" value="${optIdx}" required style="width:auto;">
-                                <span style="font-size:14px;"><strong>${String.fromCharCode(65 + optIdx)}.</strong> ${opt}</span>
-                            </label>
-                        `;
-                    });
-                    html += `
+                    <div style="margin-top:20px; padding-top:20px; border-top:1px solid #ddd;">
+                        <h4 style="margin-top:0;">Form Pengumpulan Tugas</h4>
+                        <form onsubmit="submitTugasBiasa(event, ${p.id})">
+                            <div class="form-group">
+                                <label>Teks Jawaban / Link Tugas Anda:</label>
+                                <textarea id="ans_text_${p.id}" rows="3" required></textarea>
                             </div>
-                        </div>
-                    `;
-                });
-                html += `
-                    <button type="submit" class="btn-submit" style="width:100%; padding:14px; font-size:16px; margin-bottom:20px;">Kirim Jawaban Kuis</button>
-                </form>`;
+                            <button type="submit" class="btn-submit">Kirim Jawaban</button>
+                        </form>
+                    </div>
+                </div>`;
+                container.innerHTML = html;
             }
-
-            container.innerHTML = html;
         }
 
-        function submitKuisSiswa(e, kuisId) {
+        function submitTugasBiasa(e, idPertemuan) {
             e.preventDefault();
-            const kuis = APP_DATA.kuisList.find(k => k.id === kuisId);
-            if(!kuis) return;
-
-            let correct = 0;
-            const total = kuis.questions.length;
-
-            kuis.questions.forEach((q, qIdx) => {
-                const selected = document.querySelector(`input[name="q_${qIdx}"]:checked`);
-                if(selected && parseInt(selected.value) === q.kunci) {
-                    correct++;
-                }
-            });
-
-            const score = Math.round((correct / total) * 100);
-
-            APP_DATA.kuisScores.push({
+            const text = document.getElementById(`ans_text_${idPertemuan}`).value;
+            
+            const submission = {
                 id: Date.now(),
-                studentName: currentUser.name,
-                kuisId: kuisId,
-                score: score,
-                correctCount: correct,
-                totalQuestions: total,
-                timestamp: new Date().toLocaleString('id-ID')
-            });
-
-            saveDB();
-            showNotification(`Kuis berhasil dikirim! Nilai Anda: ${score} (${correct} benar dari ${total} soal).`, 'Kuis Selesai');
-            loadKuisSiswa();
-            renderPortofolioSaya();
-        }
-
-        let guruSoalCounter = 0;
-
-        function tambahFormSoal() {
-            guruSoalCounter++;
-            const container = document.getElementById('containerSoalGuru');
-            if(!container) return;
-
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.id = `soal_block_${guruSoalCounter}`;
-            div.style.background = '#FFFFFF';
-            div.style.borderLeftColor = 'var(--accent-yellow)';
-
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:var(--accent-yellow); font-size:15px;">Soal No. <span class="soal-number"></span></strong>
-                    <button type="button" class="btn-danger" style="padding:4px 10px; font-size:12px;" onclick="hapusFormSoal('${div.id}')">Hapus Soal</button>
-                </div>
-                <div class="form-group">
-                    <label>Pertanyaan Soal:</label>
-                    <textarea class="q-text" rows="2" placeholder="Tuliskan pertanyaan soal..." required></textarea>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Opsi A:</label>
-                        <input type="text" class="q-opt-0" placeholder="Pilihan A" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Opsi B:</label>
-                        <input type="text" class="q-opt-1" placeholder="Pilihan B" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Opsi C:</label>
-                        <input type="text" class="q-opt-2" placeholder="Pilihan C" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Opsi D:</label>
-                        <input type="text" class="q-opt-3" placeholder="Pilihan D" required>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label>Kunci Jawaban Benar:</label>
-                    <select class="q-key" required>
-                        <option value="0">Opsi A</option>
-                        <option value="1">Opsi B</option>
-                        <option value="2">Opsi C</option>
-                        <option value="3">Opsi D</option>
-                    </select>
-                </div>
-            `;
-
-            container.appendChild(div);
-            reindexSoalNumbers();
-        }
-
-        function hapusFormSoal(blockId) {
-            const el = document.getElementById(blockId);
-            if(el) {
-                el.remove();
-                reindexSoalNumbers();
-            }
-        }
-
-        function reindexSoalNumbers() {
-            const blocks = document.querySelectorAll('#containerSoalGuru .card');
-            blocks.forEach((block, idx) => {
-                const numSpan = block.querySelector('.soal-number');
-                if(numSpan) numSpan.innerText = idx + 1;
-            });
-        }
-
-        function simpanKuisBaru(e) {
-            e.preventDefault();
-            const kategori = document.getElementById('g_kuisKategori').value;
-            const judul = document.getElementById('g_kuisJudul').value.trim();
-            const desc = document.getElementById('g_kuisDesc').value.trim();
-
-            const blocks = document.querySelectorAll('#containerSoalGuru .card');
-            if(blocks.length === 0) {
-                showNotification('Tambahkan setidaknya 1 soal pilihan ganda!', 'Peringatan');
-                return;
-            }
-
-            const questions = [];
-            blocks.forEach(block => {
-                const soalText = block.querySelector('.q-text').value.trim();
-                const optA = block.querySelector('.q-opt-0').value.trim();
-                const optB = block.querySelector('.q-opt-1').value.trim();
-                const optC = block.querySelector('.q-opt-2').value.trim();
-                const optD = block.querySelector('.q-opt-3').value.trim();
-                const key = parseInt(block.querySelector('.q-key').value);
-
-                questions.push({
-                    soal: soalText,
-                    opsi: [optA, optB, optC, optD],
-                    kunci: key
-                });
-            });
-
-            const newKuis = {
-                id: Date.now(),
-                judul: judul,
-                kategori: kategori,
-                desc: desc,
-                questions: questions
+                pertemuanId: idPertemuan,
+                namaSiswa: currentUser.name,
+                jawaban: text,
+                nilai: 0,
+                catatan: ""
             };
-
-            APP_DATA.kuisList.push(newKuis);
-            saveDB();
-            showNotification('Kuis baru berhasil diterbitkan!', 'Sukses');
-            e.target.reset();
-            document.getElementById('containerSoalGuru').innerHTML = '';
-            tambahFormSoal();
-            renderDaftarKuisGuru();
-        }
-
-        function switchKuisKategoriGuru(kat, btn) {
-            currentKuisKatGuru = kat;
-            if(btn) {
-                const parent = btn.parentElement;
-                parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+            
+            // Update jika sudah ada
+            const existIdx = APP_DATA.submissions.findIndex(s => s.pertemuanId == idPertemuan && s.namaSiswa === currentUser.name);
+            if(existIdx >= 0) {
+                APP_DATA.submissions[existIdx] = submission;
+            } else {
+                APP_DATA.submissions.push(submission);
             }
-            renderDaftarKuisGuru();
+            
+            saveDB();
+            showToast('Tugas berhasil dikumpulkan!');
+            loadTugasSiswa(); 
         }
 
-        function renderDaftarKuisGuru() {
-            const container = document.getElementById('tabelDaftarKuisGuru');
-            if(!container) return;
+        // ================= JAVASCRIPT GURU - PORTOFOLIO & SISWA =================
+        function renderPortofolioTabel() {
+            const filterId = document.getElementById('selectFilterPertemuan').value;
+            const tbody = document.getElementById('tabelPortofolioGuru');
+            tbody.innerHTML = '';
+            
+            let filteredSubs = APP_DATA.submissions;
+            if(filterId !== "ALL") {
+                filteredSubs = filteredSubs.filter(s => s.pertemuanId == filterId);
+            }
 
-            const filtered = APP_DATA.kuisList.filter(k => (k.kategori || 'Kuis') === currentKuisKatGuru);
-
-            if(filtered.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-light);">Belum ada kuis pada kategori <strong>${currentKuisKatGuru}</strong>.</p>`;
+            if(filteredSubs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada tugas yang dikumpulkan.</td></tr>`;
                 return;
             }
 
-            let html = `<table><thead><tr><th>Judul Kuis</th><th>Kategori</th><th>Jumlah Soal</th><th>Responden</th><th>Aksi</th></tr></thead><tbody>`;
-            filtered.forEach(k => {
-                const totalResp = APP_DATA.kuisScores.filter(s => s.kuisId === k.id).length;
+            filteredSubs.forEach(s => {
+                const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuanId);
+                const judulP = p ? p.judul : 'Tidak Diketahui';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.namaSiswa}</strong></td>
+                        <td>${judulP}</td>
+                        <td><div style="max-height:80px; overflow-y:auto; font-size:12px;">${s.jawaban}</div></td>
+                        <td><input type="number" id="nilai_${s.id}" value="${s.nilai}" style="width:60px; padding:5px; border-radius:5px; border:1px solid #ccc;"></td>
+                        <td><input type="text" id="catatan_${s.id}" value="${s.catatan}" placeholder="Catatan..." style="width:100%; padding:5px; border-radius:5px; border:1px solid #ccc;"></td>
+                        <td><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="simpanNilai(${s.id})">Simpan</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function simpanNilai(subId) {
+            const sub = APP_DATA.submissions.find(s => s.id === subId);
+            if(sub) {
+                sub.nilai = document.getElementById(`nilai_${subId}`).value;
+                sub.catatan = document.getElementById(`catatan_${subId}`).value;
+                saveDB();
+                showToast('Nilai disimpan!');
+            }
+        }
+
+        function loadRekapPortofolioSiswa() {
+            const container = document.getElementById('rekapPortofolioSiswa');
+            const mySubs = APP_DATA.submissions.filter(s => s.namaSiswa === currentUser.name);
+            
+            if(mySubs.length === 0) {
+                container.innerHTML = '<p>Anda belum mengumpulkan tugas apa pun.</p>';
+                return;
+            }
+            
+            let html = `<table><thead><tr><th>Pertemuan</th><th>Jawaban Anda</th><th>Nilai</th><th>Catatan Guru</th></tr></thead><tbody>`;
+            mySubs.forEach(s => {
+                const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuanId);
                 html += `
                     <tr>
-                        <td><strong>${k.judul}</strong><br><small style="color:var(--text-light);">${k.desc || ''}</small></td>
-                        <td><span style="font-size:12px; padding:4px 8px; border-radius:6px; background:rgba(124,58,237,0.1); color:var(--primary-purple); font-weight:600;">${k.kategori || 'Kuis'}</span></td>
-                        <td><strong>${k.questions.length} Soal</strong></td>
-                        <td><span class="badge badge-done">${totalResp} Murid</span></td>
-                        <td>
-                            <button onclick="lihatHasilKuisGuru(${k.id})" class="btn-submit" style="padding:6px 12px; font-size:12px; margin-right:5px;">Hasil</button>
-                            <button onclick="hapusKuis(${k.id})" class="btn-danger">Hapus</button>
-                        </td>
+                        <td>${p ? p.judul : '-'}</td>
+                        <td>${s.jawaban.substring(0, 30)}...</td>
+                        <td><span class="badge ${s.nilai > 0 ? 'badge-done' : ''}">${s.nilai > 0 ? s.nilai : 'Belum dinilai'}</span></td>
+                        <td>${s.catatan || '-'}</td>
                     </tr>
                 `;
             });
@@ -1972,67 +1211,389 @@
             container.innerHTML = html;
         }
 
-        function hapusKuis(id) {
-            showConfirm('Yakin ingin menghapus kuis ini? Semua data pengerjaan murid pada kuis ini juga akan terhapus.', () => {
-                APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
-                APP_DATA.kuisScores = APP_DATA.kuisScores.filter(s => s.kuisId !== id);
-                saveDB();
-                renderDaftarKuisGuru();
+        function renderDaftarSiswaTable() {
+            const tbody = document.getElementById('tabelDaftarSiswa');
+            tbody.innerHTML = '';
+            APP_DATA.students.sort().forEach((s, i) => {
+                tbody.innerHTML += `<tr>
+                    <td>${i+1}</td>
+                    <td><strong>${s}</strong></td>
+                    <td><span class="badge badge-done">Terdaftar</span></td>
+                    <td><button class="btn-danger" onclick="hapusSiswa('${s}')">Hapus</button></td>
+                </tr>`;
             });
         }
 
-        function lihatHasilKuisGuru(kuisId) {
-            const container = document.getElementById('containerHasilKuisGuru');
-            const kuis = APP_DATA.kuisList.find(k => k.id === kuisId);
-            if(!container || !kuis) return;
-
-            container.style.display = 'block';
-            const scores = APP_DATA.kuisScores.filter(s => s.kuisId === kuisId);
-
-            let html = `
-                <div class="card" style="background:#FFFFFF;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <h3 style="color:var(--primary-purple); margin:0;">📊 Hasil Pengerjaan: ${kuis.judul}</h3>
-                        <button onclick="document.getElementById('containerHasilKuisGuru').style.display='none'" class="btn-danger" style="padding:6px 12px;">Tutup</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nama Murid</th>
-                                <th>Tanggal Pengerjaan</th>
-                                <th>Benar / Total</th>
-                                <th>Nilai / Skor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            if(scores.length === 0) {
-                html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Belum ada murid yang mengerjakan kuis ini.</td></tr>`;
+        function tambahSiswa(e) {
+            e.preventDefault();
+            const nama = document.getElementById('g_namaSiswaBaru').value.trim().toUpperCase();
+            if(!APP_DATA.students.includes(nama)) {
+                APP_DATA.students.push(nama);
+                saveDB();
+                document.getElementById('g_namaSiswaBaru').value = '';
+                renderDaftarSiswaTable();
+                renderAbsensiMatrix();
+                showToast('Murid ditambahkan!');
             } else {
-                scores.forEach(s => {
-                    const scoreBg = s.score >= 75 ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
-                    const scoreColor = s.score >= 75 ? '#059669' : '#DC2626';
-                    html += `
-                        <tr>
-                            <td><strong>${s.studentName}</strong></td>
-                            <td style="font-size:12px;">${s.timestamp}</td>
-                            <td>${s.correctCount} / ${s.totalQuestions}</td>
-                            <td><span class="badge" style="background:${scoreBg}; color:${scoreColor}; font-size:13px; font-weight:700;">${s.score}</span></td>
-                        </tr>
-                    `;
-                });
+                showToast('Nama murid sudah ada!');
+            }
+        }
+
+        function hapusSiswa(nama) {
+            if(confirm(`Hapus ${nama} dari daftar murid?`)) {
+                APP_DATA.students = APP_DATA.students.filter(s => s !== nama);
+                saveDB();
+                renderDaftarSiswaTable();
+                renderAbsensiMatrix();
+            }
+        }
+
+        // ================= JAVASCRIPT GURU - ABSENSI =================
+        let currentAbsensiCol = 1;
+        function renderAbsensiMatrix() {
+            currentAbsensiCol = document.getElementById('absensiKolomPilih').value;
+            document.getElementById('absensiTanggalInput').value = APP_DATA.absensiDates[currentAbsensiCol] || "";
+            
+            for(let i=1; i<=30; i++) {
+                document.getElementById(`tgl_th_${i}`).innerText = APP_DATA.absensiDates[i] || "-";
             }
 
-            html += `
-                        </tbody>
-                    </table>
+            const tbody = document.getElementById('tabelMatriksAbsensiBody');
+            tbody.innerHTML = '';
+
+            APP_DATA.students.sort().forEach(nama => {
+                if(!APP_DATA.absensi[nama]) APP_DATA.absensi[nama] = {};
+                
+                let rowHTML = `<tr><td style="text-align:left; border:1px solid rgba(168,85,247,0.2); font-weight:600;">${nama}</td>`;
+                
+                let h=0, s=0, i=0, a=0;
+                
+                for(let col=1; col<=30; col++) {
+                    const status = APP_DATA.absensi[nama][col] || "";
+                    if(status==='H') h++;
+                    if(status==='S') s++;
+                    if(status==='I') i++;
+                    if(status==='A') a++;
+
+                    let bg = status==='H'?'#D1FAE5':(status==='S'?'#FEE2E2':(status==='I'?'#FEF3C7':(status==='A'?'#FFEDD5':'#FFFFFF')));
+                    let color = status==='H'?'#059669':(status==='S'?'#DC2626':(status==='I'?'#D97706':(status==='A'?'#EA580C':'#000')));
+
+                    rowHTML += `<td style="border:1px solid rgba(168,85,247,0.2); background:${bg}; color:${color}; font-weight:700; cursor:pointer;" onclick="toggleAbsensi('${nama}', ${col})">${status}</td>`;
+                }
+
+                const totalHadir = h;
+                const persenHadir = Math.round((totalHadir / 30) * 100);
+                const totalTidakHadir = s + i + a;
+
+                rowHTML += `
+                    <td style="border:1px solid rgba(168,85,247,0.2); font-weight:bold;">${persenHadir}%</td>
+                    <td style="border:1px solid rgba(168,85,247,0.2);">${s}</td>
+                    <td style="border:1px solid rgba(168,85,247,0.2);">${i}</td>
+                    <td style="border:1px solid rgba(168,85,247,0.2);">${a}</td>
+                    <td style="border:1px solid rgba(168,85,247,0.2); font-weight:bold;">${totalTidakHadir}</td>
+                </tr>`;
+                
+                tbody.innerHTML += rowHTML;
+            });
+        }
+
+        function toggleAbsensi(nama, col) {
+            const states = ["", "H", "S", "I", "A"];
+            const current = APP_DATA.absensi[nama][col] || "";
+            const nextIdx = (states.indexOf(current) + 1) % states.length;
+            APP_DATA.absensi[nama][col] = states[nextIdx];
+            saveDB();
+            renderAbsensiMatrix();
+        }
+
+        function simpanTanggalAbsensi() {
+            const dateVal = document.getElementById('absensiTanggalInput').value;
+            APP_DATA.absensiDates[currentAbsensiCol] = dateVal;
+            saveDB();
+            renderAbsensiMatrix();
+        }
+
+        function pilihPertemuanAbsensiGrid(colNum) {
+            document.getElementById('absensiKolomPilih').value = colNum;
+            renderAbsensiMatrix();
+        }
+
+        // ================= CLASSROOM =================
+        function simpanUrlClassroom() {
+            const url = document.getElementById('g_classroomUrl').value;
+            APP_DATA.classroomUrl = url;
+            saveDB();
+            document.getElementById('btnBukaClassroom').href = url;
+            showToast('URL Google Classroom berhasil disimpan!');
+        }
+
+        // ================= JAVASCRIPT KUIS (GURU & SISWA) =================
+        let soalKuisTemp = [];
+        
+        function tambahFormSoal() {
+            const container = document.getElementById('containerSoalGuru');
+            const idx = soalKuisTemp.length;
+            
+            let newQ = { type: 'PG', q: "", options: ["", "", "", ""], a: 0 };
+            soalKuisTemp.push(newQ);
+            
+            const div = document.createElement('div');
+            div.id = `q_block_${idx}`;
+            div.style = "background: rgba(243, 244, 246, 0.8); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid var(--primary-purple); transition: 0.3s;";
+            
+            container.appendChild(div);
+            renderSoalBlock(idx);
+        }
+
+        function renderSoalBlock(idx) {
+            const div = document.getElementById(`q_block_${idx}`);
+            const q = soalKuisTemp[idx];
+            
+            let html = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid rgba(124, 58, 237, 0.15); padding-bottom:10px;">
+                    <strong style="color:var(--primary-purple); font-size:16px;">Soal Nomor ${idx+1}</strong>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label style="font-size:13px; font-weight:600; color:var(--text-light);">Jenis Soal:</label>
+                        <select onchange="ubahTipeSoal(${idx}, this.value)" style="padding:6px 12px; border-radius:8px; border:2px solid rgba(168, 85, 247, 0.3); font-family:'Poppins', sans-serif; outline:none; background:#fff; cursor:pointer;">
+                            <option value="PG" ${q.type === 'PG' ? 'selected' : ''}>Pilihan Ganda</option>
+                            <option value="URAIAN" ${q.type === 'URAIAN' ? 'selected' : ''}>Uraian Singkat</option>
+                            <option value="LIKERT" ${q.type === 'LIKERT' ? 'selected' : ''}>Skala Likert</option>
+                        </select>
+                    </div>
                 </div>
             `;
 
-            container.innerHTML = html;
-            container.scrollIntoView({ behavior: 'smooth' });
+            if (q.type === 'PG') {
+                html += `
+                    <div class="form-group"><label>Pertanyaan Pilihan Ganda:</label><input type="text" id="q_${idx}" value="${q.q}" onchange="updateTempQ(${idx})" placeholder="Ketik pertanyaan di sini..." required></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="form-group"><label>Opsi A:</label><input type="text" id="opt_${idx}_0" value="${q.options[0]||''}" onchange="updateTempQ(${idx})" required></div>
+                        <div class="form-group"><label>Opsi B:</label><input type="text" id="opt_${idx}_1" value="${q.options[1]||''}" onchange="updateTempQ(${idx})" required></div>
+                        <div class="form-group"><label>Opsi C:</label><input type="text" id="opt_${idx}_2" value="${q.options[2]||''}" onchange="updateTempQ(${idx})" required></div>
+                        <div class="form-group"><label>Opsi D:</label><input type="text" id="opt_${idx}_3" value="${q.options[3]||''}" onchange="updateTempQ(${idx})" required></div>
+                    </div>
+                    <div class="form-group"><label>Kunci Jawaban Benar:</label>
+                        <select id="ans_${idx}" onchange="updateTempQ(${idx})">
+                            <option value="0" ${q.a === 0 ? 'selected' : ''}>Opsi A</option>
+                            <option value="1" ${q.a === 1 ? 'selected' : ''}>Opsi B</option>
+                            <option value="2" ${q.a === 2 ? 'selected' : ''}>Opsi C</option>
+                            <option value="3" ${q.a === 3 ? 'selected' : ''}>Opsi D</option>
+                        </select>
+                    </div>
+                `;
+            } else if (q.type === 'URAIAN') {
+                html += `
+                    <div class="form-group"><label>Pertanyaan Uraian Singkat:</label><input type="text" id="q_${idx}" value="${q.q}" onchange="updateTempQ(${idx})" placeholder="Ketik pertanyaan di sini..." required></div>
+                    <div class="form-group"><label>Kunci Jawaban Tepat (Satu/Dua Kata):</label><input type="text" id="ans_text_${idx}" value="${q.a === 'ANY' ? '' : q.a}" onchange="updateTempQ(${idx})" placeholder="Contoh: Algoritma" required></div>
+                `;
+            } else if (q.type === 'LIKERT') {
+                if (!q.options || q.options.length !== 5) q.options = ["Sangat Tidak Setuju", "Tidak Setuju", "Netral", "Setuju", "Sangat Setuju"];
+                html += `
+                    <div class="form-group"><label>Pernyataan (Skala Likert):</label><input type="text" id="q_${idx}" value="${q.q}" onchange="updateTempQ(${idx})" placeholder="Ketik pernyataan asesmen atau survei..." required></div>
+                    <label style="font-weight:600; font-size:14px; color:var(--text-dark); display:block; margin-bottom:8px;">Tentukan 5 Opsi Jawaban (Isi Sendiri):</label>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:bold; color:var(--primary-purple); width:20px;">1.</span><input type="text" style="width:100%; padding:10px; border:2px solid rgba(168,85,247,0.2); border-radius:10px; font-family:'Poppins';" id="opt_${idx}_0" value="${q.options[0]}" onchange="updateTempQ(${idx})" required></div>
+                        <div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:bold; color:var(--primary-purple); width:20px;">2.</span><input type="text" style="width:100%; padding:10px; border:2px solid rgba(168,85,247,0.2); border-radius:10px; font-family:'Poppins';" id="opt_${idx}_1" value="${q.options[1]}" onchange="updateTempQ(${idx})" required></div>
+                        <div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:bold; color:var(--primary-purple); width:20px;">3.</span><input type="text" style="width:100%; padding:10px; border:2px solid rgba(168,85,247,0.2); border-radius:10px; font-family:'Poppins';" id="opt_${idx}_2" value="${q.options[2]}" onchange="updateTempQ(${idx})" required></div>
+                        <div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:bold; color:var(--primary-purple); width:20px;">4.</span><input type="text" style="width:100%; padding:10px; border:2px solid rgba(168,85,247,0.2); border-radius:10px; font-family:'Poppins';" id="opt_${idx}_3" value="${q.options[3]}" onchange="updateTempQ(${idx})" required></div>
+                        <div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:bold; color:var(--primary-purple); width:20px;">5.</span><input type="text" style="width:100%; padding:10px; border:2px solid rgba(168,85,247,0.2); border-radius:10px; font-family:'Poppins';" id="opt_${idx}_4" value="${q.options[4]}" onchange="updateTempQ(${idx})" required></div>
+                    </div>
+                    <small style="color:var(--accent-yellow); display:block; margin-top:10px; font-weight:500;">*Tipe soal ini tidak menggunakan kunci jawaban (Otomatis dinilai partisipasi/benar saat dijawab oleh murid).</small>
+                `;
+            }
+            div.innerHTML = html;
         }
+
+        function ubahTipeSoal(idx, tipe) {
+            soalKuisTemp[idx].type = tipe;
+            if (tipe === 'PG') {
+                soalKuisTemp[idx].options = ["", "", "", ""];
+                soalKuisTemp[idx].a = 0;
+            } else if (tipe === 'URAIAN') {
+                soalKuisTemp[idx].options = [];
+                soalKuisTemp[idx].a = "";
+            } else if (tipe === 'LIKERT') {
+                soalKuisTemp[idx].options = ["Sangat Tidak Setuju", "Tidak Setuju", "Netral", "Setuju", "Sangat Setuju"];
+                soalKuisTemp[idx].a = "ANY";
+            }
+            renderSoalBlock(idx);
+        }
+
+        function updateTempQ(idx) {
+            const q = soalKuisTemp[idx];
+            const type = q.type;
+            q.q = document.getElementById(`q_${idx}`).value;
+
+            if (type === 'PG') {
+                q.options[0] = document.getElementById(`opt_${idx}_0`).value;
+                q.options[1] = document.getElementById(`opt_${idx}_1`).value;
+                q.options[2] = document.getElementById(`opt_${idx}_2`).value;
+                q.options[3] = document.getElementById(`opt_${idx}_3`).value;
+                q.a = parseInt(document.getElementById(`ans_${idx}`).value);
+            } else if (type === 'URAIAN') {
+                q.a = document.getElementById(`ans_text_${idx}`).value.trim().toLowerCase();
+            } else if (type === 'LIKERT') {
+                q.options[0] = document.getElementById(`opt_${idx}_0`).value;
+                q.options[1] = document.getElementById(`opt_${idx}_1`).value;
+                q.options[2] = document.getElementById(`opt_${idx}_2`).value;
+                q.options[3] = document.getElementById(`opt_${idx}_3`).value;
+                q.options[4] = document.getElementById(`opt_${idx}_4`).value;
+            }
+        }
+
+        function simpanKuisBaru(e) {
+            e.preventDefault();
+            if(soalKuisTemp.length === 0) {
+                showToast("Tambahkan minimal 1 soal!"); return;
+            }
+            
+            const newKuis = {
+                id: Date.now(),
+                kategori: document.getElementById('g_kuisKategori').value,
+                judul: document.getElementById('g_kuisJudul').value,
+                desc: document.getElementById('g_kuisDesc').value,
+                soal: soalKuisTemp
+            };
+            
+            APP_DATA.kuisList.push(newKuis);
+            saveDB();
+            
+            document.getElementById('g_kuisJudul').value = "";
+            document.getElementById('g_kuisDesc').value = "";
+            document.getElementById('containerSoalGuru').innerHTML = "";
+            soalKuisTemp = [];
+            
+            showToast("Kuis Berhasil Diterbitkan!");
+            switchKuisKategoriGuru(newKuis.kategori, document.querySelector(`#g_kuis .login-tab button[onclick*="${newKuis.kategori}"]`));
+        }
+
+        function switchKuisKategoriGuru(kategori, btn) {
+            const tabs = document.querySelectorAll('#g_kuis .login-tab button');
+            tabs.forEach(t => t.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            
+            const container = document.getElementById('tabelDaftarKuisGuru');
+            const list = APP_DATA.kuisList.filter(k => k.kategori === kategori);
+            
+            if(list.length === 0) {
+                container.innerHTML = `<p>Belum ada ${kategori} yang dibuat.</p>`;
+                return;
+            }
+            
+            let html = `<table><thead><tr><th>Judul Kuis</th><th>Jml Soal</th><th>Aksi</th></tr></thead><tbody>`;
+            list.forEach(k => {
+                html += `<tr>
+                    <td><strong>${k.judul}</strong></td>
+                    <td>${k.soal.length} Soal</td>
+                    <td>
+                        <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button>
+                    </td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function hapusKuis(id) {
+            if(confirm("Hapus kuis ini?")) {
+                APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
+                saveDB();
+                switchKuisKategoriGuru(document.getElementById('g_kuisKategori').value, null);
+                showToast("Kuis Dihapus.");
+            }
+        }
+
+        function switchKuisKategoriSiswa(kategori, btn) {
+            const tabs = document.querySelectorAll('#s_kuis .login-tab button');
+            tabs.forEach(t => t.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            
+            const select = document.getElementById('selectKuisSiswa');
+            const list = APP_DATA.kuisList.filter(k => k.kategori === kategori);
+            
+            let html = `<option value="">-- Pilih ${kategori} --</option>`;
+            list.forEach(k => { html += `<option value="${k.id}">${k.judul}</option>`; });
+            select.innerHTML = html;
+            document.getElementById('contentKuisSiswa').innerHTML = '';
+        }
+
+        function loadKuisSiswa() {
+            const id = document.getElementById('selectKuisSiswa').value;
+            const container = document.getElementById('contentKuisSiswa');
+            if(!id) { container.innerHTML = ''; return; }
+            
+            const kuis = APP_DATA.kuisList.find(k => k.id == id);
+            
+            // Cek apakah sudah mengerjakan
+            const sudah = APP_DATA.kuisScores.find(s => s.kuisId == id && s.namaSiswa === currentUser.name);
+            if(sudah) {
+                container.innerHTML = `<div class="card"><h3 style="color:#059669;">✅ Anda sudah mengerjakan kuis ini.</h3>
+                <p style="font-size:24px; font-weight:bold;">Nilai Anda: ${sudah.score}</p></div>`;
+                return;
+            }
+
+            let html = `<div class="card"><h3 style="color:var(--primary-purple);">${kuis.judul}</h3><p>${kuis.desc}</p><form onsubmit="submitKuisSiswa(event, ${kuis.id})">`;
+            
+            kuis.soal.forEach((s, i) => {
+                const qType = s.type || 'PG';
+                html += `<div style="margin-top:20px; padding:15px; background:rgba(243, 244, 246, 0.5); border-radius:10px;">
+                    <p style="font-weight:600; margin-top:0;">${i+1}. ${s.q}</p>`;
+                
+                if (qType === 'PG' || qType === 'LIKERT') {
+                    s.options.forEach((opt, optIdx) => {
+                        let styling = 'display:flex; align-items:center; gap:10px; margin-bottom:8px; padding:10px 15px; background:#fff; border:1px solid rgba(168,85,247,0.2); border-radius:10px; transition:0.3s;';
+                        html += `<label style="${styling} cursor:pointer;" onmouseover="this.style.borderColor='#7C3AED'" onmouseout="this.style.borderColor='rgba(168,85,247,0.2)'">
+                            <input type="radio" name="ans_kuis_${i}" value="${optIdx}" style="accent-color:#7C3AED; transform:scale(1.2);" required> 
+                            <span>${opt}</span>
+                        </label>`;
+                    });
+                } else if (qType === 'URAIAN') {
+                    html += `<input type="text" name="ans_kuis_${i}" style="width: 100%; padding: 14px; border: 2px solid rgba(168, 85, 247, 0.25); border-radius: 14px; font-family: 'Poppins', sans-serif;" placeholder="Ketik jawaban Anda..." required>`;
+                }
+                html += `</div>`;
+            });
+            html += `<button type="submit" class="btn-submit" style="width:100%; margin-top:20px;">Kirim Jawaban Kuis</button></form></div>`;
+            container.innerHTML = html;
+        }
+
+        function submitKuisSiswa(e, kuisId) {
+            e.preventDefault();
+            const kuis = APP_DATA.kuisList.find(k => k.id == kuisId);
+            let betul = 0;
+            
+            kuis.soal.forEach((s, i) => {
+                const qType = s.type || 'PG';
+                
+                if (qType === 'PG') {
+                    const radios = document.getElementsByName(`ans_kuis_${i}`);
+                    let ans = -1;
+                    radios.forEach(r => { if(r.checked) ans = parseInt(r.value); });
+                    if(ans === s.a) betul++;
+                } else if (qType === 'URAIAN') {
+                    const textInput = document.querySelector(`input[name="ans_kuis_${i}"]`);
+                    if (textInput && textInput.value.trim().toLowerCase() === s.a) {
+                        betul++;
+                    }
+                } else if (qType === 'LIKERT') {
+                    const radios = document.getElementsByName(`ans_kuis_${i}`);
+                    let answered = false;
+                    radios.forEach(r => { if(r.checked) answered = true; });
+                    if(answered) betul++; // Skala likert otomatis dianggap "benar" untuk perhitungan progress jika diisi
+                }
+            });
+
+            const score = Math.round((betul / kuis.soal.length) * 100);
+            
+            APP_DATA.kuisScores.push({
+                kuisId: kuisId,
+                namaSiswa: currentUser.name,
+                score: score
+            });
+            saveDB();
+            showToast("Kuis selesai!");
+            loadKuisSiswa();
+        }
+
     </script>
 </body>
 </html>
