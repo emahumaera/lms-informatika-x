@@ -330,7 +330,7 @@
         
         <section id="s_beranda" class="section">
             <div class="hero">
-                <h1>Selamat Datang Pelajar hebat di Pembelajaran Informatika!!</h1>
+                <h1>Selamat Datang Murid hebat di Pembelajaran Informatika!!</h1>
                 <h2>Kelas Ibu Ema Humaera - X Keramik A</h2>
             </div>
             <div class="card">
@@ -741,9 +741,6 @@
                             lkpdFile: null,
                             rubrikText: "Skor 100 jika langkah logis dan lengkap.",
                             rubrikFile: null,
-                            asesmenTipe: "Asesmen Awal",
-                            asesmenText: "Soal Asesmen: Jelaskan perbedaan struktur data stack dan queue beserta contoh sehari-hari!",
-                            asesmenFile: null
                         }
                     ],
                     submissions: [],
@@ -815,7 +812,7 @@
                 currentUser = { role: 'siswa', name: found };
                 initApp();
             } else {
-                showNotification('Nama Anda belum terdaftar di sistem kelas. Pastikan mengeja nama sesuai data.', 'Akses Ditolak');
+                showNotification('Nama Anda belum terdaftar di sistem kelas. Pastikan mengeja nama sesuai data Gunakan Huruf Kapital.', 'Akses Ditolak');
             }
         }
 
@@ -952,22 +949,15 @@
             const materiText = document.getElementById('g_materiText').value;
             const lkpdText = document.getElementById('g_lkpdText').value;
             const lkpdLink = document.getElementById('g_lkpdLink').value;
-            const rubrikText = document.getElementById('g_rubrikText').value;
-            const asesmenTipe = document.getElementById('g_jenisAsesmen').value;
-            const asesmenText = document.getElementById('g_asesmenText').value;
 
             const materiFile = await readFileAsBase64(document.getElementById('g_materiFile').files[0]);
             const lkpdFile = await readFileAsBase64(document.getElementById('g_lkpdFile').files[0]);
-            const rubrikFile = await readFileAsBase64(document.getElementById('g_rubrikFile').files[0]);
-            const asesmenFile = await readFileAsBase64(document.getElementById('g_asesmenFile').files[0]);
 
             const newP = {
                 id: Date.now(),
                 judul: judul,
                 materiText: materiText, materiFile: materiFile,
                 lkpdText: lkpdText, lkpdLink: lkpdLink, lkpdFile: lkpdFile,
-                rubrikText: rubrikText, rubrikFile: rubrikFile,
-                asesmenTipe: asesmenTipe, asesmenText: asesmenText, asesmenFile: asesmenFile
             };
 
             APP_DATA.pertemuan.push(newP);
@@ -1479,12 +1469,6 @@
                 ${renderFileInline(p.rubrikFile)}
             </div>` : '';
 
-            let asesmenInfo = `<div class="card">
-                <h3 style="color:var(--primary-purple); margin-top:0;">🎯 ${p.asesmenTipe || 'Soal Asesmen'}</h3>
-                ${p.asesmenText ? `<p style="white-space:pre-line;">${p.asesmenText}</p>` : ''}
-                ${renderFileInline(p.asesmenFile)}
-            </div>`;
-
             let formSub = `
                 <div class="card" style="background:linear-gradient(135deg, rgba(243, 232, 255, 0.6), #FFFFFF);">
                     <h3 style="color:var(--primary-purple); margin-top:0;">📤 Lembar Jawab Langsung & Pengumpulan</h3>
@@ -1494,7 +1478,6 @@
                             <label>Jenis Pengumpulan:</label>
                             <select id="subTipe_${pId}">
                                 <option value="Tugas LKPD">Tugas LKPD</option>
-                                <option value="Jawaban Asesmen">Jawaban Asesmen</option>
                             </select>
                         </div>
                         <div class="form-group">
