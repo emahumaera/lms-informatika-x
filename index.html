@@ -805,7 +805,7 @@
                         pertemuanId: s.pertemuan_id || s.pertemuanId,
                         nama_siswa: normalizeName(s.nama_siswa || s.namaSiswa),
                         namaSiswa: normalizeName(s.nama_siswa || s.namaSiswa),
-                        jawaban: s.jawaban || s.Jawaban || '', // ambil dari kolom Jawaban
+                        jawaban: s.jawaban || s.Jawaban || '',
                         Jawaban: s.jawaban || s.Jawaban || '',
                         nilai: s.nilai !== undefined ? s.nilai : 0,
                         catatan: s.catatan || '',
@@ -1181,6 +1181,7 @@
             container.innerHTML = html;
         }
 
+        // ============ SUBMIT TUGAS (DIPERBAIKI) ============
         async function submitTugasBiasa(e, idPertemuan) {
             e.preventDefault();
             const btn = document.getElementById('btnKirimTugas');
@@ -1257,25 +1258,22 @@
                 const payload = {
                     id: Date.now(),
                     pertemuan_id: idPertemuan,
-                    pertemuanId: idPertemuan,
                     nama_siswa: namaSiswa,
-                    namaSiswa: namaSiswa,
-                    jawaban: jawabanFinal,
                     Jawaban: jawabanFinal,
                     nilai: 0,
                     catatan: catatanFinal,
                     submitted_at: new Date().toLocaleString('id-ID')
                 };
 
-                // Simpan ke database - gunakan kolom 'Jawaban' (capital J)
+                // Simpan ke database - SEMUA KOLOM SEKARANG ADA
                 if (_supabase) {
                     const { error } = await _supabase.from('submissions').insert([{
                         id: payload.id,
                         pertemuan_id: idPertemuan,
                         nama_siswa: namaSiswa,
-                        Jawaban: jawabanFinal, // <-- pakai Jawaban capital
+                        Jawaban: jawabanFinal,
                         nilai: 0,
-                        catatan: payload.catatan,
+                        catatan: catatanFinal,
                         submitted_at: payload.submitted_at
                     }]);
                     if (error) {
@@ -1285,7 +1283,11 @@
                     throw new Error('Supabase tidak terhubung');
                 }
 
-                APP_DATA.submissions.unshift(payload);
+                // Tambahkan ke APP_DATA untuk tampilan cepat
+                APP_DATA.submissions.unshift({
+                    ...payload,
+                    created_at: new Date().toISOString()
+                });
 
                 // Tampilkan status
                 let statusMsg = '✅ File berhasil dikirim!';
