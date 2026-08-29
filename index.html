@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- style sama seperti sebelumnya, tidak diubah --- */
         * { box-sizing: border-box; margin: 0; }
         body {
             font-family: 'Inter', 'Poppins', sans-serif;
@@ -137,7 +136,7 @@
     <!-- ========== GURU ========== -->
     <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
     <section id="g_daftar_pertemuan" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Modul Materi</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_daftarKelas" onchange="renderDaftarPertemuanGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelDaftarPertemuanGuru"></div></div><div class="card"><h3>👁️ Pratinjau Materi</h3><div class="form-group"><label>Pilih Pertemuan</label><select id="selectGuruPreviewPertemuan" onchange="renderGuruMaterialPreview()"></select></div><div id="guruMaterialPreviewContainer"></div></div></section>
-    <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card"><form onsubmit="simpanPertemuanBaru(event)"><div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;"><div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (max 2MB, gambar dikompres)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div><div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (max 2MB)</label><input type="file" id="g_lkpdFile"></div></div><button type="submit" class="btn-submit" style="width:100%;">Terbitkan</button></form></div></section>
+    <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card"><form onsubmit="simpanPertemuanBaru(event)"><div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;"><div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div><div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div></div><button type="submit" class="btn-submit" style="width:100%;">Terbitkan</button></form></div></section>
     <section id="g_kuis" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Kelola Asesmen</h2><div class="card"><form onsubmit="simpanKuisBaru(event)"><div class="form-group"><label>Kelas</label><select id="g_kuisKelas" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Kategori</label><select id="g_kuisKategori"><option value="Asesmen Diagnostik">Diagnostik</option><option value="Pretest">Pretest</option><option value="Postest">Postest</option><option value="Kuis">Kuis</option></select></div><div class="form-group"><label>Judul</label><input type="text" id="g_kuisJudul" required placeholder="Judul asesmen"></div><div class="form-group"><label>Deskripsi</label><textarea id="g_kuisDesc" rows="2"></textarea></div><h3 style="color:var(--purple); margin:16px 0 8px;">Daftar Soal</h3><div id="containerSoalGuru"></div><div style="margin-bottom:16px;"><button type="button" class="btn-submit" style="width:100%; border:2px dashed #7C3AED; background:rgba(124,58,237,0.05); color:#7C3AED;" onclick="tambahFormSoal()">+ Tambah Soal</button></div><button type="submit" class="btn-submit" style="width:100%;">Terbitkan Asesmen</button></form></div><div class="card"><h3>📋 Daftar Asesmen</h3><div class="login-tab" style="margin-bottom:16px; overflow-x:auto; display:flex; gap:4px;"><button class="active" onclick="switchKuisKategoriGuru('Asesmen Diagnostik', this)">Diagnostik</button><button onclick="switchKuisKategoriGuru('Pretest', this)">Pretest</button><button onclick="switchKuisKategoriGuru('Postest', this)">Postest</button><button onclick="switchKuisKategoriGuru('Kuis', this)">Kuis</button></div><div id="tabelDaftarKuisGuru"></div></div><div id="containerHasilKuisGuru" style="display:none;"></div></section>
     <section id="g_siswa" class="section"><h2 style="color:var(--purple); font-weight:700;">👥 Kelola Murid</h2><div class="card"><form onsubmit="tambahSiswa(event)"><div class="form-group"><label>Kelas</label><select id="g_siswaKelas" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Nama Lengkap</label><input type="text" id="g_namaSiswaBaru" required placeholder="Contoh: SYAMSUL ANWAR"></div><button type="submit" class="btn-submit">Tambahkan</button></form></div><div class="table-responsive"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead><tbody id="tabelDaftarSiswa"></tbody></table></div></section>
     <section id="g_absensi" class="section"><h2 style="color:var(--purple); font-weight:700;">📊 Absensi Kelas</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_absensiKelas" onchange="renderAbsensiMatrix(); renderRekapAbsensiGuru();"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><h3 style="color:var(--purple);">📈 Rekapitulasi Kehadiran</h3><div class="table-responsive"><table><thead><tr><th>No</th><th>Nama</th><th style="color:#059669;">Hadir</th><th style="color:#D97706;">Sakit</th><th style="color:#0284C7;">Izin</th><th style="color:#DC2626;">Alfa</th><th>%</th></tr></thead><tbody id="tabelRekapAbsensiGuruBody"></tbody></table></div></div><div class="card"><h3 style="color:var(--purple);">🗓️ Matriks Absensi (Klik sel untuk ubah)</h3><div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;"><div class="form-group"><label>Pertemuan</label><select id="absensiKolomPilih" onchange="renderAbsensiMatrix()"></select></div><div class="form-group"><label>Tanggal</label><input type="date" id="absensiTanggalInput" onchange="simpanTanggalAbsensi()"></div></div><div class="table-responsive"><table class="absensi-table"><thead><tr><th rowspan="3" class="sticky-col-header">NAMA</th><th colspan="30">PERTEMUAN</th><th rowspan="3" style="vertical-align:middle; background:linear-gradient(135deg,#7C3AED,#9333EA); color:#fff; min-width:60px;">%</th></tr><tr id="rowHeaderMeetingCols"></tr><tr id="rowHeaderMeetingDates"></tr></thead><tbody id="tabelMatriksAbsensiBody"></tbody></table></div></div></section>
@@ -152,7 +151,7 @@ const SUPABASE_URL = 'https://gbfcgapcfpihhgdhakjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
 const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const _supabase = supabaseClient;
-const BUCKET_NAME = 'lms-files'; // pastikan bucket ini sudah dibuat di Supabase Storage (public)
+const BUCKET_NAME = 'lms-files'; // pastikan bucket sudah dibuat di Supabase Storage (public)
 
 // ============================= DATA AWAL =============================
 const defaultStudents = [
@@ -236,15 +235,18 @@ function parseSoalSafely(data) {
 async function uploadFileToSupabase(file, folder = 'general') {
     if (!_supabase) return null;
     if (!file) return null;
-    // Kompres gambar jika lebih dari 500KB
+
     let fileToUpload = file;
+    // Jika gambar dan ukuran > 500KB, kompres (agar lebih ringan, tapi tidak wajib)
     if (file.type.startsWith('image/') && file.size > 500 * 1024) {
-        fileToUpload = await compressImage(file, 500); // target 500KB
+        try {
+            fileToUpload = await compressImage(file, 500); // target ~500KB
+        } catch (e) {
+            console.warn('Gagal kompres gambar, upload original:', e);
+            fileToUpload = file;
+        }
     }
-    // Cek ukuran setelah kompresi
-    if (fileToUpload.size > 2 * 1024 * 1024) {
-        throw new Error('Ukuran file melebihi 2MB setelah kompresi.');
-    }
+
     const ext = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const filePath = `${folder}/${fileName}`;
@@ -253,12 +255,11 @@ async function uploadFileToSupabase(file, folder = 'general') {
         upsert: false
     });
     if (error) throw new Error('Gagal upload ke Supabase: ' + error.message);
-    // Dapatkan public URL
     const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
     return urlData.publicUrl;
 }
 
-// Kompresi gambar menggunakan canvas
+// Kompres gambar dengan dimensi maksimal 1000px dan kualitas turun bertahap
 function compressImage(file, maxKB) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -267,8 +268,7 @@ function compressImage(file, maxKB) {
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 let w = img.width, h = img.height;
-                // Skala jika terlalu besar
-                const MAX_SIZE = 1200;
+                const MAX_SIZE = 1000;
                 if (w > MAX_SIZE || h > MAX_SIZE) {
                     const ratio = Math.min(MAX_SIZE/w, MAX_SIZE/h);
                     w = Math.round(w * ratio);
@@ -278,18 +278,16 @@ function compressImage(file, maxKB) {
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
-                // Mulai dengan kualitas 0.9, turunkan jika perlu
-                let quality = 0.9;
+                let quality = 0.85;
                 let dataUrl = canvas.toDataURL('image/jpeg', quality);
                 let sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
-                while (sizeKB > maxKB && quality > 0.3) {
+                while (sizeKB > maxKB && quality > 0.2) {
                     quality -= 0.1;
                     dataUrl = canvas.toDataURL('image/jpeg', quality);
                     sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
                 }
-                // Konversi dataURL ke Blob
                 const blob = dataURLToBlob(dataUrl);
-                resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
             };
             img.onerror = reject;
             img.src = e.target.result;
@@ -644,7 +642,7 @@ function loadTugasSiswa() {
         <hr style="margin:20px 0;">
         <h4 style="font-weight:600;">📤 Unggah Bukti</h4>
         <form onsubmit="submitTugasBiasa(event, ${p.id})">
-            <div class="form-group"><label>File (max 2MB, gambar dikompres)</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
+            <div class="form-group"><label>File (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
             <div class="form-group"><label>Catatan</label><textarea id="catatanTugasSiswa" rows="2"></textarea></div>
             <button type="submit" class="btn-submit">Kirim</button>
         </form>
