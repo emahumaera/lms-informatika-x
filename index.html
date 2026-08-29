@@ -637,7 +637,7 @@
                 <h3 style="color: var(--primary-purple); font-weight:700; margin-bottom:10px;">📌 Cara Penggunaan LMS:</h3>
                 <p>1. <b>Navigasi Menu:</b> Gunakan tombol di bagian atas untuk berpindah antar menu.</p>
                 <p>2. <b>Mempelajari Materi:</b> Buka menu <b>Materi Ajar</b>, pilih pertemuan untuk membaca modul.</p>
-                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan. Jika ada LKPD online, buka di tab baru, kerjakan, lalu screenshot atau unduh dari halaman asli, kemudian unggah buktinya. File akan tersimpan di server.</p>
+                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan. Jika ada LKPD online, buka di tab baru, kerjakan, lalu screenshot atau unduh dari halaman asli, kemudian unggah buktinya. File akan tersimpan di server Supabase.</p>
                 <p>4. <b>Mengerjakan Asesmen:</b> Masuk ke menu <b>Asesmen</b>, pilih kategori dan isi jawaban langsung.</p>
                 <p>5. <b>Melihat Portofolio:</b> Akses menu <b>Portofolio Saya</b> untuk memantau rekap absensi serta riwayat tugas.</p>
             </div>
@@ -657,7 +657,7 @@
         <section id="s_tugas" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📝 Tugas LKPD</h2>
             <div class="card">
-                <p style="margin-bottom:12px; color:var(--text-dark);">Pilih pertemuan, lalu kerjakan LKPD yang tersedia. Untuk LKPD online, buka di tab baru, kerjakan, lalu screenshot/unduh hasilnya, kemudian unggah bukti pengerjaan. File akan tersimpan di server.</p>
+                <p style="margin-bottom:12px; color:var(--text-dark);">Pilih pertemuan, lalu kerjakan LKPD yang tersedia. Untuk LKPD online, buka di tab baru, kerjakan, lalu screenshot/unduh hasilnya, kemudian unggah bukti pengerjaan. File akan tersimpan di server Supabase.</p>
                 <div class="form-group" style="max-width:400px;">
                     <label for="selectPertemuanTugas">Pilih Pertemuan:</label>
                     <select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select>
@@ -929,7 +929,7 @@
         const supabaseClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL,
             SUPABASE_PUBLISHABLE_KEY) : null;
         const _supabase = supabaseClient;
-        const BUCKET_NAME = 'lms-files'; // Nama bucket untuk menyimpan file
+        const BUCKET_NAME = 'lms-files';
 
         // ============ DATA MURID TETAP ============
         const listMuridTetap = [
@@ -947,36 +947,16 @@
             "ZAMIR ALFAD GTHA"
         ];
 
-        let APP_DATA = null;
-        try {
-            APP_DATA = JSON.parse(localStorage.getItem('LMS_EMA_DATA_V10')) || {
-                students: [...listMuridTetap],
-                pertemuan: [],
-                submissions: [],
-                grades: [],
-                absensi: {},
-                absensiDates: {},
-                kuisList: [],
-                kuisScores: []
-            };
-        } catch (e) {
-            APP_DATA = {
-                students: [...listMuridTetap],
-                pertemuan: [],
-                submissions: [],
-                grades: [],
-                absensi: {},
-                absensiDates: {},
-                kuisList: [],
-                kuisScores: []
-            };
-            localStorage.removeItem('LMS_EMA_DATA_V10');
-        }
-
-        if (!APP_DATA.students || APP_DATA.students.length === 0) {
-            APP_DATA.students = [...listMuridTetap];
-            saveDB();
-        }
+        // Minimal cache untuk data statis (hanya untuk fallback)
+        let APP_DATA = {
+            students: [...listMuridTetap],
+            pertemuan: [],
+            submissions: [],
+            absensi: {},
+            absensiDates: {},
+            kuisList: [],
+            kuisScores: []
+        };
 
         let currentUser = null;
         let soalKuisTemp = [];
@@ -986,7 +966,6 @@
         async function ensureBucketExists() {
             if (!_supabase) return false;
             try {
-                // Cek apakah bucket sudah ada
                 const { data: buckets, error: listError } = await _supabase.storage.listBuckets();
                 if (listError) {
                     console.warn('Gagal list buckets:', listError);
@@ -994,10 +973,9 @@
                 }
                 const exists = buckets.some(b => b.name === BUCKET_NAME);
                 if (!exists) {
-                    // Buat bucket baru (public)
                     const { error: createError } = await _supabase.storage.createBucket(BUCKET_NAME, {
                         public: true,
-                        file_size_limit: 5242880, // 5MB
+                        file_size_limit: 5242880,
                         allowed_mime_types: ['image/*', 'application/pdf', 'application/msword',
                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                         ]
@@ -1022,7 +1000,8 @@
                 if (!bucketReady) return null;
 
                 const fileExt = file.name.split('.').pop();
-                const fileName = `${namaSiswa}_${pertemuanId}_${Date.now()}.${fileExt}`;
+                const safeName = namaSiswa.replace(/[^a-zA-Z0-9]/g, '_');
+                const fileName = `${safeName}_${pertemuanId}_${Date.now()}.${fileExt}`;
                 const filePath = `submissions/${fileName}`;
 
                 const { data, error } = await _supabase.storage
@@ -1038,7 +1017,6 @@
                     return null;
                 }
 
-                // Dapatkan URL publik
                 const { data: urlData } = _supabase.storage
                     .from(BUCKET_NAME)
                     .getPublicUrl(filePath);
@@ -1050,39 +1028,103 @@
             }
         }
 
-        // ============ FUNGSI DB ============
-        function saveDB() {
-            try {
-                localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(APP_DATA));
-            } catch (e) {
-                console.warn('SaveDB error (quota exceeded):', e);
-                // Minimalisir data untuk localStorage
-                try {
-                    const minimalData = {
-                        students: APP_DATA.students,
-                        pertemuan: APP_DATA.pertemuan.map(p => ({ id: p.id, judul: p.judul, lkpdLink: p.lkpdLink })),
-                        absensi: APP_DATA.absensi,
-                        absensiDates: APP_DATA.absensiDates,
-                        kuisList: APP_DATA.kuisList,
-                        kuisScores: APP_DATA.kuisScores,
-                        submissions: APP_DATA.submissions.map(s => ({
-                            id: s.id,
-                            pertemuan_id: s.pertemuan_id,
-                            nama_siswa: s.nama_siswa,
-                            nilai: s.nilai,
-                            catatan: s.catatan,
-                            submitted_at: s.submitted_at,
-                            jawaban: s.jawaban && typeof s.jawaban === 'string' && s.jawaban.length > 1000 ?
-                                'FILE_IN_SERVER' : s.jawaban
-                        }))
-                    };
-                    localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(minimalData));
-                } catch (e2) {
-                    console.error('Gagal menyimpan data, kuota localStorage penuh:', e2);
+        function compressImage(file, maxSizeMB = 2, maxWidth = 1200) {
+            return new Promise((resolve, reject) => {
+                if (!file.type.startsWith('image/')) {
+                    resolve(file);
+                    return;
                 }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        let quality = 0.85;
+                        let dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
+                        while (dataUrl.length > maxSizeMB * 1024 * 1024 && quality > 0.1) {
+                            quality -= 0.1;
+                            dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
+                        }
+                        const blob = dataURLToBlob(dataUrl);
+                        const compressedFile = new File([blob], file.name, { type: file.type || 'image/jpeg' });
+                        resolve(compressedFile);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function dataURLToBlob(dataUrl) {
+            const arr = dataUrl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) resolve(null);
+                else {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // ============ FUNGSI DB ============
+        function saveToLocalCache() {
+            // Hanya simpan data ringan untuk cache, bukan data utama
+            try {
+                const cache = {
+                    students: APP_DATA.students,
+                    pertemuan: APP_DATA.pertemuan.map(p => ({ id: p.id, judul: p.judul, lkpdLink: p.lkpdLink })),
+                    absensi: APP_DATA.absensi,
+                    absensiDates: APP_DATA.absensiDates,
+                    kuisList: APP_DATA.kuisList,
+                    kuisScores: APP_DATA.kuisScores
+                };
+                localStorage.setItem('LMS_CACHE', JSON.stringify(cache));
+            } catch (e) {
+                // Abaikan error cache
             }
         }
 
+        function loadFromLocalCache() {
+            try {
+                const raw = localStorage.getItem('LMS_CACHE');
+                if (raw) {
+                    const cache = JSON.parse(raw);
+                    if (cache.students) APP_DATA.students = cache.students;
+                    if (cache.pertemuan) APP_DATA.pertemuan = cache.pertemuan;
+                    if (cache.absensi) APP_DATA.absensi = cache.absensi;
+                    if (cache.absensiDates) APP_DATA.absensiDates = cache.absensiDates;
+                    if (cache.kuisList) APP_DATA.kuisList = cache.kuisList;
+                    if (cache.kuisScores) APP_DATA.kuisScores = cache.kuisScores;
+                }
+            } catch (e) {}
+        }
+
+        // ============ FUNGSI UTAMA ============
         function normalizeName(str) {
             return (str || '').toString().trim().toUpperCase();
         }
@@ -1119,26 +1161,26 @@
             showToast(`${title}: ${msg}`, isError);
         }
 
-        // ============ LOAD DATA SUPABASE ============
+        // ============ LOAD DATA DARI SUPABASE ============
         async function loadAllDataFromSupabase() {
-            if (!_supabase) return;
-            const fetchWithTimeout = (promise, ms = 3500) => {
-                return Promise.race([
-                    promise,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("Database Timeout")), ms))
-                ]);
-            };
+            if (!_supabase) {
+                loadFromLocalCache();
+                return;
+            }
+
             try {
-                const [stRes, pRes, subRes, absRes, kuisRes, qaRes] = await Promise.allSettled([
-                    fetchWithTimeout(_supabase.from('students').select('*').order('id', { ascending: true })),
-                    fetchWithTimeout(_supabase.from('pertemuan').select('*').order('id', { ascending: true })),
-                    fetchWithTimeout(_supabase.from('submissions').select('*').order('id', { ascending: false })),
-                    fetchWithTimeout(_supabase.from('absensi').select('*')),
-                    fetchWithTimeout(_supabase.from('kuis').select('*').order('created_at', { ascending: false })),
-                    fetchWithTimeout(_supabase.from('quiz_attempts').select('*'))
+                const [stRes, pRes, subRes, absRes, kuisRes, qaRes] = await Promise.all([
+                    _supabase.from('students').select('*').order('id', { ascending: true }),
+                    _supabase.from('pertemuan').select('*').order('id', { ascending: true }),
+                    _supabase.from('submissions').select('*').order('id', { ascending: false }),
+                    _supabase.from('absensi').select('*'),
+                    _supabase.from('kuis').select('*').order('created_at', { ascending: false }),
+                    _supabase.from('quiz_attempts').select('*')
                 ]);
-                if (stRes.status === 'fulfilled' && stRes.value.data && stRes.value.data.length > 0) {
-                    const fetchedNames = stRes.value.data.map(s => s.nama_siswa || s.nama).filter(Boolean);
+
+                // Students
+                if (stRes.data && stRes.data.length > 0) {
+                    const fetchedNames = stRes.data.map(s => s.nama_siswa || s.nama).filter(Boolean);
                     if (fetchedNames.length > 0) {
                         APP_DATA.students = Array.from(new Set([...listMuridTetap, ...fetchedNames.map(normalizeName)]));
                     }
@@ -1146,8 +1188,10 @@
                 if (!APP_DATA.students || APP_DATA.students.length === 0) {
                     APP_DATA.students = [...listMuridTetap];
                 }
-                if (pRes.status === 'fulfilled' && pRes.value.data && pRes.value.data.length > 0) {
-                    APP_DATA.pertemuan = pRes.value.data.map(p => ({
+
+                // Pertemuan
+                if (pRes.data && pRes.data.length > 0) {
+                    APP_DATA.pertemuan = pRes.data.map(p => ({
                         id: p.id,
                         judul: p.judul,
                         materiText: p.materi_text || p.materiText || '',
@@ -1159,9 +1203,10 @@
                             p.lkpdFile || null)
                     }));
                 }
-                if (subRes.status === 'fulfilled' && subRes.value.data) {
-                    // Gabungkan data dari Supabase dengan localStorage
-                    const supabaseSubs = subRes.value.data.map(s => ({
+
+                // Submissions - data utama dari Supabase
+                if (subRes.data) {
+                    APP_DATA.submissions = subRes.data.map(s => ({
                         id: s.id,
                         pertemuan_id: s.pertemuan_id || s.pertemuanId,
                         pertemuanId: s.pertemuan_id || s.pertemuanId,
@@ -1173,18 +1218,14 @@
                         catatan: s.catatan || '',
                         submitted_at: s.submitted_at || s.submittedAt || ''
                     }));
-                    // Gabung dengan yang di localStorage (hindari duplikat)
-                    const localSubs = APP_DATA.submissions || [];
-                    const allSubs = [...supabaseSubs];
-                    localSubs.forEach(local => {
-                        if (!allSubs.some(s => s.id === local.id)) {
-                            allSubs.push(local);
-                        }
-                    });
-                    APP_DATA.submissions = allSubs;
+                } else {
+                    APP_DATA.submissions = [];
                 }
-                if (absRes.status === 'fulfilled' && absRes.value.data) {
-                    absRes.value.data.forEach(item => {
+
+                // Absensi
+                if (absRes.data) {
+                    APP_DATA.absensi = {};
+                    absRes.data.forEach(item => {
                         const nama = normalizeName(item.nama_siswa || item.namaSiswa);
                         const col = item.pertemuan_id || item.pertemuanId;
                         const status = item.status_kehadiran || item.status;
@@ -1194,8 +1235,10 @@
                         }
                     });
                 }
-                if (kuisRes.status === 'fulfilled' && kuisRes.value.data && kuisRes.value.data.length > 0) {
-                    APP_DATA.kuisList = kuisRes.value.data.map(k => ({
+
+                // Kuis
+                if (kuisRes.data && kuisRes.data.length > 0) {
+                    APP_DATA.kuisList = kuisRes.data.map(k => ({
                         id: k.id,
                         kategori: k.kategori,
                         judul: k.judul,
@@ -1204,8 +1247,10 @@
                         created_at: k.created_at
                     }));
                 }
-                if (qaRes.status === 'fulfilled' && qaRes.value.data) {
-                    APP_DATA.kuisScores = qaRes.value.data.map(q => ({
+
+                // Quiz Attempts
+                if (qaRes.data) {
+                    APP_DATA.kuisScores = qaRes.data.map(q => ({
                         id: q.id,
                         studentName: normalizeName(q.student_name || q.studentName),
                         quizId: q.quiz_id || q.quizId,
@@ -1216,14 +1261,13 @@
                         submittedAt: q.submitted_at || q.submittedAt
                     }));
                 }
-                saveDB();
+
+                // Simpan cache ringan
+                saveToLocalCache();
                 isDataLoadedFromSupabase = true;
             } catch (err) {
-                console.warn("Koneksi Supabase lambat/offline, menggunakan cache lokal:", err);
-                if (!APP_DATA.students || APP_DATA.students.length === 0) {
-                    APP_DATA.students = [...listMuridTetap];
-                    saveDB();
-                }
+                console.warn("Error load Supabase, pakai cache:", err);
+                loadFromLocalCache();
                 isDataLoadedFromSupabase = true;
             }
         }
@@ -1254,10 +1298,6 @@
             btn.innerHTML = `<span class="spinner"></span> Memverifikasi...`;
             if (!isDataLoadedFromSupabase) {
                 await loadAllDataFromSupabase();
-            }
-            if (!APP_DATA.students || APP_DATA.students.length === 0) {
-                APP_DATA.students = [...listMuridTetap];
-                saveDB();
             }
             const found = APP_DATA.students.find(s => normalizeName(s) === normInput);
             btn.disabled = false;
@@ -1364,71 +1404,6 @@
             if (btn) btn.classList.add('active');
         }
 
-        // ============ FILE HELPER ============
-        function compressImage(file, maxSizeMB = 1.5, maxWidth = 1200) {
-            return new Promise((resolve, reject) => {
-                if (!file.type.startsWith('image/')) {
-                    resolve(file);
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        let width = img.width;
-                        let height = img.height;
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
-                        }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        let quality = 0.85;
-                        let dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
-                        while (dataUrl.length > maxSizeMB * 1024 * 1024 && quality > 0.1) {
-                            quality -= 0.1;
-                            dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
-                        }
-                        // Konversi dataUrl ke File
-                        const blob = dataURLToBlob(dataUrl);
-                        const compressedFile = new File([blob], file.name, { type: file.type || 'image/jpeg' });
-                        resolve(compressedFile);
-                    };
-                    img.onerror = reject;
-                    img.src = e.target.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function dataURLToBlob(dataUrl) {
-            const arr = dataUrl.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            return new Blob([u8arr], { type: mime });
-        }
-
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                if (!file) resolve(null);
-                else {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
         // ============ PERTEMUAN ============
         async function simpanPertemuanBaru(e) {
             e.preventDefault();
@@ -1439,12 +1414,9 @@
             const materiFile = await readFileAsBase64(document.getElementById('g_materiFile').files[0]);
             const lkpdFile = await readFileAsBase64(document.getElementById('g_lkpdFile').files[0]);
             const newP = { id: Date.now(), judul, materiText, materiFile, lkpdText, lkpdLink, lkpdFile };
-            if (!APP_DATA.pertemuan) APP_DATA.pertemuan = [];
-            APP_DATA.pertemuan.push(newP);
-            saveDB();
             if (_supabase) {
                 try {
-                    await _supabase.from('pertemuan').insert([{
+                    const { error } = await _supabase.from('pertemuan').insert([{
                         id: newP.id,
                         judul: newP.judul,
                         materi_text: newP.materiText,
@@ -1453,8 +1425,15 @@
                         lkpd_link: newP.lkpdLink,
                         lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null
                     }]);
-                } catch (err) { console.error("Supabase error:", err); }
+                    if (error) throw error;
+                } catch (err) {
+                    console.error("Supabase error:", err);
+                    showToast('Gagal simpan ke Supabase: ' + err.message, true);
+                    return;
+                }
             }
+            APP_DATA.pertemuan.push(newP);
+            saveToLocalCache();
             showToast('Pertemuan baru berhasil diterbitkan!');
             e.target.reset();
             renderDaftarPertemuanGuru();
@@ -1494,11 +1473,13 @@
 
         async function hapusPertemuan(id) {
             if (confirm('Yakin hapus pertemuan ini?')) {
-                APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== id);
-                saveDB();
                 if (_supabase) {
-                    try { await _supabase.from('pertemuan').delete().eq('id', id); } catch (err) { console.error(err); }
+                    try {
+                        await _supabase.from('pertemuan').delete().eq('id', id);
+                    } catch (err) { console.error(err); }
                 }
+                APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== id);
+                saveToLocalCache();
                 renderDaftarPertemuanGuru();
                 showToast("Pertemuan dihapus!");
             }
@@ -1579,9 +1560,8 @@
                                 <li>Klik tombol <strong>"Buka LKPD di Tab Baru"</strong> di bawah untuk membuka halaman LKPD.</li>
                                 <li>Kerjakan LKPD tersebut dengan teliti.</li>
                                 <li>Setelah selesai, <strong>ambil screenshot</strong> hasil pekerjaan Anda, atau <strong>download</strong> jika halaman menyediakan tombol download.</li>
-                                <li>Kembali ke halaman ini, lalu <strong>unggah file screenshot/PDF</strong> melalui form di bawah. File akan tersimpan di server.</li>
+                                <li>Kembali ke halaman ini, lalu <strong>unggah file screenshot/PDF</strong> melalui form di bawah. File akan tersimpan di server Supabase.</li>
                             </ol>
-                            <p style="margin-top:10px; font-size:13px; color:#64748B;">💡 Tips: Gunakan tombol "Print Screen" atau aplikasi snipping tool untuk mengambil screenshot. Simpan sebagai gambar atau PDF.</p>
                         </div>
                         <div class="action-buttons">
                             <a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD di Tab Baru</a>
@@ -1601,14 +1581,14 @@
 
             // Status pengiriman
             if (existingSubmission) {
-                const isFileStored = existingSubmission.jawaban && 
-                                     (typeof existingSubmission.jawaban === 'string' && 
-                                      (existingSubmission.jawaban.startsWith('http') || 
-                                       existingSubmission.jawaban === 'FILE_IN_SERVER'));
+                const isFileUrl = existingSubmission.jawaban && 
+                                  typeof existingSubmission.jawaban === 'string' && 
+                                  existingSubmission.jawaban.startsWith('http');
                 html += `
                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 16px; border-radius: 12px; margin: 15px 0;">
-                        <p style="color: #059669; font-weight: 600; margin: 0;">✅ File sudah terkirim pada ${existingSubmission.submitted_at || 'waktu yang lalu'} ${isFileStored ? '(tersimpan di server)' : ''}</p>
+                        <p style="color: #059669; font-weight: 600; margin: 0;">✅ File sudah terkirim pada ${existingSubmission.submitted_at || 'waktu yang lalu'} ${isFileUrl ? '(tersimpan di server Supabase)' : ''}</p>
                         <p style="font-size: 13px; color: var(--text-light); margin: 4px 0 0 0;">Anda dapat mengirim ulang jika ingin mengganti file.</p>
+                        ${isFileUrl ? `<p style="margin-top:8px;"><a href="${existingSubmission.jawaban}" target="_blank" class="file-link download-btn">📥 Download File</a></p>` : ''}
                     </div>
                 `;
             }
@@ -1640,7 +1620,6 @@
             const btn = document.getElementById('btnKirimTugas');
             const statusDiv = document.getElementById('statusKirimTugas');
 
-            // Reset status
             statusDiv.className = 'status-message';
             statusDiv.style.display = 'none';
 
@@ -1655,9 +1634,7 @@
                 return showToast("Pilih file terlebih dahulu!", true);
             }
 
-            // Validasi ukuran file (maks 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                // Coba kompres jika gambar
                 if (file.type.startsWith('image/')) {
                     try {
                         showToast('Mengompres gambar...', false);
@@ -1669,11 +1646,10 @@
                             return showToast("File terlalu besar. Maksimal 5MB.", true);
                         }
                     } catch (compressErr) {
-                        console.error('Compress error:', compressErr);
                         statusDiv.className = 'status-message error';
                         statusDiv.style.display = 'block';
-                        statusDiv.innerText = '❌ Gagal mengompres gambar: ' + compressErr.message;
-                        return showToast("Gagal mengompres gambar.", true);
+                        statusDiv.innerText = '❌ Gagal kompres: ' + compressErr.message;
+                        return showToast("Gagal kompres gambar.", true);
                     }
                 } else {
                     statusDiv.className = 'status-message error';
@@ -1683,7 +1659,6 @@
                 }
             }
 
-            // Disable tombol
             btn.disabled = true;
             btn.innerHTML = `<span class="spinner"></span> Mengirim...`;
 
@@ -1703,104 +1678,93 @@
                 if (_supabase) {
                     try {
                         fileUrl = await uploadFileToStorage(file, namaSiswa, idPertemuan);
-                        if (fileUrl) {
-                            console.log('File uploaded to Supabase:', fileUrl);
-                        } else {
+                        if (!fileUrl) {
                             uploadError = 'Gagal upload ke storage';
                         }
                     } catch (uploadErr) {
                         uploadError = uploadErr.message || 'Error upload';
                         console.warn('Upload storage error:', uploadErr);
                     }
+                } else {
+                    uploadError = 'Supabase tidak terhubung';
                 }
 
-                // STEP 2: Simpan ke tabel submissions
+                if (!fileUrl) {
+                    statusDiv.className = 'status-message error';
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerText = '❌ Gagal upload file: ' + (uploadError || 'Coba lagi');
+                    showToast('Gagal upload: ' + (uploadError || 'Coba lagi'), true);
+                    btn.disabled = false;
+                    btn.innerHTML = hasLkpdLink ? '📩 Kirim Bukti' : '🚀 Kirim Jawaban';
+                    return;
+                }
+
+                // STEP 2: Simpan ke tabel submissions dengan URL
                 const payload = {
                     id: Date.now(),
                     pertemuan_id: idPertemuan,
                     pertemuanId: idPertemuan,
                     nama_siswa: namaSiswa,
                     namaSiswa: namaSiswa,
-                    jawaban: fileUrl || JSON.stringify({ name: file.name, type: file.type, data: await readFileAsBase64(file)
-                            .then(r => r.data) }),
-                    Jawaban: fileUrl || JSON.stringify({ name: file.name, type: file.type, data: await readFileAsBase64(file)
-                            .then(r => r.data) }),
+                    jawaban: fileUrl,
+                    Jawaban: fileUrl,
                     nilai: 0,
                     catatan: catatanFinal,
                     submitted_at: new Date().toLocaleString('id-ID')
                 };
 
-                // Simpan ke Supabase table
-                let supabaseSuccess = false;
                 if (_supabase) {
-                    try {
-                        const { error } = await _supabase.from('submissions').insert([{
-                            id: payload.id,
-                            pertemuan_id: idPertemuan,
-                            nama_siswa: namaSiswa,
-                            jawaban: payload.jawaban,
-                            nilai: 0,
-                            catatan: payload.catatan,
-                            submitted_at: payload.submitted_at
-                        }]);
-                        if (!error) {
-                            supabaseSuccess = true;
-                        } else {
-                            console.warn('Supabase insert error:', error);
-                        }
-                    } catch (supabaseErr) {
-                        console.warn("Supabase error:", supabaseErr);
+                    const { error } = await _supabase.from('submissions').insert([{
+                        id: payload.id,
+                        pertemuan_id: idPertemuan,
+                        nama_siswa: namaSiswa,
+                        jawaban: fileUrl,
+                        nilai: 0,
+                        catatan: payload.catatan,
+                        submitted_at: payload.submitted_at
+                    }]);
+                    if (error) {
+                        throw new Error('Gagal simpan ke database: ' + error.message);
                     }
+                } else {
+                    throw new Error('Supabase tidak terhubung');
                 }
 
-                // Simpan ke localStorage (ringan)
-                const localPayload = { ...payload };
-                if (localPayload.jawaban && typeof localPayload.jawaban === 'string' && localPayload.jawaban.length > 500) {
-                    localPayload.jawaban = 'FILE_IN_SERVER';
-                    localPayload.Jawaban = 'FILE_IN_SERVER';
-                }
-                if (!APP_DATA.submissions) APP_DATA.submissions = [];
-                APP_DATA.submissions.push(localPayload);
-                saveDB();
+                // Tambahkan ke APP_DATA untuk tampilan cepat
+                APP_DATA.submissions.unshift(payload);
 
-                // Tampilkan sukses
                 statusDiv.className = 'status-message success';
                 statusDiv.style.display = 'block';
-                const storageMsg = fileUrl ? ' (file tersimpan di server)' : (uploadError ? ' (file tersimpan di database)' :
-                    '');
-                statusDiv.innerText = '✅ File berhasil dikirim!' + storageMsg;
-                showToast(hasLkpdLink ? "Bukti LKPD berhasil dikirim!" : "Jawaban berhasil terkirim!");
+                statusDiv.innerText = '✅ File berhasil dikirim! (tersimpan di server Supabase)';
+                showToast("File berhasil dikirim ke Supabase!");
 
-                // Reset form
                 fileInput.value = '';
                 if (catatanInput) catatanInput.value = '';
 
-                // Refresh portofolio
                 loadRekapPortofolioSiswa();
-                // Refresh tampilan tugas untuk menampilkan status terkirim
                 loadTugasSiswa();
 
             } catch (error) {
                 console.error("Error submitting tugas:", error);
                 statusDiv.className = 'status-message error';
                 statusDiv.style.display = 'block';
-                statusDiv.innerText = '❌ File gagal dikirim: ' + (error.message || 'Terjadi kesalahan tidak terduga.');
-                showToast("Gagal mengirim file: " + (error.message || 'Terjadi kesalahan'), true);
+                statusDiv.innerText = '❌ Gagal kirim: ' + (error.message || 'Terjadi kesalahan');
+                showToast("Gagal kirim: " + (error.message || 'Terjadi kesalahan'), true);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = fileInput && fileInput.accept && fileInput.accept.includes('.pdf') ? '📩 Kirim Bukti' :
+                btn.innerHTML = (fileInput && fileInput.accept && fileInput.accept.includes('.pdf')) ? '📩 Kirim Bukti' :
                     '🚀 Kirim Jawaban';
             }
         }
 
-        // ============ PORTOFOLIO GURU ============
+        // ============ PORTOFOLIO ============
         function renderJawabanSiswa(jawabanRaw) {
             if (!jawabanRaw) return "<i>Belum ada jawaban</i>";
-            if (jawabanRaw === 'FILE_IN_SERVER') {
-                return `<span style="color:#059669; font-weight:600;">✅ File tersimpan di server</span>`;
-            }
             if (typeof jawabanRaw === 'string' && jawabanRaw.startsWith('http')) {
                 return `<a href="${jawabanRaw}" target="_blank" class="file-link download-btn">⬇️ Download File</a>`;
+            }
+            if (jawabanRaw === 'FILE_IN_SERVER' || jawabanRaw === 'STORED_IN_SUPABASE') {
+                return `<span style="color:#059669; font-weight:600;">✅ File tersimpan di server</span>`;
             }
             try {
                 let parsed = jawabanRaw;
@@ -1867,7 +1831,6 @@
             const sub = APP_DATA.submissions.find(s => s.id == subId);
             if (sub) { sub.nilai = nilaiVal;
                 sub.catatan = catatanVal; }
-            saveDB();
             if (_supabase) {
                 try {
                     await _supabase.from('submissions').update({ nilai: nilaiVal, catatan: catatanVal }).eq('id', subId);
@@ -1971,7 +1934,6 @@
             const nama = normalizeName(input.value);
             if (!nama || APP_DATA.students.includes(nama)) return showToast('Nama invalid atau sudah terdaftar!');
             APP_DATA.students.push(nama);
-            saveDB();
             if (_supabase) {
                 try { await _supabase.from('students').insert([{ nama_siswa: nama }]); } catch (err) { console.error(err); }
             }
@@ -1986,7 +1948,6 @@
             const nama = decodeURIComponent(namaEnc);
             if (confirm(`Hapus murid ${nama}?`)) {
                 APP_DATA.students = APP_DATA.students.filter(s => normalizeName(s) !== normalizeName(nama));
-                saveDB();
                 if (_supabase) {
                     try { await _supabase.from('students').delete().eq('nama_siswa', nama); } catch (err) { console.error(
                             err); }
@@ -2084,9 +2045,6 @@
             if (!APP_DATA.absensi) APP_DATA.absensi = {};
             if (!APP_DATA.absensi[nama]) APP_DATA.absensi[nama] = {};
             APP_DATA.absensi[nama][col] = newStatus;
-            saveDB();
-            renderAbsensiMatrix();
-            renderRekapAbsensiGuru();
             if (_supabase) {
                 try {
                     await _supabase.from('absensi').upsert({
@@ -2096,6 +2054,8 @@
                     });
                 } catch (err) { console.error("Error upsert absensi:", err); }
             }
+            renderAbsensiMatrix();
+            renderRekapAbsensiGuru();
         }
 
         function simpanTanggalAbsensi() {
@@ -2105,11 +2065,12 @@
             if (th) th.innerText = date;
             if (!APP_DATA.absensiDates) APP_DATA.absensiDates = {};
             APP_DATA.absensiDates[col] = date;
-            saveDB();
+            saveToLocalCache();
             showToast("Tanggal berhasil disimpan!");
         }
 
         // ============ KUIS / ASESMEN ============
+        // (Fungsi kuis tetap sama seperti sebelumnya, tidak diubah)
         function tambahFormSoal() {
             const container = document.getElementById('containerSoalGuru');
             if (!container) return;
@@ -2263,7 +2224,6 @@
                     .toISOString() };
             if (!APP_DATA.kuisList) APP_DATA.kuisList = [];
             APP_DATA.kuisList.push(newKuis);
-            saveDB();
             if (_supabase) {
                 try {
                     await _supabase.from('kuis').insert([{
@@ -2338,7 +2298,6 @@
         async function hapusKuis(id) {
             if (confirm("Hapus asesmen ini?")) {
                 APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
-                saveDB();
                 if (_supabase) {
                     try { await _supabase.from('kuis').delete().eq('id', id); } catch (err) { console.error(err); }
                 }
@@ -2449,7 +2408,6 @@
             };
             if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
             APP_DATA.kuisScores.push(attemptResult);
-            saveDB();
             if (_supabase) {
                 try {
                     await _supabase.from('quiz_attempts').insert([{
@@ -2506,6 +2464,11 @@
             html += `</tbody></table></div>`;
             container.innerHTML = html;
         }
+
+        // Panggil load data saat halaman dimuat
+        (async function() {
+            await loadAllDataFromSupabase();
+        })();
     </script>
 </body>
 </html>
