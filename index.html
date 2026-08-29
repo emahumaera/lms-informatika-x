@@ -200,10 +200,7 @@
         .status-message { padding: 10px 16px; border-radius: 10px; margin-top: 10px; font-weight: 500; display: none; }
         .status-message.success { display: block; background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
         .status-message.error { display: block; background: rgba(239,68,68,0.15); color: #DC2626; border: 1px solid rgba(239,68,68,0.3); }
-        .db-error-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 16px 20px; margin: 15px 0; }
-        .db-error-box h4 { color: #DC2626; margin: 0 0 8px 0; font-weight: 700; }
-        .db-error-box p { margin: 4px 0; font-size: 14px; color: #1E1B4B; }
-        .db-error-box code { background: #fff; padding: 2px 8px; border-radius: 4px; font-size: 13px; border: 1px solid #e5e7eb; display: inline-block; }
+        .status-message.warning { display: block; background: rgba(245,158,11,0.15); color: #B45309; border: 1px solid rgba(245,158,11,0.3); }
         @media print {
             body * { visibility: hidden; }
             #printablePortofolioArea, #printablePortofolioArea * { visibility: visible; }
@@ -566,7 +563,7 @@
         const supabaseClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL,
             SUPABASE_PUBLISHABLE_KEY) : null;
         const _supabase = supabaseClient;
-        const BUCKET_NAME = 'lms-files'; // ← CASE SENSITIVE! Pastikan sama persis dengan nama bucket di Supabase
+        const BUCKET_NAME = 'lms-files';
 
         // ============ DATA MURID TETAP ============
         const listMuridTetap = [
@@ -599,37 +596,28 @@
         let isDataLoadedFromSupabase = false;
 
         // ============ FUNGSI STORAGE ============
-        async function ensureBucketExists() {
-            if (!_supabase) return false;
+        async function checkBucket() {
+            if (!_supabase) return { exists: false, error: 'Supabase tidak terhubung' };
             try {
-                const { data: buckets, error: listError } = await _supabase.storage.listBuckets();
-                if (listError) {
-                    console.warn('Gagal list buckets:', listError);
-                    return false;
-                }
+                const { data: buckets, error } = await _supabase.storage.listBuckets();
+                if (error) return { exists: false, error: error.message };
                 const exists = buckets.some(b => b.name === BUCKET_NAME);
-                if (!exists) {
-                    console.warn('Bucket "' + BUCKET_NAME + '" tidak ditemukan!');
-                    return false;
-                }
-                return true;
+                return { exists, error: null };
             } catch (e) {
-                console.warn('Error bucket:', e);
-                return false;
+                return { exists: false, error: e.message };
             }
         }
 
         async function uploadFileToStorage(file, namaSiswa, pertemuanId) {
             if (!_supabase) {
-                console.error('Supabase tidak terhubung');
                 return { success: false, error: 'Supabase tidak terhubung' };
             }
 
             try {
                 // Cek bucket
-                const bucketReady = await ensureBucketExists();
-                if (!bucketReady) {
-                    return { success: false, error: 'Bucket "' + BUCKET_NAME + '" tidak ditemukan. Pastikan nama bucket benar dan sudah dibuat.' };
+                const bucketStatus = await checkBucket();
+                if (!bucketStatus.exists) {
+                    return { success: false, error: 'Bucket "' + BUCKET_NAME + '" tidak ditemukan atau tidak terakses. Pastikan bucket sudah dibuat dan public.' };
                 }
 
                 const fileExt = file.name.split('.').pop();
@@ -637,7 +625,7 @@
                 const fileName = `${safeName}_${pertemuanId}_${Date.now()}.${fileExt}`;
                 const filePath = `submissions/${fileName}`;
 
-                console.log('Uploading file to:', filePath);
+                console.log('Uploading to:', filePath);
 
                 const { data, error } = await _supabase.storage
                     .from(BUCKET_NAME)
@@ -648,11 +636,10 @@
                     });
 
                 if (error) {
-                    console.error('Upload error detail:', error);
-                    return { success: false, error: error.message || 'Gagal upload ke storage' };
+                    console.error('Upload error:', error);
+                    return { success: false, error: error.message || 'Gagal upload' };
                 }
 
-                // Dapatkan URL publik
                 const { data: urlData } = _supabase.storage
                     .from(BUCKET_NAME)
                     .getPublicUrl(filePath);
@@ -1183,7 +1170,7 @@
                     <div class="form-group">
                         <label for="fileTugasSiswa">${hasLkpdLink ? 'Pilih file bukti (screenshot/PDF):' : 'Upload Jawaban (File / Image):'}</label>
                         <input type="file" id="fileTugasSiswa" accept="${hasLkpdLink ? '.pdf,.png,.jpg,.jpeg' : '*'}" required>
-                        ${hasLkpdLink ? '<small style="color:var(--text-light); font-size:11px;">Format: PDF, PNG, JPG. Maksimal 5MB.</small>' : '<small style="color:var(--text-light); font-size:11px;">Maksimal 5MB.</small>'}
+                        ${hasLkpdLink ? '<small style="color:var(--text-light); font-size:11px;">Format: PDF, PNG, JPG.</small>' : ''}
                     </div>
                     <div class="form-group">
                         <label for="catatanTugasSiswa">Catatan Opsional:</label>
@@ -1216,28 +1203,13 @@
                 return showToast("Pilih file terlebih dahulu!", true);
             }
 
-            if (file.size > 5 * 1024 * 1024) {
-                if (file.type.startsWith('image/')) {
-                    try {
-                        showToast('Mengompres gambar...', false);
-                        file = await compressImage(file, 2, 1200);
-                        if (file.size > 5 * 1024 * 1024) {
-                            statusDiv.className = 'status-message error';
-                            statusDiv.style.display = 'block';
-                            statusDiv.innerText = '❌ File terlalu besar. Maksimal 5MB.';
-                            return showToast("File terlalu besar. Maksimal 5MB.", true);
-                        }
-                    } catch (compressErr) {
-                        statusDiv.className = 'status-message error';
-                        statusDiv.style.display = 'block';
-                        statusDiv.innerText = '❌ Gagal kompres: ' + compressErr.message;
-                        return showToast("Gagal kompres gambar.", true);
-                    }
-                } else {
-                    statusDiv.className = 'status-message error';
-                    statusDiv.style.display = 'block';
-                    statusDiv.innerText = '❌ File terlalu besar. Maksimal 5MB.';
-                    return showToast("File terlalu besar. Maksimal 5MB.", true);
+            // Kompresi gambar jika perlu
+            if (file.type.startsWith('image/') && file.size > 2 * 1024 * 1024) {
+                try {
+                    showToast('Mengompres gambar...', false);
+                    file = await compressImage(file, 2, 1200);
+                } catch (compressErr) {
+                    console.warn('Compress error, lanjut dengan file asli:', compressErr);
                 }
             }
 
@@ -1254,26 +1226,28 @@
 
                 // STEP 1: Upload ke Supabase Storage
                 let fileUrl = null;
-                let uploadError = null;
+                let storageError = null;
+                let storageSuccess = false;
 
                 if (_supabase) {
                     const result = await uploadFileToStorage(file, namaSiswa, idPertemuan);
                     if (result.success) {
                         fileUrl = result.url;
+                        storageSuccess = true;
                     } else {
-                        uploadError = result.error;
-                        console.warn('Upload storage failed:', uploadError);
+                        storageError = result.error;
+                        console.warn('Upload storage failed:', storageError);
                     }
                 } else {
-                    uploadError = 'Supabase tidak terhubung';
+                    storageError = 'Supabase tidak terhubung';
                 }
 
-                // STEP 2: Simpan ke database (dengan URL atau fallback base64)
+                // STEP 2: Tentukan data yang akan disimpan
                 let jawabanFinal;
-                if (fileUrl) {
+                if (storageSuccess && fileUrl) {
                     jawabanFinal = fileUrl;
                 } else {
-                    // Fallback: simpan sebagai base64 (dengan kompresi jika perlu)
+                    // Fallback: simpan sebagai base64 langsung ke database
                     const reader = new FileReader();
                     const base64Data = await new Promise((resolve, reject) => {
                         reader.onload = () => resolve(reader.result);
@@ -1281,17 +1255,7 @@
                         reader.readAsDataURL(file);
                     });
                     jawabanFinal = JSON.stringify({ name: file.name, type: file.type, data: base64Data });
-                    // Jika terlalu besar, beri peringatan
-                    if (jawabanFinal.length > 500000) {
-                        statusDiv.className = 'status-message error';
-                        statusDiv.style.display = 'block';
-                        statusDiv.innerText = '⚠️ File terlalu besar untuk database. ' + (uploadError ? 'Error storage: ' +
-                            uploadError : '');
-                        showToast('File terlalu besar, gunakan storage.', true);
-                        btn.disabled = false;
-                        btn.innerHTML = hasLkpdLink ? '📩 Kirim Bukti' : '🚀 Kirim Jawaban';
-                        return;
-                    }
+                    // Tidak ada batasan ukuran di sini karena database TEXT bisa besar
                 }
 
                 const payload = {
@@ -1307,7 +1271,7 @@
                     submitted_at: new Date().toLocaleString('id-ID')
                 };
 
-                // Simpan ke Supabase
+                // Simpan ke database
                 if (_supabase) {
                     const { error } = await _supabase.from('submissions').insert([{
                         id: payload.id,
@@ -1327,11 +1291,19 @@
 
                 APP_DATA.submissions.unshift(payload);
 
-                const storageMsg = fileUrl ? ' (file tersimpan di server Supabase)' : ' (file disimpan di database)';
-                statusDiv.className = 'status-message success';
+                // Tampilkan status
+                let statusMsg = '✅ File berhasil dikirim!';
+                let statusClass = 'success';
+                if (storageSuccess) {
+                    statusMsg += ' (tersimpan di server Supabase)';
+                } else {
+                    statusMsg += ' (disimpan di database karena storage gagal: ' + (storageError || '') + ')';
+                    statusClass = 'warning';
+                }
+                statusDiv.className = 'status-message ' + statusClass;
                 statusDiv.style.display = 'block';
-                statusDiv.innerText = '✅ File berhasil dikirim!' + storageMsg;
-                showToast("File berhasil dikirim!" + storageMsg);
+                statusDiv.innerText = statusMsg;
+                showToast("File berhasil dikirim!");
 
                 fileInput.value = '';
                 if (catatanInput) catatanInput.value = '';
