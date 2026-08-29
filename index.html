@@ -614,18 +614,15 @@
             }
 
             try {
-                // Cek bucket
                 const bucketStatus = await checkBucket();
                 if (!bucketStatus.exists) {
-                    return { success: false, error: 'Bucket "' + BUCKET_NAME + '" tidak ditemukan atau tidak terakses. Pastikan bucket sudah dibuat dan public.' };
+                    return { success: false, error: 'Bucket "' + BUCKET_NAME + '" tidak ditemukan atau tidak terakses.' };
                 }
 
                 const fileExt = file.name.split('.').pop();
                 const safeName = namaSiswa.replace(/[^a-zA-Z0-9]/g, '_');
                 const fileName = `${safeName}_${pertemuanId}_${Date.now()}.${fileExt}`;
                 const filePath = `submissions/${fileName}`;
-
-                console.log('Uploading to:', filePath);
 
                 const { data, error } = await _supabase.storage
                     .from(BUCKET_NAME)
@@ -808,7 +805,7 @@
                         pertemuanId: s.pertemuan_id || s.pertemuanId,
                         nama_siswa: normalizeName(s.nama_siswa || s.namaSiswa),
                         namaSiswa: normalizeName(s.nama_siswa || s.namaSiswa),
-                        jawaban: s.jawaban || s.Jawaban || '',
+                        jawaban: s.jawaban || s.Jawaban || '', // ambil dari kolom Jawaban
                         Jawaban: s.jawaban || s.Jawaban || '',
                         nilai: s.nilai !== undefined ? s.nilai : 0,
                         catatan: s.catatan || '',
@@ -1255,7 +1252,6 @@
                         reader.readAsDataURL(file);
                     });
                     jawabanFinal = JSON.stringify({ name: file.name, type: file.type, data: base64Data });
-                    // Tidak ada batasan ukuran di sini karena database TEXT bisa besar
                 }
 
                 const payload = {
@@ -1271,13 +1267,13 @@
                     submitted_at: new Date().toLocaleString('id-ID')
                 };
 
-                // Simpan ke database
+                // Simpan ke database - gunakan kolom 'Jawaban' (capital J)
                 if (_supabase) {
                     const { error } = await _supabase.from('submissions').insert([{
                         id: payload.id,
                         pertemuan_id: idPertemuan,
                         nama_siswa: namaSiswa,
-                        jawaban: jawabanFinal,
+                        Jawaban: jawabanFinal, // <-- pakai Jawaban capital
                         nilai: 0,
                         catatan: payload.catatan,
                         submitted_at: payload.submitted_at
