@@ -637,7 +637,7 @@
                 <h3 style="color: var(--primary-purple); font-weight:700; margin-bottom:10px;">📌 Cara Penggunaan LMS:</h3>
                 <p>1. <b>Navigasi Menu:</b> Gunakan tombol di bagian atas untuk berpindah antar menu.</p>
                 <p>2. <b>Mempelajari Materi:</b> Buka menu <b>Materi Ajar</b>, pilih pertemuan untuk membaca modul.</p>
-                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan. Jika ada LKPD online, buka di tab baru, kerjakan, lalu screenshot atau unduh dari halaman asli, kemudian unggah buktinya.</p>
+                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan. Jika ada LKPD online, buka di tab baru, kerjakan, lalu screenshot atau unduh dari halaman asli, kemudian unggah buktinya. File akan tersimpan di server.</p>
                 <p>4. <b>Mengerjakan Asesmen:</b> Masuk ke menu <b>Asesmen</b>, pilih kategori dan isi jawaban langsung.</p>
                 <p>5. <b>Melihat Portofolio:</b> Akses menu <b>Portofolio Saya</b> untuk memantau rekap absensi serta riwayat tugas.</p>
             </div>
@@ -657,7 +657,7 @@
         <section id="s_tugas" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📝 Tugas LKPD</h2>
             <div class="card">
-                <p style="margin-bottom:12px; color:var(--text-dark);">Pilih pertemuan, lalu kerjakan LKPD yang tersedia. Untuk LKPD online, buka di tab baru, kerjakan, lalu screenshot/unduh hasilnya, kemudian unggah bukti pengerjaan.</p>
+                <p style="margin-bottom:12px; color:var(--text-dark);">Pilih pertemuan, lalu kerjakan LKPD yang tersedia. Untuk LKPD online, buka di tab baru, kerjakan, lalu screenshot/unduh hasilnya, kemudian unggah bukti pengerjaan. File akan tersimpan di server.</p>
                 <div class="form-group" style="max-width:400px;">
                     <label for="selectPertemuanTugas">Pilih Pertemuan:</label>
                     <select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select>
@@ -929,6 +929,7 @@
         const supabaseClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL,
             SUPABASE_PUBLISHABLE_KEY) : null;
         const _supabase = supabaseClient;
+        const BUCKET_NAME = 'lms-files'; // Nama bucket untuk menyimpan file
 
         // ============ DATA MURID TETAP ============
         const listMuridTetap = [
@@ -946,28 +947,6 @@
             "ZAMIR ALFAD GTHA"
         ];
 
-        // Fungsi untuk membersihkan localStorage jika melebihi kuota
-        function cleanupLocalStorage() {
-            try {
-                // Simpan data penting saja, hapus submission yang lama
-                if (APP_DATA.submissions && APP_DATA.submissions.length > 50) {
-                    APP_DATA.submissions = APP_DATA.submissions.slice(-50);
-                }
-                // Kosongkan jawaban yang terlalu besar dari localStorage (tetap simpan di Supabase)
-                APP_DATA.submissions = APP_DATA.submissions.map(s => {
-                    // Hanya simpan metadata, file besar tetap di Supabase
-                    if (s.jawaban && typeof s.jawaban === 'string' && s.jawaban.length > 500000) {
-                        s.jawaban = 'FILE_TOO_LARGE_STORED_IN_SUPABASE';
-                        s.Jawaban = 'FILE_TOO_LARGE_STORED_IN_SUPABASE';
-                    }
-                    return s;
-                });
-                saveDB();
-            } catch (e) {
-                console.warn('Cleanup localStorage failed:', e);
-            }
-        }
-
         let APP_DATA = null;
         try {
             APP_DATA = JSON.parse(localStorage.getItem('LMS_EMA_DATA_V10')) || {
@@ -981,7 +960,6 @@
                 kuisScores: []
             };
         } catch (e) {
-            // Jika data rusak, reset
             APP_DATA = {
                 students: [...listMuridTetap],
                 pertemuan: [],
@@ -1004,6 +982,107 @@
         let soalKuisTemp = [];
         let isDataLoadedFromSupabase = false;
 
+        // ============ FUNGSI STORAGE ============
+        async function ensureBucketExists() {
+            if (!_supabase) return false;
+            try {
+                // Cek apakah bucket sudah ada
+                const { data: buckets, error: listError } = await _supabase.storage.listBuckets();
+                if (listError) {
+                    console.warn('Gagal list buckets:', listError);
+                    return false;
+                }
+                const exists = buckets.some(b => b.name === BUCKET_NAME);
+                if (!exists) {
+                    // Buat bucket baru (public)
+                    const { error: createError } = await _supabase.storage.createBucket(BUCKET_NAME, {
+                        public: true,
+                        file_size_limit: 5242880, // 5MB
+                        allowed_mime_types: ['image/*', 'application/pdf', 'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                        ]
+                    });
+                    if (createError) {
+                        console.warn('Gagal buat bucket:', createError);
+                        return false;
+                    }
+                    console.log('Bucket berhasil dibuat:', BUCKET_NAME);
+                }
+                return true;
+            } catch (e) {
+                console.warn('Error bucket:', e);
+                return false;
+            }
+        }
+
+        async function uploadFileToStorage(file, namaSiswa, pertemuanId) {
+            if (!_supabase) return null;
+            try {
+                const bucketReady = await ensureBucketExists();
+                if (!bucketReady) return null;
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${namaSiswa}_${pertemuanId}_${Date.now()}.${fileExt}`;
+                const filePath = `submissions/${fileName}`;
+
+                const { data, error } = await _supabase.storage
+                    .from(BUCKET_NAME)
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false,
+                        contentType: file.type
+                    });
+
+                if (error) {
+                    console.warn('Upload file error:', error);
+                    return null;
+                }
+
+                // Dapatkan URL publik
+                const { data: urlData } = _supabase.storage
+                    .from(BUCKET_NAME)
+                    .getPublicUrl(filePath);
+
+                return urlData.publicUrl;
+            } catch (e) {
+                console.warn('Upload file exception:', e);
+                return null;
+            }
+        }
+
+        // ============ FUNGSI DB ============
+        function saveDB() {
+            try {
+                localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(APP_DATA));
+            } catch (e) {
+                console.warn('SaveDB error (quota exceeded):', e);
+                // Minimalisir data untuk localStorage
+                try {
+                    const minimalData = {
+                        students: APP_DATA.students,
+                        pertemuan: APP_DATA.pertemuan.map(p => ({ id: p.id, judul: p.judul, lkpdLink: p.lkpdLink })),
+                        absensi: APP_DATA.absensi,
+                        absensiDates: APP_DATA.absensiDates,
+                        kuisList: APP_DATA.kuisList,
+                        kuisScores: APP_DATA.kuisScores,
+                        submissions: APP_DATA.submissions.map(s => ({
+                            id: s.id,
+                            pertemuan_id: s.pertemuan_id,
+                            nama_siswa: s.nama_siswa,
+                            nilai: s.nilai,
+                            catatan: s.catatan,
+                            submitted_at: s.submitted_at,
+                            jawaban: s.jawaban && typeof s.jawaban === 'string' && s.jawaban.length > 1000 ?
+                                'FILE_IN_SERVER' : s.jawaban
+                        }))
+                    };
+                    localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(minimalData));
+                } catch (e2) {
+                    console.error('Gagal menyimpan data, kuota localStorage penuh:', e2);
+                }
+            }
+        }
+
         function normalizeName(str) {
             return (str || '').toString().trim().toUpperCase();
         }
@@ -1020,22 +1099,6 @@
                 return [];
             }
             return Array.isArray(parsed) ? parsed : [];
-        }
-
-        function saveDB() {
-            try {
-                localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(APP_DATA));
-            } catch (e) {
-                console.warn('SaveDB error (quota exceeded):', e);
-                // Coba cleanup
-                cleanupLocalStorage();
-                try {
-                    localStorage.setItem('LMS_EMA_DATA_V10', JSON.stringify(APP_DATA));
-                } catch (e2) {
-                    console.error('Gagal menyimpan data, kuota localStorage penuh:', e2);
-                    showToast('Penyimpanan lokal penuh, data disimpan di server.', true);
-                }
-            }
         }
 
         function showToast(message, isError = false) {
@@ -1069,7 +1132,7 @@
                 const [stRes, pRes, subRes, absRes, kuisRes, qaRes] = await Promise.allSettled([
                     fetchWithTimeout(_supabase.from('students').select('*').order('id', { ascending: true })),
                     fetchWithTimeout(_supabase.from('pertemuan').select('*').order('id', { ascending: true })),
-                    fetchWithTimeout(_supabase.from('submissions').select('*')),
+                    fetchWithTimeout(_supabase.from('submissions').select('*').order('id', { ascending: false })),
                     fetchWithTimeout(_supabase.from('absensi').select('*')),
                     fetchWithTimeout(_supabase.from('kuis').select('*').order('created_at', { ascending: false })),
                     fetchWithTimeout(_supabase.from('quiz_attempts').select('*'))
@@ -1097,18 +1160,28 @@
                     }));
                 }
                 if (subRes.status === 'fulfilled' && subRes.value.data) {
-                    APP_DATA.submissions = subRes.value.data.map(s => ({
+                    // Gabungkan data dari Supabase dengan localStorage
+                    const supabaseSubs = subRes.value.data.map(s => ({
                         id: s.id,
                         pertemuan_id: s.pertemuan_id || s.pertemuanId,
                         pertemuanId: s.pertemuan_id || s.pertemuanId,
                         nama_siswa: normalizeName(s.nama_siswa || s.namaSiswa),
                         namaSiswa: normalizeName(s.nama_siswa || s.namaSiswa),
-                        jawaban: s.jawaban || s.Jawaban,
-                        Jawaban: s.jawaban || s.Jawaban,
+                        jawaban: s.jawaban || s.Jawaban || '',
+                        Jawaban: s.jawaban || s.Jawaban || '',
                         nilai: s.nilai !== undefined ? s.nilai : 0,
                         catatan: s.catatan || '',
                         submitted_at: s.submitted_at || s.submittedAt || ''
                     }));
+                    // Gabung dengan yang di localStorage (hindari duplikat)
+                    const localSubs = APP_DATA.submissions || [];
+                    const allSubs = [...supabaseSubs];
+                    localSubs.forEach(local => {
+                        if (!allSubs.some(s => s.id === local.id)) {
+                            allSubs.push(local);
+                        }
+                    });
+                    APP_DATA.submissions = allSubs;
                 }
                 if (absRes.status === 'fulfilled' && absRes.value.data) {
                     absRes.value.data.forEach(item => {
@@ -1143,8 +1216,6 @@
                         submittedAt: q.submitted_at || q.submittedAt
                     }));
                 }
-                // Cleanup localStorage dari file besar
-                cleanupLocalStorage();
                 saveDB();
                 isDataLoadedFromSupabase = true;
             } catch (err) {
@@ -1293,7 +1364,7 @@
             if (btn) btn.classList.add('active');
         }
 
-        // ============ FILE HELPER - Kompresi Gambar ============
+        // ============ FILE HELPER ============
         function compressImage(file, maxSizeMB = 1.5, maxWidth = 1200) {
             return new Promise((resolve, reject) => {
                 if (!file.type.startsWith('image/')) {
@@ -1317,12 +1388,13 @@
                         ctx.drawImage(img, 0, 0, width, height);
                         let quality = 0.85;
                         let dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
-                        // Cek ukuran, jika masih terlalu besar turunkan kualitas
                         while (dataUrl.length > maxSizeMB * 1024 * 1024 && quality > 0.1) {
                             quality -= 0.1;
                             dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
                         }
-                        const compressedFile = new File([dataUrl], file.name, { type: file.type || 'image/jpeg' });
+                        // Konversi dataUrl ke File
+                        const blob = dataURLToBlob(dataUrl);
+                        const compressedFile = new File([blob], file.name, { type: file.type || 'image/jpeg' });
                         resolve(compressedFile);
                     };
                     img.onerror = reject;
@@ -1333,7 +1405,18 @@
             });
         }
 
-        // ============ FILE HELPER ============
+        function dataURLToBlob(dataUrl) {
+            const arr = dataUrl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
         function readFileAsBase64(file) {
             return new Promise((resolve, reject) => {
                 if (!file) resolve(null);
@@ -1496,7 +1579,7 @@
                                 <li>Klik tombol <strong>"Buka LKPD di Tab Baru"</strong> di bawah untuk membuka halaman LKPD.</li>
                                 <li>Kerjakan LKPD tersebut dengan teliti.</li>
                                 <li>Setelah selesai, <strong>ambil screenshot</strong> hasil pekerjaan Anda, atau <strong>download</strong> jika halaman menyediakan tombol download.</li>
-                                <li>Kembali ke halaman ini, lalu <strong>unggah file screenshot/PDF</strong> melalui form di bawah. <br> <small style="color:var(--text-light);">⚠️ Pastikan ukuran file tidak lebih dari 2MB.</small></li>
+                                <li>Kembali ke halaman ini, lalu <strong>unggah file screenshot/PDF</strong> melalui form di bawah. File akan tersimpan di server.</li>
                             </ol>
                             <p style="margin-top:10px; font-size:13px; color:#64748B;">💡 Tips: Gunakan tombol "Print Screen" atau aplikasi snipping tool untuk mengambil screenshot. Simpan sebagai gambar atau PDF.</p>
                         </div>
@@ -1518,12 +1601,13 @@
 
             // Status pengiriman
             if (existingSubmission) {
-                const fileInfo = existingSubmission.jawaban && typeof existingSubmission.jawaban === 'string' && 
-                                 existingSubmission.jawaban.startsWith('FILE_TOO_LARGE_STORED_IN_SUPABASE') ?
-                                 ' (file tersimpan di server)' : '';
+                const isFileStored = existingSubmission.jawaban && 
+                                     (typeof existingSubmission.jawaban === 'string' && 
+                                      (existingSubmission.jawaban.startsWith('http') || 
+                                       existingSubmission.jawaban === 'FILE_IN_SERVER'));
                 html += `
                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 16px; border-radius: 12px; margin: 15px 0;">
-                        <p style="color: #059669; font-weight: 600; margin: 0;">✅ File sudah terkirim pada ${existingSubmission.submitted_at || 'waktu yang lalu'}${fileInfo}</p>
+                        <p style="color: #059669; font-weight: 600; margin: 0;">✅ File sudah terkirim pada ${existingSubmission.submitted_at || 'waktu yang lalu'} ${isFileStored ? '(tersimpan di server)' : ''}</p>
                         <p style="font-size: 13px; color: var(--text-light); margin: 4px 0 0 0;">Anda dapat mengirim ulang jika ingin mengganti file.</p>
                     </div>
                 `;
@@ -1536,7 +1620,7 @@
                     <div class="form-group">
                         <label for="fileTugasSiswa">${hasLkpdLink ? 'Pilih file bukti (screenshot/PDF hasil LKPD):' : 'Upload Jawaban (File / Image):'}</label>
                         <input type="file" id="fileTugasSiswa" accept="${hasLkpdLink ? '.pdf,.png,.jpg,.jpeg' : '*'}" required>
-                        ${hasLkpdLink ? '<small style="color:var(--text-light); font-size:11px;">Format yang diterima: PDF, PNG, JPG. Maksimal 2MB.</small>' : '<small style="color:var(--text-light); font-size:11px;">Maksimal 2MB.</small>'}
+                        ${hasLkpdLink ? '<small style="color:var(--text-light); font-size:11px;">Format yang diterima: PDF, PNG, JPG. Maksimal 5MB.</small>' : '<small style="color:var(--text-light); font-size:11px;">Maksimal 5MB.</small>'}
                     </div>
                     <div class="form-group">
                         <label for="catatanTugasSiswa">Catatan Opsional:</label>
@@ -1571,18 +1655,18 @@
                 return showToast("Pilih file terlebih dahulu!", true);
             }
 
-            // Validasi ukuran file (maks 2MB)
-            if (file.size > 2 * 1024 * 1024) {
+            // Validasi ukuran file (maks 5MB)
+            if (file.size > 5 * 1024 * 1024) {
                 // Coba kompres jika gambar
                 if (file.type.startsWith('image/')) {
                     try {
                         showToast('Mengompres gambar...', false);
-                        file = await compressImage(file, 1.5, 1200);
-                        if (file.size > 2 * 1024 * 1024) {
+                        file = await compressImage(file, 2, 1200);
+                        if (file.size > 5 * 1024 * 1024) {
                             statusDiv.className = 'status-message error';
                             statusDiv.style.display = 'block';
-                            statusDiv.innerText = '❌ File terlalu besar. Maksimal 2MB.';
-                            return showToast("File terlalu besar. Maksimal 2MB.", true);
+                            statusDiv.innerText = '❌ File terlalu besar. Maksimal 5MB.';
+                            return showToast("File terlalu besar. Maksimal 5MB.", true);
                         }
                     } catch (compressErr) {
                         console.error('Compress error:', compressErr);
@@ -1594,8 +1678,8 @@
                 } else {
                     statusDiv.className = 'status-message error';
                     statusDiv.style.display = 'block';
-                    statusDiv.innerText = '❌ File terlalu besar. Maksimal 2MB.';
-                    return showToast("File terlalu besar. Maksimal 2MB.", true);
+                    statusDiv.innerText = '❌ File terlalu besar. Maksimal 5MB.';
+                    return showToast("File terlalu besar. Maksimal 5MB.", true);
                 }
             }
 
@@ -1604,14 +1688,6 @@
             btn.innerHTML = `<span class="spinner"></span> Mengirim...`;
 
             try {
-                // Baca file sebagai base64
-                let base64;
-                try {
-                    base64 = await readFileAsBase64(file);
-                } catch (readError) {
-                    throw new Error('Gagal membaca file: ' + readError.message);
-                }
-
                 const namaSiswa = currentUser ? normalizeName(currentUser.name) : "SISWA";
                 const p = APP_DATA.pertemuan.find(x => x.id == idPertemuan);
                 const hasLkpdLink = p && p.lkpdLink && p.lkpdLink.trim() !== '';
@@ -1621,20 +1697,40 @@
                     catatanFinal = (catatanFinal ? catatanFinal + ' | ' : '') + 'Bukti LKPD online';
                 }
 
+                // STEP 1: Upload file ke Supabase Storage
+                let fileUrl = null;
+                let uploadError = null;
+                if (_supabase) {
+                    try {
+                        fileUrl = await uploadFileToStorage(file, namaSiswa, idPertemuan);
+                        if (fileUrl) {
+                            console.log('File uploaded to Supabase:', fileUrl);
+                        } else {
+                            uploadError = 'Gagal upload ke storage';
+                        }
+                    } catch (uploadErr) {
+                        uploadError = uploadErr.message || 'Error upload';
+                        console.warn('Upload storage error:', uploadErr);
+                    }
+                }
+
+                // STEP 2: Simpan ke tabel submissions
                 const payload = {
                     id: Date.now(),
                     pertemuan_id: idPertemuan,
                     pertemuanId: idPertemuan,
                     nama_siswa: namaSiswa,
                     namaSiswa: namaSiswa,
-                    jawaban: JSON.stringify(base64),
-                    Jawaban: JSON.stringify(base64),
+                    jawaban: fileUrl || JSON.stringify({ name: file.name, type: file.type, data: await readFileAsBase64(file)
+                            .then(r => r.data) }),
+                    Jawaban: fileUrl || JSON.stringify({ name: file.name, type: file.type, data: await readFileAsBase64(file)
+                            .then(r => r.data) }),
                     nilai: 0,
                     catatan: catatanFinal,
                     submitted_at: new Date().toLocaleString('id-ID')
                 };
 
-                // Simpan ke Supabase (prioritas utama)
+                // Simpan ke Supabase table
                 let supabaseSuccess = false;
                 if (_supabase) {
                     try {
@@ -1657,31 +1753,22 @@
                     }
                 }
 
-                // Jika Supabase gagal, simpan ke localStorage (dengan batasan ukuran)
-                if (!supabaseSuccess) {
-                    // Jika file terlalu besar untuk localStorage, simpan hanya metadata
-                    if (payload.jawaban && payload.jawaban.length > 500000) {
-                        payload.jawaban = 'FILE_TOO_LARGE_STORED_IN_SUPABASE';
-                        payload.Jawaban = 'FILE_TOO_LARGE_STORED_IN_SUPABASE';
-                        showToast('File besar disimpan di server (Supabase).', false);
-                    }
-                    if (!APP_DATA.submissions) APP_DATA.submissions = [];
-                    APP_DATA.submissions.push(payload);
-                    saveDB();
-                } else {
-                    // Jika sukses di Supabase, simpan metadata ringan di localStorage
-                    const metaPayload = { ...payload };
-                    metaPayload.jawaban = 'STORED_IN_SUPABASE';
-                    metaPayload.Jawaban = 'STORED_IN_SUPABASE';
-                    if (!APP_DATA.submissions) APP_DATA.submissions = [];
-                    APP_DATA.submissions.push(metaPayload);
-                    saveDB();
+                // Simpan ke localStorage (ringan)
+                const localPayload = { ...payload };
+                if (localPayload.jawaban && typeof localPayload.jawaban === 'string' && localPayload.jawaban.length > 500) {
+                    localPayload.jawaban = 'FILE_IN_SERVER';
+                    localPayload.Jawaban = 'FILE_IN_SERVER';
                 }
+                if (!APP_DATA.submissions) APP_DATA.submissions = [];
+                APP_DATA.submissions.push(localPayload);
+                saveDB();
 
                 // Tampilkan sukses
                 statusDiv.className = 'status-message success';
                 statusDiv.style.display = 'block';
-                statusDiv.innerText = '✅ File berhasil dikirim!' + (supabaseSuccess ? ' (tersimpan di server)' : ' (tersimpan di lokal)');
+                const storageMsg = fileUrl ? ' (file tersimpan di server)' : (uploadError ? ' (file tersimpan di database)' :
+                    '');
+                statusDiv.innerText = '✅ File berhasil dikirim!' + storageMsg;
                 showToast(hasLkpdLink ? "Bukti LKPD berhasil dikirim!" : "Jawaban berhasil terkirim!");
 
                 // Reset form
@@ -1701,25 +1788,26 @@
                 showToast("Gagal mengirim file: " + (error.message || 'Terjadi kesalahan'), true);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = fileInput && fileInput.accept && fileInput.accept.includes('.pdf') ? '📩 Kirim Bukti' : '🚀 Kirim Jawaban';
+                btn.innerHTML = fileInput && fileInput.accept && fileInput.accept.includes('.pdf') ? '📩 Kirim Bukti' :
+                    '🚀 Kirim Jawaban';
             }
         }
 
         // ============ PORTOFOLIO GURU ============
         function renderJawabanSiswa(jawabanRaw) {
             if (!jawabanRaw) return "<i>Belum ada jawaban</i>";
-            // Cek apakah ini metadata dari Supabase
-            if (jawabanRaw === 'STORED_IN_SUPABASE' || jawabanRaw === 'FILE_TOO_LARGE_STORED_IN_SUPABASE') {
+            if (jawabanRaw === 'FILE_IN_SERVER') {
                 return `<span style="color:#059669; font-weight:600;">✅ File tersimpan di server</span>`;
+            }
+            if (typeof jawabanRaw === 'string' && jawabanRaw.startsWith('http')) {
+                return `<a href="${jawabanRaw}" target="_blank" class="file-link download-btn">⬇️ Download File</a>`;
             }
             try {
                 let parsed = jawabanRaw;
                 if (typeof parsed === 'string') {
                     try { parsed = JSON.parse(parsed); } catch (e) {}
                 }
-                if (parsed.type === 'link' || parsed.url) {
-                    return `<a href="${parsed.url}" target="_blank" style="color: #7c3aed; font-weight:600;">🔗 Tautan Tugas</a>`;
-                } else if (parsed.data) {
+                if (parsed && parsed.data) {
                     const fileName = parsed.name || 'tugas';
                     let downloadLink = parsed.data;
                     if (!downloadLink.startsWith('data:')) {
