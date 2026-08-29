@@ -134,14 +134,13 @@
             display: inline-block; text-align: center; text-decoration: none;
         }
         .btn-external:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-export {
+        .btn-download {
             background: linear-gradient(135deg, #10B981, #059669); color: white;
-            border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer;
+            border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;
             font-family: 'Poppins', sans-serif; font-weight: 600;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
             transition: 0.3s; display: inline-block; text-align: center;
         }
-        .btn-export:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-download:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .table-responsive { width: 100%; overflow-x: auto; border-radius: 16px; border: 1px solid rgba(168,85,247,0.2); margin-top: 15px; background: #FFFFFF; }
         table { width: 100%; border-collapse: collapse; }
         table, th, td { border: 1px solid rgba(168,85,247,0.15); }
@@ -170,7 +169,6 @@
         .badge-done { background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
         .badge-purple { background: rgba(124,58,237,0.15); color: #7C3AED; border: 1px solid rgba(124,58,237,0.3); }
         .badge-blue { background: rgba(14,165,233,0.15); color: #0284C7; border: 1px solid rgba(14,165,233,0.3); }
-        .badge-game { background: rgba(245,158,11,0.15); color: #D97706; border: 1px solid rgba(245,158,11,0.3); }
         .img-preview { max-width: 100%; max-height: 350px; border-radius: 14px; margin-top: 10px; }
         .file-link {
             display: inline-block; background: rgba(124, 58, 237, 0.1); color: #7C3AED;
@@ -183,8 +181,6 @@
         .file-link.download-btn:hover { background: #059669; }
         .lkpd-iframe-wrapper { width: 100%; height: 700px; border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); background: #fff; overflow: hidden; }
         .lkpd-iframe-wrapper iframe { width: 100%; height: 100%; border: none; border-radius: 16px; }
-        .game-iframe-wrapper { width: 100%; height: 600px; border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); background: #fff; overflow: hidden; }
-        .game-iframe-wrapper iframe { width: 100%; height: 100%; border: none; border-radius: 16px; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
         .toast {
             background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 12px 20px;
@@ -214,18 +210,24 @@
         .status-message.success { display: block; background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
         .status-message.error { display: block; background: rgba(239,68,68,0.15); color: #DC2626; border: 1px solid rgba(239,68,68,0.3); }
         .status-message.warning { display: block; background: rgba(245,158,11,0.15); color: #B45309; border: 1px solid rgba(245,158,11,0.3); }
-        .game-list-item {
-            background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 12px;
-            border-left: 5px solid #D97706; transition: 0.2s;
+        .game-link-item {
+            background: #f8fafc; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px;
+            border-left: 4px solid #7C3AED; display: flex; justify-content: space-between; align-items: center;
         }
-        .game-list-item:hover { background: #f1f5f9; }
-        .game-list-item a { color: var(--primary-purple); font-weight: 600; text-decoration: none; }
-        .game-list-item a:hover { text-decoration: underline; }
+        .game-link-item a { color: #7C3AED; font-weight: 600; text-decoration: none; }
+        .game-link-item a:hover { text-decoration: underline; }
         @media print {
             body * { visibility: hidden; }
             #printablePortofolioArea, #printablePortofolioArea * { visibility: visible; }
             #printablePortofolioArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white !important; }
             .no-print { display: none !important; }
+        }
+        .rekap-nama-cell {
+            max-width: 200px; word-wrap: break-word; white-space: normal !important;
+        }
+        .table-responsive table th:first-child,
+        .table-responsive table td:first-child {
+            max-width: 200px; word-wrap: break-word; white-space: normal !important;
         }
     </style>
 </head>
@@ -291,10 +293,10 @@
             <div class="card">
                 <h3 style="color: var(--primary-purple); font-weight:700; margin-bottom:10px;">📌 Cara Penggunaan LMS:</h3>
                 <p>1. <b>Navigasi Menu:</b> Gunakan tombol di bagian atas untuk berpindah antar menu.</p>
-                <p>2. <b>Mempelajari Materi:</b> Buka menu <b>Materi Ajar</b>, pilih pertemuan untuk membaca modul.</p>
-                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan. Jika ada LKPD online, buka di tab baru, kerjakan, lalu screenshot atau unduh dari halaman asli, kemudian unggah buktinya.</p>
-                <p>4. <b>Mengerjakan Asesmen:</b> Masuk ke menu <b>Asesmen</b>, pilih kategori dan ikuti link game interaktif atau kerjakan soal.</p>
-                <p>5. <b>Melihat Portofolio:</b> Akses menu <b>Portofolio Saya</b> untuk memantau rekap absensi serta riwayat tugas.</p>
+                <p>2. <b>Mempelajari Materi:</b> Buka menu <b>Materi Ajar</b>, pilih pertemuan untuk membaca modul dan download file.</p>
+                <p>3. <b>Mengerjakan Tugas LKPD:</b> Buka menu <b>Tugas LKPD</b>, pilih pertemuan, lalu unggah bukti.</p>
+                <p>4. <b>Mengerjakan Asesmen & Games:</b> Masuk ke menu <b>Asesmen</b>, pilih kategori, dan ikuti link games interaktif.</p>
+                <p>5. <b>Melihat Portofolio:</b> Akses menu <b>Portofolio Saya</b> untuk melihat rekap absensi dan tugas.</p>
             </div>
         </section>
 
@@ -321,20 +323,20 @@
             <div id="contentTugasSiswa"></div>
         </section>
 
-        <!-- Asesmen -->
+        <!-- Asesmen Siswa (dengan games) -->
         <section id="s_kuis" class="section">
-            <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">🧠 Asesmen &amp; Evaluasi</h2>
+            <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">🧠 Asesmen &amp; Games Interaktif</h2>
             <div class="card">
                 <div class="login-tab" style="margin-bottom:20px; overflow-x:auto; white-space:nowrap; display:flex; gap:5px;">
                     <button class="active" onclick="switchKuisKategoriSiswa('Asesmen Diagnostik', this)">Asesmen Diagnostik</button>
                     <button onclick="switchKuisKategoriSiswa('Pretest', this)">Pretest</button>
                     <button onclick="switchKuisKategoriSiswa('Postest', this)">Postest</button>
                     <button onclick="switchKuisKategoriSiswa('Kuis', this)">Kuis</button>
-                    <button onclick="switchKuisKategoriSiswa('Game Interaktif', this)" style="background:rgba(245,158,11,0.1);">🎮 Game</button>
+                    <button onclick="switchKuisKategoriSiswa('Games', this)" style="background:#10B981; color:white; border-radius:12px;">🎮 Games</button>
                 </div>
-                <p style="margin-bottom:10px;">Pilih asesmen yang disiapkan oleh Ibu Ema Humaera:</p>
+                <p style="margin-bottom:10px;">Pilih asesmen atau games yang disiapkan oleh Ibu Ema Humaera:</p>
                 <div class="form-group" style="max-width:400px;">
-                    <label for="selectKuisSiswa">Pilih Asesmen / Game:</label>
+                    <label for="selectKuisSiswa">Pilih Asesmen / Games:</label>
                     <select id="selectKuisSiswa" onchange="tampilkanKuisDanSoalSiswa(this.value)">
                         <option value="">-- Pilih --</option>
                     </select>
@@ -342,9 +344,9 @@
             </div>
             <div id="containerSoalSiswa" style="margin-top:20px;"></div>
             <div class="card" style="margin-top:30px;">
-                <h3 style="color:var(--primary-purple); font-weight:700;">📜 Riwayat Asesmen yang Telah Dikerjakan</h3>
+                <h3 style="color:var(--primary-purple); font-weight:700;">📜 Riwayat Asesmen & Games yang Telah Dikerjakan</h3>
                 <div id="containerRiwayatKuisSiswa">
-                    <p style="color:var(--text-light);">Belum ada riwayat asesmen.</p>
+                    <p style="color:var(--text-light);">Belum ada riwayat.</p>
                 </div>
             </div>
         </section>
@@ -382,13 +384,14 @@
                     <p style="color:var(--text-light);">Memuat data tugas...</p>
                 </div>
                 <div class="card" style="margin-top:20px;">
-                    <h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px;">🧠 Rekap Hasil Seluruh Asesmen &amp; Kuis</h3>
+                    <h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px;">🧠 Rekap Hasil Seluruh Asesmen &amp; Games</h3>
                     <div id="containerPortofolioKuis"></div>
                 </div>
             </div>
         </section>
 
         <!-- ======================== GURU ======================== -->
+        <!-- Portofolio Murid -->
         <section id="g_portofolio" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📂 Portofolio Hasil Kerja &amp; Penilaian Murid</h2>
             <div class="card">
@@ -418,6 +421,7 @@
             </div>
         </section>
 
+        <!-- Daftar Pertemuan (Guru) -->
         <section id="g_daftar_pertemuan" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📋 Daftar Pertemuan &amp; Materi Tersimpan</h2>
             <div class="card">
@@ -432,10 +436,11 @@
             </div>
         </section>
 
+        <!-- Buat Pertemuan (dengan upload file ke storage) -->
         <section id="g_kelola" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">✨ Buat / Unggah Modul Pertemuan Baru</h2>
             <div class="card">
-                <form onsubmit="simpanPertemuanBaru(event)">
+                <form id="formPertemuan" onsubmit="simpanPertemuanBaru(event)">
                     <div class="form-group">
                         <label for="g_judulPertemuan">Judul Pertemuan:</label>
                         <input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Pengenalan Algoritma">
@@ -444,9 +449,9 @@
                         <div class="card" style="margin-bottom:0;">
                             <h4 style="font-weight:700; color:var(--primary-purple); margin-bottom:10px;">1. Materi Ajar</h4>
                             <textarea id="g_materiText" rows="3" placeholder="Penjelasan atau pengantar materi..."></textarea>
-                            <label style="font-size:12px; margin-top:8px; display:block; font-weight:600;">Unggah File Materi (PDF/Gambar/Doc/PPT):</label>
-                            <input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx,.xls,.xlsx,.txt">
-                            <small style="color:var(--text-light); font-size:11px;">File akan tampil & bisa di-download oleh murid.</small>
+                            <label style="font-size:12px; margin-top:8px; display:block;">Unggah File Materi (PDF/Gambar/Doc/PPT):</label>
+                            <input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx,.mp4,.zip">
+                            <small style="color:var(--text-light); font-size:11px;">File akan tersimpan di server dan bisa di-download murid.</small>
                         </div>
                         <div class="card" style="margin-bottom:0;">
                             <h4 style="font-weight:700; color:var(--primary-purple); margin-bottom:10px;">2. LKPD Online &amp; Instruksi</h4>
@@ -457,14 +462,15 @@
                             <input type="file" id="g_lkpdFile" style="margin-top:8px;">
                         </div>
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Terbitkan Pertemuan</button>
+                    <button type="submit" class="btn-submit" style="width:100%;" id="btnTerbitkanPertemuan">Terbitkan Pertemuan</button>
+                    <div id="statusPertemuan" class="status-message"></div>
                 </form>
             </div>
         </section>
 
-        <!-- Kelola Asesmen + Game Interaktif -->
+        <!-- Kelola Asesmen + Games -->
         <section id="g_kuis" class="section">
-            <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">✨ Buat &amp; Kelola Asesmen &amp; Game Interaktif</h2>
+            <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">✨ Buat &amp; Kelola Asesmen &amp; Games</h2>
             <div class="card">
                 <form onsubmit="simpanKuisBaru(event)">
                     <div class="form-group">
@@ -474,46 +480,40 @@
                             <option value="Pretest">Pretest</option>
                             <option value="Postest">Postest</option>
                             <option value="Kuis">Kuis</option>
-                            <option value="Game Interaktif">🎮 Game Interaktif</option>
+                            <option value="Games">🎮 Games Interaktif</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="g_kuisJudul">Judul Asesmen / Game:</label>
-                        <input type="text" id="g_kuisJudul" placeholder="Contoh: Game Kuis Pemrograman" required>
-                    </div>
-                    <div class="form-group" id="gameLinkGroup" style="display:none;">
-                        <label for="g_kuisGameLink">🔗 Link Game Interaktif:</label>
-                        <input type="url" id="g_kuisGameLink" placeholder="https://contoh.com/game-interaktif" style="margin-top:4px;">
-                        <small style="color:var(--text-light); font-size:11px;">Masukkan URL game interaktif (Wordwall, Quizizz, dll).</small>
+                        <label for="g_kuisJudul">Judul:</label>
+                        <input type="text" id="g_kuisJudul" placeholder="Contoh: Game Kuis Interaktif" required>
                     </div>
                     <div class="form-group">
-                        <label for="g_kuisDesc">Deskripsi / Instruksi:</label>
-                        <textarea id="g_kuisDesc" rows="2" placeholder="Petunjuk pengerjaan..."></textarea>
+                        <label for="g_kuisDesc">Deskripsi / Link Games:</label>
+                        <textarea id="g_kuisDesc" rows="2" placeholder="Untuk Games, masukkan URL link games (misal: https://quizizz.com/..."></textarea>
                     </div>
-                    <div id="soalContainerGuru" style="display:block;">
-                        <h3 style="color:var(--primary-purple); font-weight:700; margin-top:20px; margin-bottom:10px;">Daftar Soal (untuk Asesmen Biasa)</h3>
-                        <div id="containerSoalGuru"></div>
-                        <div style="margin-bottom:20px;">
-                            <button type="button" class="btn-submit" style="width:100%; border:2px dashed #7C3AED; background:rgba(124,58,237,0.05); color:#7C3AED;" onclick="tambahFormSoal()">+ Tambah Nomor Soal Baru</button>
-                        </div>
+                    <!-- Untuk soal biasa, tetap ada -->
+                    <div id="containerSoalGuru"></div>
+                    <div style="margin-bottom:20px;">
+                        <button type="button" class="btn-submit" style="width:100%; border:2px dashed #7C3AED; background:rgba(124,58,237,0.05); color:#7C3AED;" onclick="tambahFormSoal()">+ Tambah Nomor Soal Baru</button>
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Terbitkan Asesmen / Game</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Terbitkan</button>
                 </form>
             </div>
             <div class="card">
-                <h3 style="color:var(--primary-purple); font-weight:700;">📋 Daftar Asesmen &amp; Game Aktif</h3>
+                <h3 style="color:var(--primary-purple); font-weight:700;">📋 Daftar Asesmen & Games Aktif</h3>
                 <div class="login-tab" style="margin-bottom:20px; overflow-x:auto; white-space:nowrap; display:flex; gap:5px;">
                     <button class="active" onclick="switchKuisKategoriGuru('Asesmen Diagnostik', this)">Asesmen Diagnostik</button>
                     <button onclick="switchKuisKategoriGuru('Pretest', this)">Pretest</button>
                     <button onclick="switchKuisKategoriGuru('Postest', this)">Postest</button>
                     <button onclick="switchKuisKategoriGuru('Kuis', this)">Kuis</button>
-                    <button onclick="switchKuisKategoriGuru('Game Interaktif', this)" style="background:rgba(245,158,11,0.1);">🎮 Game</button>
+                    <button onclick="switchKuisKategoriGuru('Games', this)" style="background:#10B981; color:white; border-radius:12px;">🎮 Games</button>
                 </div>
                 <div id="tabelDaftarKuisGuru"></div>
             </div>
             <div id="containerHasilKuisGuru" style="margin-top:20px; display:none;"></div>
         </section>
 
+        <!-- Data Murid -->
         <section id="g_siswa" class="section">
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">👥 Kelola Daftar Nama Murid (Whitelist)</h2>
             <div class="card">
@@ -540,14 +540,11 @@
             <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📊 Absensi Kelas &amp; Rekapitulasi Kehadiran</h2>
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px; margin-top:0;">📈 Rekapitulasi Kehadiran Seluruh Murid</h3>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button onclick="exportAbsensiCSV()" class="btn-export no-print">📥 Download CSV</button>
-                        <button onclick="exportAbsensiPDF()" class="btn-export no-print" style="background:linear-gradient(135deg, #EF4444, #DC2626);">📥 Download PDF</button>
-                    </div>
+                    <h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:0;">📈 Rekapitulasi Kehadiran Seluruh Murid</h3>
+                    <button onclick="downloadRekapAbsensi()" class="btn-download">📥 Download Rekap (CSV)</button>
                 </div>
                 <div class="table-responsive">
-                    <table id="rekapAbsensiTable">
+                    <table>
                         <thead>
                             <tr>
                                 <th style="max-width:200px; word-wrap:break-word; white-space:normal;">Nama Murid</th>
@@ -577,7 +574,7 @@
                 </div>
             </div>
             <div class="absensi-table-container">
-                <table class="absensi-table" id="absensiMatrixTable">
+                <table class="absensi-table">
                     <thead>
                         <tr>
                             <th rowspan="3" class="sticky-col-header" style="vertical-align:middle;">NAMA MURID</th>
@@ -647,7 +644,7 @@
             }
         }
 
-        async function uploadFileToStorage(file, namaSiswa, pertemuanId, folder = 'submissions') {
+        async function uploadFileToStorage(file, folder = 'materi') {
             if (!_supabase) {
                 return { success: false, error: 'Supabase tidak terhubung' };
             }
@@ -657,12 +654,10 @@
                     return { success: false, error: 'Bucket "' + BUCKET_NAME + '" tidak ditemukan.' };
                 }
                 const fileExt = file.name.split('.').pop();
-                const safeName = namaSiswa.replace(/[^a-zA-Z0-9]/g, '_');
-                const fileName = `${safeName}_${pertemuanId}_${Date.now()}.${fileExt}`;
-                const filePath = `${folder}/${fileName}`;
+                const fileName = `${folder}/${Date.now()}_${file.name}`;
                 const { data, error } = await _supabase.storage
                     .from(BUCKET_NAME)
-                    .upload(filePath, file, {
+                    .upload(fileName, file, {
                         cacheControl: '3600',
                         upsert: false,
                         contentType: file.type
@@ -673,7 +668,7 @@
                 }
                 const { data: urlData } = _supabase.storage
                     .from(BUCKET_NAME)
-                    .getPublicUrl(filePath);
+                    .getPublicUrl(fileName);
                 return { success: true, url: urlData.publicUrl };
             } catch (e) {
                 console.error('Upload exception:', e);
@@ -742,8 +737,8 @@
             try {
                 const cache = {
                     students: APP_DATA.students,
-                    pertemuan: APP_DATA.pertemuan.map(p => ({ id: p.id, judul: p.judul, lkpdLink: p.lkpdLink, materiFile: p
-                            .materiFile })),
+                    pertemuan: APP_DATA.pertemuan.map(p => ({ id: p.id, judul: p.judul, lkpdLink: p.lkpdLink,
+                        materiFile: p.materiFile })),
                     absensi: APP_DATA.absensi,
                     absensiDates: APP_DATA.absensiDates,
                     kuisList: APP_DATA.kuisList,
@@ -823,12 +818,10 @@
                         id: p.id,
                         judul: p.judul,
                         materiText: p.materi_text || p.materiText || '',
-                        materiFile: typeof p.materi_file === 'string' ? JSON.parse(p.materi_file || 'null') : (p
-                            .materi_file || p.materiFile || null),
+                        materiFile: p.materi_file || p.materiFile || null,
                         lkpdText: p.lkpd_text || p.lkpdText || '',
                         lkpdLink: p.lkpd_link || p.lkpdLink || '',
-                        lkpdFile: typeof p.lkpd_file === 'string' ? JSON.parse(p.lkpd_file || 'null') : (p.lkpd_file ||
-                            p.lkpdFile || null)
+                        lkpdFile: p.lkpd_file || p.lkpdFile || null
                     }));
                 }
 
@@ -866,7 +859,6 @@
                         kategori: k.kategori,
                         judul: k.judul,
                         desc: k.desc || k.deskripsi || '',
-                        gameLink: k.game_link || '',
                         soal: parseSoalSafely(k.soal),
                         created_at: k.created_at
                     }));
@@ -970,7 +962,7 @@
                     <button class="nav-btn active" onclick="showSection('s_beranda', this)">Beranda</button>
                     <button class="nav-btn" onclick="showSection('s_materi', this)">Materi Ajar</button>
                     <button class="nav-btn" onclick="showSection('s_tugas', this)">Tugas LKPD</button>
-                    <button class="nav-btn" onclick="showSection('s_kuis', this)">Asesmen</button>
+                    <button class="nav-btn" onclick="showSection('s_kuis', this)">Asesmen & Games</button>
                     <button class="nav-btn" onclick="showSection('s_portofolio', this)">Portofolio Saya</button>
                     <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
                 `;
@@ -983,7 +975,7 @@
                     <button class="nav-btn active" onclick="showSection('g_portofolio', this)">Portofolio Murid</button>
                     <button class="nav-btn" onclick="showSection('g_daftar_pertemuan', this)">Modul Materi</button>
                     <button class="nav-btn" onclick="showSection('g_kelola', this)">+ Buat Pertemuan</button>
-                    <button class="nav-btn" onclick="showSection('g_kuis', this)">Kelola Asesmen</button>
+                    <button class="nav-btn" onclick="showSection('g_kuis', this)">Kelola Asesmen & Games</button>
                     <button class="nav-btn" onclick="showSection('g_siswa', this)">Data Murid</button>
                     <button class="nav-btn" onclick="showSection('g_absensi', this)">Absensi</button>
                     <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
@@ -1014,55 +1006,97 @@
             if (btn) btn.classList.add('active');
         }
 
-        // ============ PERTEMUAN ============
+        // ============ PERTEMUAN dengan Upload File ke Storage ============
         async function simpanPertemuanBaru(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnTerbitkanPertemuan');
+            const statusDiv = document.getElementById('statusPertemuan');
+
+            statusDiv.className = 'status-message';
+            statusDiv.style.display = 'none';
+
             const judul = document.getElementById('g_judulPertemuan').value;
             const materiText = document.getElementById('g_materiText').value;
             const lkpdText = document.getElementById('g_lkpdText').value;
             const lkpdLink = document.getElementById('g_lkpdLink').value;
-            
-            // Upload materi file ke storage
+
             const materiFileInput = document.getElementById('g_materiFile');
+            const lkpdFileInput = document.getElementById('g_lkpdFile');
+
             let materiFile = null;
-            if (materiFileInput.files.length > 0) {
-                const file = materiFileInput.files[0];
-                const result = await uploadFileToStorage(file, 'materi', Date.now(), 'materi');
-                if (result.success) {
-                    materiFile = { name: file.name, type: file.type, url: result.url };
-                } else {
-                    // Fallback: simpan base64
-                    const base64 = await readFileAsBase64(file);
-                    materiFile = { name: file.name, type: file.type, data: base64.data };
+            let lkpdFile = null;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner"></span> Mengunggah...`;
+
+            try {
+                // Upload file materi ke storage
+                if (materiFileInput.files && materiFileInput.files[0]) {
+                    const result = await uploadFileToStorage(materiFileInput.files[0], 'materi');
+                    if (result.success) {
+                        materiFile = result.url;
+                    } else {
+                        throw new Error('Gagal upload file materi: ' + result.error);
+                    }
                 }
-            }
-            
-            const lkpdFile = await readFileAsBase64(document.getElementById('g_lkpdFile').files[0]);
-            const newP = { id: Date.now(), judul, materiText, materiFile, lkpdText, lkpdLink, lkpdFile };
-            if (_supabase) {
-                try {
+
+                // Upload file LKPD jika ada
+                if (lkpdFileInput.files && lkpdFileInput.files[0]) {
+                    const result = await uploadFileToStorage(lkpdFileInput.files[0], 'lkpd');
+                    if (result.success) {
+                        lkpdFile = result.url;
+                    } else {
+                        throw new Error('Gagal upload file LKPD: ' + result.error);
+                    }
+                }
+
+                const newP = {
+                    id: Date.now(),
+                    judul,
+                    materiText,
+                    materiFile, // URL dari storage
+                    lkpdText,
+                    lkpdLink,
+                    lkpdFile // URL dari storage
+                };
+
+                // Simpan ke database
+                if (_supabase) {
                     const { error } = await _supabase.from('pertemuan').insert([{
                         id: newP.id,
                         judul: newP.judul,
                         materi_text: newP.materiText,
-                        materi_file: newP.materiFile ? JSON.stringify(newP.materiFile) : null,
+                        materi_file: newP.materiFile,
                         lkpd_text: newP.lkpdText,
                         lkpd_link: newP.lkpdLink,
-                        lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null
+                        lkpd_file: newP.lkpdFile
                     }]);
                     if (error) throw error;
-                } catch (err) {
-                    console.error("Supabase error:", err);
-                    showToast('Gagal simpan ke Supabase: ' + err.message, true);
-                    return;
                 }
+
+                APP_DATA.pertemuan.push(newP);
+                saveToLocalCache();
+
+                statusDiv.className = 'status-message success';
+                statusDiv.style.display = 'block';
+                statusDiv.innerText = '✅ Pertemuan berhasil diterbitkan!';
+                showToast('Pertemuan berhasil diterbitkan!');
+
+                // Reset form
+                document.getElementById('formPertemuan').reset();
+                renderDaftarPertemuanGuru();
+                populatePertemuanSiswaSelects();
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.className = 'status-message error';
+                statusDiv.style.display = 'block';
+                statusDiv.innerText = '❌ Gagal: ' + (error.message || 'Terjadi kesalahan');
+                showToast('Gagal: ' + (error.message || 'Terjadi kesalahan'), true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Terbitkan Pertemuan';
             }
-            APP_DATA.pertemuan.push(newP);
-            saveToLocalCache();
-            showToast('Pertemuan baru berhasil diterbitkan!');
-            e.target.reset();
-            renderDaftarPertemuanGuru();
-            populatePertemuanSiswaSelects();
         }
 
         function renderDaftarPertemuanGuru() {
@@ -1079,15 +1113,17 @@
                 return;
             }
             let html =
-                `<div class="table-responsive"><table><thead><tr><th>Judul Pertemuan</th><th>Materi &amp; Pratinjau</th><th>LKPD Online</th><th>Aksi</th></tr></thead><tbody>`;
+                `<div class="table-responsive"><table><thead><tr><th>Judul Pertemuan</th><th>Materi &amp; Pratinjau</th><th>LKPD Online</th><th>File Materi</th><th>Aksi</th></tr></thead><tbody>`;
             APP_DATA.pertemuan.forEach(p => {
                 optionsHTML += `<option value="${p.id}">${p.judul}</option>`;
                 optionsFilter += `<option value="${p.id}">${p.judul}</option>`;
-                const fileInfo = p.materiFile ? (p.materiFile.url ? '✅ File tersedia' : '📎 File') : '-';
+                const fileLink = p.materiFile ? `<a href="${p.materiFile}" target="_blank" class="file-link" style="font-size:12px;">📥 Download Materi</a>` :
+                    'Tidak ada';
                 html += `<tr>
                     <td><strong>${p.judul}</strong></td>
-                    <td>${p.materiText || 'Teks kosong'} ${fileInfo !== '-' ? `<br><span style="font-size:11px; color:#059669;">${fileInfo}</span>` : ''}</td>
+                    <td>${p.materiText || 'Teks kosong'}</td>
                     <td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link" style="font-size:12px;">🔗 Buka LKPD</a>` : 'Tidak ada'}</td>
+                    <td>${fileLink}</td>
                     <td><button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button></td>
                 </tr>`;
             });
@@ -1130,32 +1166,14 @@
         function generateMaterialHTML(p) {
             let html = `<div class="card"><h3 style="color:var(--primary-purple); font-weight:700;">${p.judul}</h3>`;
             if (p.materiText) html += `<p>${p.materiText}</p>`;
-            
-            // Tampilkan file materi jika ada
             if (p.materiFile) {
-                if (p.materiFile.url) {
-                    // File di storage - tampilkan download link
-                    const fileExt = p.materiFile.name ? p.materiFile.name.split('.').pop().toLowerCase() : '';
-                    const isImage = ['jpg','jpeg','png','gif','webp','bmp','svg'].includes(fileExt);
-                    if (isImage) {
-                        html += `<img src="${p.materiFile.url}" class="img-preview" alt="Materi">`;
-                    }
-                    html += `<a href="${p.materiFile.url}" target="_blank" class="file-link download-btn">⬇️ Download File: ${p.materiFile.name || 'Materi'}</a>`;
-                } else if (p.materiFile.data) {
-                    // Fallback base64
-                    const fileExt = p.materiFile.name ? p.materiFile.name.split('.').pop().toLowerCase() : '';
-                    const isImage = ['jpg','jpeg','png','gif','webp','bmp','svg'].includes(fileExt);
-                    if (isImage && p.materiFile.data) {
-                        html += `<img src="${p.materiFile.data}" class="img-preview" alt="Materi">`;
-                    }
-                    if (p.materiFile.data) {
-                        html += `<a href="${p.materiFile.data}" download="${p.materiFile.name || 'Materi'}" class="file-link download-btn">⬇️ Download File: ${p.materiFile.name || 'Materi'}</a>`;
-                    }
+                // Cek apakah file berupa gambar
+                const isImage = p.materiFile.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i);
+                if (isImage) {
+                    html += `<img src="${p.materiFile}" class="img-preview" alt="Materi">`;
+                } else {
+                    html += `<a href="${p.materiFile}" target="_blank" class="file-link download-btn">📥 Download Materi</a>`;
                 }
-            }
-            
-            if (p.lkpdLink) {
-                html += `<div style="margin-top:15px;"><a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD Online</a></div>`;
             }
             html += `</div>`;
             return html;
@@ -1290,21 +1308,17 @@
                 let catatanFinal = catatanInput ? catatanInput.value : '';
                 if (hasLkpdLink) catatanFinal = (catatanFinal ? catatanFinal + ' | ' : '') + 'Bukti LKPD online';
 
+                // Upload ke storage
                 let fileUrl = null;
-                let storageError = null;
                 let storageSuccess = false;
-
                 if (_supabase) {
-                    const result = await uploadFileToStorage(file, namaSiswa, idPertemuan);
+                    const result = await uploadFileToStorage(file, 'submissions');
                     if (result.success) {
                         fileUrl = result.url;
                         storageSuccess = true;
                     } else {
-                        storageError = result.error;
-                        console.warn('Upload storage failed:', storageError);
+                        console.warn('Upload storage failed:', result.error);
                     }
-                } else {
-                    storageError = 'Supabase tidak terhubung';
                 }
 
                 let jawabanFinal;
@@ -1357,7 +1371,7 @@
                 if (storageSuccess) {
                     statusMsg += ' (tersimpan di server Supabase)';
                 } else {
-                    statusMsg += ' (disimpan di database karena storage gagal: ' + (storageError || '') + ')';
+                    statusMsg += ' (disimpan di database)';
                     statusClass = 'warning';
                 }
                 statusDiv.className = 'status-message ' + statusClass;
@@ -1450,6 +1464,37 @@
             showToast('Nilai berhasil disimpan!');
         }
 
+        // ============ REKAP ABSENSI DOWNLOAD ============
+        function downloadRekapAbsensi() {
+            let csv = 'Nama Murid,Hadir,Sakit,Izin,Alfa,Persentase Kehadiran\n';
+            const studentsList = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
+            studentsList.slice().sort().forEach(nama => {
+                let hadir = 0,
+                    sakit = 0,
+                    izin = 0,
+                    alfa = 0;
+                if (APP_DATA.absensi && APP_DATA.absensi[nama]) {
+                    Object.values(APP_DATA.absensi[nama]).forEach(st => {
+                        if (st === 'H') hadir++;
+                        else if (st === 'S') sakit++;
+                        else if (st === 'I') izin++;
+                        else if (st === 'A') alfa++;
+                    });
+                }
+                const pct = Math.round((hadir / 30) * 100);
+                csv += `"${nama}",${hadir},${sakit},${izin},${alfa},${pct}%\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Rekap_Absensi_${new Date().toLocaleDateString()}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Rekap absensi berhasil di-download!');
+        }
+
         // ============ PORTOFOLIO SISWA ============
         function loadRekapPortofolioSiswa() {
             if (!currentUser) return;
@@ -1502,10 +1547,10 @@
                 const myScores = (APP_DATA.kuisScores || []).filter(qs => normalizeName(qs.studentName || qs.student_name) ===
                     sName);
                 if (myScores.length === 0) {
-                    containerKuis.innerHTML = '<p style="color:var(--text-light);">Belum ada asesmen yang telah Anda kerjakan.</p>';
+                    containerKuis.innerHTML = '<p style="color:var(--text-light);">Belum ada asesmen atau games yang telah Anda kerjakan.</p>';
                 } else {
                     let htmlK =
-                        `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Skor Akhir</th><th>Jumlah Benar</th><th>Jumlah Salah</th><th>Waktu Pengerjaan</th></tr></thead><tbody>`;
+                        `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Skor Akhir</th><th>Jumlah Benar</th><th>Jumlah Salah</th><th>Waktu Pengerjaan</th></tr></thead><tbody>`;
                     myScores.forEach(qs => {
                         htmlK += `<tr>
                             <td><strong>${qs.quizTitle || qs.quiz_title}</strong></td>
@@ -1522,63 +1567,6 @@
         }
 
         function downloadPortofolioPDF() { window.print(); }
-
-        // ============ EXPORT ABSENSI ============
-        function exportAbsensiCSV() {
-            const rows = document.querySelectorAll('#rekapAbsensiTable tbody tr');
-            if (rows.length === 0) {
-                showToast('Tidak ada data absensi untuk diexport.', true);
-                return;
-            }
-            let csv = 'Nama Murid,Hadir,Sakit,Izin,Alfa,% Kehadiran\n';
-            rows.forEach(row => {
-                const cols = row.querySelectorAll('td');
-                if (cols.length >= 6) {
-                    csv +=
-                        `"${cols[0].textContent.trim()}",${cols[1].textContent.trim()},${cols[2].textContent.trim()},${cols[3].textContent.trim()},${cols[4].textContent.trim()},${cols[5].textContent.trim()}\n`;
-                }
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Rekap_Absensi_${new Date().toLocaleDateString('id-ID')}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('CSV berhasil diunduh!');
-        }
-
-        function exportAbsensiPDF() {
-            const table = document.getElementById('rekapAbsensiTable');
-            if (!table || table.querySelectorAll('tbody tr').length === 0) {
-                showToast('Tidak ada data absensi untuk diexport.', true);
-                return;
-            }
-            // Gunakan print untuk PDF
-            const originalTitle = document.title;
-            document.title = 'Rekap Absensi Kelas X Keramik A';
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(`
-                <html><head><title>Rekap Absensi</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 20px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-                    th { background: #7C3AED; color: white; }
-                    h1 { color: #7C3AED; text-align: center; }
-                </style>
-                </head><body>
-                <h1>Rekap Absensi Kelas X Keramik A</h1>
-                <p>Tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
-                ${table.outerHTML}
-                <script>
-                    setTimeout(() => { window.print(); }, 500);
-                <\/script>
-                </body></html>
-            `);
-            printWindow.document.close();
-            setTimeout(() => { document.title = originalTitle; }, 1000);
-        }
 
         // ============ SISWA (DAFTAR) ============
         function renderDaftarSiswaTable() {
@@ -1626,7 +1614,7 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             let studentsList = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
-            studentsList.slice().sort().forEach((namaRaw) => {
+            studentsList.slice().sort().forEach((namaRaw, idx) => {
                 const nama = normalizeName(namaRaw);
                 let hadir = 0,
                     sakit = 0,
@@ -1730,25 +1718,7 @@
             showToast("Tanggal berhasil disimpan!");
         }
 
-        // ============ KUIS / ASESMEN ============
-        // Fungsi untuk toggle form soal berdasarkan kategori
-        document.addEventListener('DOMContentLoaded', function() {
-            const kategoriSelect = document.getElementById('g_kuisKategori');
-            if (kategoriSelect) {
-                kategoriSelect.addEventListener('change', function() {
-                    const gameLinkGroup = document.getElementById('gameLinkGroup');
-                    const soalContainer = document.getElementById('soalContainerGuru');
-                    if (this.value === 'Game Interaktif') {
-                        gameLinkGroup.style.display = 'block';
-                        soalContainer.style.display = 'none';
-                    } else {
-                        gameLinkGroup.style.display = 'none';
-                        soalContainer.style.display = 'block';
-                    }
-                });
-            }
-        });
-
+        // ============ KUIS / ASESMEN / GAMES ============
         function tambahFormSoal() {
             const container = document.getElementById('containerSoalGuru');
             if (!container) return;
@@ -1888,34 +1858,31 @@
 
         async function simpanKuisBaru(e) {
             e.preventDefault();
-            
             const kategori = document.getElementById('g_kuisKategori').value;
             const judul = document.getElementById('g_kuisJudul').value;
             const desc = document.getElementById('g_kuisDesc').value;
-            const gameLink = document.getElementById('g_kuisGameLink') ? document.getElementById('g_kuisGameLink').value : '';
-            
-            let soalData = [];
-            if (kategori !== 'Game Interaktif') {
-                if (soalKuisTemp.length === 0) {
-                    return showToast("Untuk Asesmen biasa, tambahkan minimal 1 soal!");
-                }
+
+            // Untuk Games, simpan link di desc
+            let soal = [];
+            if (kategori === 'Games') {
+                // Tidak perlu soal, cukup link di desc
+                soal = [];
+            } else {
+                if (soalKuisTemp.length === 0) return showToast("Tambahkan minimal 1 soal!");
                 soalKuisTemp.forEach((_, idx) => updateTempQ(idx));
-                soalData = [...soalKuisTemp];
+                soal = [...soalKuisTemp];
             }
-            
-            const newKuis = { 
-                id: Date.now(), 
-                kategori, 
-                judul, 
-                desc, 
-                gameLink: kategori === 'Game Interaktif' ? gameLink : '',
-                soal: soalData, 
-                created_at: new Date().toISOString() 
+
+            const newKuis = {
+                id: Date.now(),
+                kategori,
+                judul,
+                desc,
+                soal: soal,
+                created_at: new Date().toISOString()
             };
-            
             if (!APP_DATA.kuisList) APP_DATA.kuisList = [];
             APP_DATA.kuisList.push(newKuis);
-            
             if (_supabase) {
                 try {
                     await _supabase.from('kuis').insert([{
@@ -1923,21 +1890,16 @@
                         kategori: newKuis.kategori,
                         judul: newKuis.judul,
                         deskripsi: newKuis.desc,
-                        game_link: newKuis.gameLink,
                         soal: JSON.stringify(newKuis.soal),
                         created_at: newKuis.created_at
                     }]);
                 } catch (err) { console.error("Supabase Kuis Insert Error:", err); }
             }
-            
             soalKuisTemp = [];
             document.getElementById('containerSoalGuru').innerHTML = "";
             document.getElementById('g_kuisJudul').value = "";
             document.getElementById('g_kuisDesc').value = "";
-            if (document.getElementById('g_kuisGameLink')) {
-                document.getElementById('g_kuisGameLink').value = "";
-            }
-            showToast("Asesmen / Game Berhasil Diterbitkan!");
+            showToast("Berhasil diterbitkan!");
             renderDaftarKuisGuru();
         }
 
@@ -1953,15 +1915,16 @@
             if (!container) return;
             const list = (APP_DATA.kuisList || []).filter(k => k.kategori === kategori);
             if (list.length === 0) return container.innerHTML =
-                `<p style="color:var(--text-light);">Belum ada ${kategori} yang dibuat.</p>`;
+                `<p style="color:var(--text-light);">Belum ada ${kategori}.</p>`;
             let html =
-                `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Jenis</th><th>Aksi</th></tr></thead><tbody>`;
+                `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Jml Soal / Link</th><th>Aksi</th></tr></thead><tbody>`;
             list.forEach(k => {
-                const isGame = k.kategori === 'Game Interaktif';
-                const info = isGame ? (k.gameLink ? '🎮 Game' : 'Game') : `${k.soal ? k.soal.length : 0} Soal`;
+                const isGame = k.kategori === 'Games';
+                const content = isGame ? `<a href="${k.desc}" target="_blank" class="file-link">🔗 Buka Games</a>` :
+                    (k.soal ? k.soal.length + ' Soal' : '0 Soal');
                 html += `<tr>
                     <td><strong>${k.judul}</strong></td>
-                    <td>${info}</td>
+                    <td>${content}</td>
                     <td>
                         <button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="lihatHasilKuisGuru(${k.id})">Lihat Hasil</button>
                         <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button>
@@ -1979,7 +1942,7 @@
             const results = (APP_DATA.kuisScores || []).filter(s => s.quizId == kuisId || s.quiz_id == kuisId);
             let html = `<div class="card"><h3 style="font-weight:700;">📊 Rekap Hasil</h3>`;
             if (results.length === 0) {
-                html += `<p style="color:var(--text-light); margin-top:10px;">Belum ada murid yang mengerjakan ini.</p>`;
+                html += `<p style="color:var(--text-light); margin-top:10px;">Belum ada murid yang mengerjakan.</p>`;
             } else {
                 html +=
                     `<div class="table-responsive"><table style="margin-top:10px;"><thead><tr><th>Nama Murid</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu</th></tr></thead><tbody>`;
@@ -1994,15 +1957,15 @@
         }
 
         async function hapusKuis(id) {
-            if (confirm("Hapus asesmen/game ini?")) {
+            if (confirm("Hapus item ini?")) {
                 APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
                 if (_supabase) { try { await _supabase.from('kuis').delete().eq('id', id); } catch (err) { console.error(err); } }
                 renderDaftarKuisGuru();
-                showToast("Data berhasil dihapus.");
+                showToast("Dihapus.");
             }
         }
 
-        // ============ SISWA: KUIS / ASESMEN ============
+        // ============ SISWA: KUIS / ASESMEN / GAMES ============
         function switchKuisKategoriSiswa(kategori, btn) {
             const tabs = document.querySelectorAll('#s_kuis .login-tab button');
             tabs.forEach(t => t.classList.remove('active'));
@@ -2024,31 +1987,25 @@
             const kuis = (APP_DATA.kuisList || []).find(k => k.id == kuisId);
             if (!kuis) { container.innerHTML = ''; return; }
 
-            // Jika Game Interaktif
-            if (kuis.kategori === 'Game Interaktif' && kuis.gameLink) {
+            // Jika Games, tampilkan link
+            if (kuis.kategori === 'Games') {
                 container.innerHTML = `
                     <div class="card">
                         <h3 style="color:var(--primary-purple); font-weight:700;">🎮 ${kuis.judul}</h3>
-                        <p style="color:var(--text-light); margin-bottom:15px;">${kuis.desc || 'Ikuti game interaktif di bawah ini.'}</p>
-                        <div class="game-iframe-wrapper">
-                            <iframe src="${kuis.gameLink}" title="${kuis.judul}" allow="fullscreen" loading="lazy"></iframe>
-                        </div>
-                        <p style="font-size:12px; color:var(--text-light); margin-top:10px;">Setelah selesai, skor akan otomatis tercatat di riwayat asesmen.</p>
-                        <button onclick="simpanSkorGame(${kuis.id})" class="btn-submit" style="margin-top:15px;">📊 Simpan Skor Saya</button>
-                        <div id="statusSimpanSkor" class="status-message"></div>
+                        <p style="margin:15px 0;">${kuis.desc || 'Link games:'}</p>
+                        <a href="${kuis.desc}" target="_blank" class="btn-external" style="display:inline-block;">🚀 Buka Games</a>
+                        <p style="margin-top:10px; font-size:13px; color:var(--text-light);">Setelah selesai, skor akan tercatat otomatis.</p>
                     </div>
                 `;
                 return;
             }
 
-            // Asesmen biasa dengan soal
             const daftarSoal = parseSoalSafely(kuis.soal);
             if (daftarSoal.length === 0) {
                 container.innerHTML =
-                    `<div class="card"><p style="color:var(--text-light);">Belum ada butir soal yang diunggah untuk asesmen ini.</p></div>`;
+                    `<div class="card"><p style="color:var(--text-light);">Belum ada butir soal yang diunggah.</p></div>`;
                 return;
             }
-
             let html = `
                 <div class="card">
                     <h3 style="color:var(--primary-purple); font-weight:700;">${kuis.judul}</h3>
@@ -2086,70 +2043,8 @@
                 html += `</div>`;
             });
             html +=
-                `<button type="submit" class="btn-submit" style="width:100%; font-size:16px; padding:14px;">Kirim &amp; Selesaikan Asesmen</button></form></div>`;
+                `<button type="submit" class="btn-submit" style="width:100%; font-size:16px; padding:14px;">Kirim &amp; Selesaikan</button></form></div>`;
             container.innerHTML = html;
-        }
-
-        async function simpanSkorGame(kuisId) {
-            const statusDiv = document.getElementById('statusSimpanSkor');
-            if (!statusDiv) return;
-            
-            const kuis = (APP_DATA.kuisList || []).find(k => k.id == kuisId);
-            if (!kuis) {
-                statusDiv.className = 'status-message error';
-                statusDiv.style.display = 'block';
-                statusDiv.innerText = '❌ Game tidak ditemukan.';
-                return;
-            }
-
-            // Minta input skor dari siswa (karena game eksternal tidak bisa otomatis)
-            const skorInput = prompt('Masukkan skor yang Anda dapatkan dari game (0-100):', '100');
-            if (skorInput === null) return;
-            
-            const score = parseInt(skorInput);
-            if (isNaN(score) || score < 0 || score > 100) {
-                statusDiv.className = 'status-message error';
-                statusDiv.style.display = 'block';
-                statusDiv.innerText = '❌ Masukkan skor valid (0-100).';
-                return;
-            }
-
-            const studentNameNorm = currentUser ? normalizeName(currentUser.name) : "SISWA";
-            const attemptResult = {
-                id: Date.now(),
-                studentName: studentNameNorm,
-                quizId: kuis.id,
-                quizTitle: kuis.judul + ' (Game)',
-                score: score,
-                totalCorrect: score > 70 ? Math.round(score / 10) : 0,
-                totalWrong: score > 70 ? 10 - Math.round(score / 10) : 10,
-                submittedAt: new Date().toLocaleString('id-ID')
-            };
-
-            if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
-            APP_DATA.kuisScores.push(attemptResult);
-
-            if (_supabase) {
-                try {
-                    await _supabase.from('quiz_attempts').insert([{
-                        id: attemptResult.id,
-                        student_name: attemptResult.studentName,
-                        quiz_id: attemptResult.quizId,
-                        quiz_title: attemptResult.quizTitle,
-                        score: attemptResult.score,
-                        total_correct: attemptResult.totalCorrect,
-                        total_wrong: attemptResult.totalWrong,
-                        submitted_at: attemptResult.submittedAt
-                    }]);
-                } catch (err) { console.error(err); }
-            }
-
-            statusDiv.className = 'status-message success';
-            statusDiv.style.display = 'block';
-            statusDiv.innerText = `✅ Skor ${score} berhasil disimpan!`;
-            showToast(`Skor ${score} berhasil disimpan!`);
-            loadRiwayatKuisSiswa();
-            loadRekapPortofolioSiswa();
         }
 
         async function jawabKuis(e, kuisId) {
@@ -2200,16 +2095,16 @@
             if (container) {
                 container.innerHTML = `
                     <div class="card" style="border-left: 6px solid #10B981;">
-                        <h3 style="color:#059669; font-weight:700;">🎉 Asesmen Berhasil Selesai!</h3>
+                        <h3 style="color:#059669; font-weight:700;">🎉 Selesai!</h3>
                         <p style="font-size:18px; font-weight:700; margin-top:5px;">Skor Anda: <span style="color:#7C3AED;">${scoreVal}</span></p>
                         <div style="display:flex; gap:20px; margin-top:10px;">
-                            <span style="color:#059669; font-weight:600;">✅ Jumlah Benar: ${correctCount}</span>
-                            <span style="color:#DC2626; font-weight:600;">❌ Jumlah Salah: ${wrongCount}</span>
+                            <span style="color:#059669; font-weight:600;">✅ Benar: ${correctCount}</span>
+                            <span style="color:#DC2626; font-weight:600;">❌ Salah: ${wrongCount}</span>
                         </div>
                     </div>
                 `;
             }
-            showToast("Hasil asesmen berhasil disimpan!");
+            showToast("Hasil berhasil disimpan!");
             loadRiwayatKuisSiswa();
             loadRekapPortofolioSiswa();
         }
@@ -2221,11 +2116,11 @@
             const myScores = (APP_DATA.kuisScores || []).filter(qs => normalizeName(qs.studentName || qs.student_name) ===
                 sName);
             if (myScores.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-light);">Belum ada riwayat asesmen yang dikerjakan.</p>';
+                container.innerHTML = '<p style="color:var(--text-light);">Belum ada riwayat.</p>';
                 return;
             }
             let html =
-                `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu Pengerjaan</th></tr></thead><tbody>`;
+                `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu</th></tr></thead><tbody>`;
             myScores.forEach(qs => {
                 html += `<tr>
                     <td><strong>${qs.quizTitle || qs.quiz_title}</strong></td>
