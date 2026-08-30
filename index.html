@@ -55,6 +55,7 @@
         .badge { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; display:inline-block; }
         .badge-done { background:rgba(16,185,129,0.15); color:#059669; border:1px solid rgba(16,185,129,0.3); }
         .badge-purple { background:rgba(124,58,237,0.15); color:#7C3AED; border:1px solid rgba(124,58,237,0.3); }
+        .badge-warning { background:rgba(245,158,11,0.15); color:#D97706; border:1px solid rgba(245,158,11,0.3); }
         .img-preview { max-width:100%; max-height:350px; border-radius:14px; margin-top:10px; }
         .file-link { display:inline-block; background:rgba(124,58,237,0.1); color:#7C3AED; padding:6px 14px; border-radius:10px; font-size:13px; text-decoration:none; font-weight:600; border:1px solid rgba(124,58,237,0.2); transition:0.2s; }
         .file-link:hover { background:rgba(124,58,237,0.2); }
@@ -74,6 +75,8 @@
         tr:nth-child(even) .sticky-col-cell { background:#F9F5FF !important; }
         @media print { body * { visibility:hidden; } #printableArea, #printableArea * { visibility:visible; } #printableArea { position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff !important; } .no-print { display:none !important; } }
         .progress-container { display:none; }
+        .sync-btn { font-size:12px; padding:4px 10px; background:#0EA5E9; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+        .sync-btn:hover { background:#0284C7; }
     </style>
 </head>
 <body>
@@ -130,13 +133,13 @@
     </section>
 
     <section id="s_materi" class="section"><h2 style="color:var(--purple); font-weight:700;">📚 Materi Pembelajaran</h2><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanMateri" onchange="loadMateriSiswa()"></select></div><div id="contentMateriSiswa"></div></section>
-    <section id="s_tugas" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Tugas LKPD</h2><div class="card"><p>Pilih pertemuan, kerjakan LKPD, unggah bukti.</p><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select></div></div><div id="contentTugasSiswa"></div></section>
+    <section id="s_tugas" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Tugas LKPD</h2><div class="card"><p>Pilih pertemuan, kerjakan LKPD, lalu kirim jawaban di bawah.</p><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select></div></div><div id="contentTugasSiswa"></div></section>
     <section id="s_kuis" class="section"><h2 style="color:var(--purple); font-weight:700;">🧠 Asesmen &amp; Kuis</h2><div class="card"><div class="login-tab" style="margin-bottom:16px; overflow-x:auto; display:flex; gap:4px;"><button class="active" onclick="switchKuisKategoriSiswa('Asesmen Diagnostik', this)">Diagnostik</button><button onclick="switchKuisKategoriSiswa('Pretest', this)">Pretest</button><button onclick="switchKuisKategoriSiswa('Postest', this)">Postest</button><button onclick="switchKuisKategoriSiswa('Kuis', this)">Kuis</button></div><div class="form-group"><label>Pilih Asesmen</label><select id="selectKuisSiswa" onchange="tampilkanKuisDanSoalSiswa(this.value)"></select></div></div><div id="containerSoalSiswa"></div><div class="card"><h3 style="color:var(--purple);">📜 Riwayat Asesmen</h3><div id="containerRiwayatKuisSiswa"></div></div></section>
     <section id="s_portofolio" class="section"><div id="printableArea"><h2 style="color:var(--purple); font-weight:700;">🏆 Portofolio Saya</h2><div class="card"><h3>📊 Rekapitulasi Kehadiran</h3><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:12px; text-align:center;"><div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#059669;" id="portHadir">0</span><p style="margin:0; font-weight:600;">Hadir</p></div><div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#D97706;" id="portSakit">0</span><p style="margin:0; font-weight:600;">Sakit</p></div><div style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#0284C7;" id="portIzin">0</span><p style="margin:0; font-weight:600;">Izin</p></div><div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#DC2626;" id="portAlfa">0</span><p style="margin:0; font-weight:600;">Alfa</p></div></div></div><div class="card"><h3>📝 Rekap Tugas LKPD</h3><div id="rekapPortofolioSiswa"></div></div><div class="card"><h3>🧠 Rekap Hasil Asesmen</h3><div id="containerPortofolioKuis"></div></div></div><button onclick="window.print()" class="btn-submit no-print" style="background:linear-gradient(135deg,#10B981,#059669);">📥 Unduh Portofolio (PDF)</button></section>
     <section id="s_refleksi" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Refleksi &amp; Saran</h2><div class="card"><form onsubmit="kirimRefleksi(event)"><div class="form-group"><label>Jenis</label><select id="refleksiTipe" required><option value="Refleksi">Refleksi</option><option value="Rangkuman">Rangkuman</option><option value="Saran">Saran Pembelajaran</option><option value="unek-unek">Sekadar unek‑unek</option></select></div><div class="form-group"><label>Isi</label><textarea id="refleksiIsi" rows="5" required></textarea></div><button type="submit" class="btn-submit">Kirim</button></form></div><div class="card"><h3>Riwayat Refleksi Saya</h3><div id="riwayatRefleksiSiswa"></div></div></section>
 
     <!-- ========== GURU ========== -->
-    <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable(); populateFilterPertemuan();"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
+    <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable(); populateFilterPertemuan();"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Jawaban</th><th>Nilai</th><th>Catatan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
     <section id="g_daftar_pertemuan" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Modul Materi</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_daftarKelas" onchange="renderDaftarPertemuanGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelDaftarPertemuanGuru"></div></div><div class="card"><h3>👁️ Pratinjau Materi</h3><div class="form-group"><label>Pilih Pertemuan</label><select id="selectGuruPreviewPertemuan" onchange="renderGuruMaterialPreview()"></select></div><div id="guruMaterialPreviewContainer"></div></div></section>
     <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card">
         <form onsubmit="simpanPertemuanBaru(event)">
@@ -217,6 +220,12 @@ if (!APP_DATA.students || APP_DATA.students.length === 0) APP_DATA.students = [.
 if (!APP_DATA.absensi["X DKV B"]) APP_DATA.absensi["X DKV B"] = {};
 if (!APP_DATA.absensiDates["X DKV B"]) APP_DATA.absensiDates["X DKV B"] = {};
 
+// Tambahkan field _synced untuk tracking
+APP_DATA.pertemuan = APP_DATA.pertemuan.map(p => ({ ...p, _synced: p._synced !== undefined ? p._synced : true }));
+APP_DATA.kuisList = APP_DATA.kuisList.map(k => ({ ...k, _synced: k._synced !== undefined ? k._synced : true }));
+APP_DATA.submissions = APP_DATA.submissions.map(s => ({ ...s, _synced: s._synced !== undefined ? s._synced : true }));
+APP_DATA.reflections = APP_DATA.reflections.map(r => ({ ...r, _synced: r._synced !== undefined ? r._synced : true }));
+
 let currentUser = null;
 let soalKuisTemp = [];
 let isDataLoaded = false;
@@ -264,17 +273,36 @@ async function loadAllDataFromSupabase() {
             APP_DATA.students = Array.from(new Map(merged.map(s => [s.nama + '|' + s.kelas, s])).values());
         }
         if (pRes.data && pRes.data.length) {
-            APP_DATA.pertemuan = pRes.data.map(p => ({
+            const serverMap = new Map(pRes.data.map(p => [p.id, {
                 id: p.id, kelas: p.kelas, judul: p.judul,
                 materiText: p.materi_text || '', materiLink: p.materi_link || '',
-                lkpdText: p.lkpd_text || '', lkpdLink: p.lkpd_link || ''
-            }));
+                lkpdText: p.lkpd_text || '', lkpdLink: p.lkpd_link || '',
+                _synced: true
+            }]));
+            const localMap = new Map(APP_DATA.pertemuan.map(p => [p.id, p]));
+            const merged = [];
+            const allIds = new Set([...serverMap.keys(), ...localMap.keys()]);
+            allIds.forEach(id => {
+                if (localMap.has(id)) merged.push({ ...localMap.get(id), _synced: true });
+                else if (serverMap.has(id)) merged.push(serverMap.get(id));
+            });
+            APP_DATA.pertemuan = merged;
         }
         if (subRes.data) {
-            APP_DATA.submissions = subRes.data.map(s => ({
+            const serverSubs = subRes.data.map(s => ({
                 id: s.id, pertemuan_id: s.pertemuan_id, kelas: s.kelas, nama_siswa: s.nama_siswa,
-                jawaban: s.jawaban, nilai: s.nilai || 0, catatan: s.catatan || '', submitted_at: s.submitted_at
+                jawaban: s.jawaban, nilai: s.nilai || 0, catatan: s.catatan || '', submitted_at: s.submitted_at,
+                _synced: true
             }));
+            const localMap = new Map(APP_DATA.submissions.map(s => [s.id, s]));
+            const serverMap = new Map(serverSubs.map(s => [s.id, s]));
+            const merged = [];
+            const allIds = new Set([...localMap.keys(), ...serverMap.keys()]);
+            allIds.forEach(id => {
+                if (localMap.has(id)) merged.push({ ...localMap.get(id), _synced: true });
+                else if (serverMap.has(id)) merged.push(serverMap.get(id));
+            });
+            APP_DATA.submissions = merged;
         }
         if (absRes.data) {
             absRes.data.forEach(a => {
@@ -285,10 +313,20 @@ async function loadAllDataFromSupabase() {
             });
         }
         if (kuisRes.data) {
-            APP_DATA.kuisList = kuisRes.data.map(k => ({
+            const serverKuis = kuisRes.data.map(k => ({
                 id: k.id, kelas: k.kelas, kategori: k.kategori, judul: k.judul, desc: k.desc || '',
-                soal: parseSoalSafely(k.soal), created_at: k.created_at
+                soal: parseSoalSafely(k.soal), created_at: k.created_at,
+                _synced: true
             }));
+            const localMap = new Map(APP_DATA.kuisList.map(k => [k.id, k]));
+            const serverMap = new Map(serverKuis.map(k => [k.id, k]));
+            const merged = [];
+            const allIds = new Set([...localMap.keys(), ...serverMap.keys()]);
+            allIds.forEach(id => {
+                if (localMap.has(id)) merged.push({ ...localMap.get(id), _synced: true });
+                else if (serverMap.has(id)) merged.push(serverMap.get(id));
+            });
+            APP_DATA.kuisList = merged;
         }
         if (qaRes.data) {
             APP_DATA.kuisScores = qaRes.data.map(q => ({
@@ -298,9 +336,19 @@ async function loadAllDataFromSupabase() {
             }));
         }
         if (refRes.data) {
-            APP_DATA.reflections = refRes.data.map(r => ({
-                id: r.id, kelas: r.kelas, siswa: r.siswa, tipe: r.tipe, isi: r.isi, created_at: r.created_at
+            const serverRef = refRes.data.map(r => ({
+                id: r.id, kelas: r.kelas, siswa: r.siswa, tipe: r.tipe, isi: r.isi, created_at: r.created_at,
+                _synced: true
             }));
+            const localMap = new Map(APP_DATA.reflections.map(r => [r.id, r]));
+            const serverMap = new Map(serverRef.map(r => [r.id, r]));
+            const merged = [];
+            const allIds = new Set([...localMap.keys(), ...serverMap.keys()]);
+            allIds.forEach(id => {
+                if (localMap.has(id)) merged.push({ ...localMap.get(id), _synced: true });
+                else if (serverMap.has(id)) merged.push(serverMap.get(id));
+            });
+            APP_DATA.reflections = merged;
         }
         saveDB();
         isDataLoaded = true;
@@ -433,7 +481,7 @@ function ubahSandi() {
     document.getElementById('confirmPass').value = '';
 }
 
-// ============================= PERTEMUAN (tanpa upload, dengan fallback) =============================
+// ============================= PERTEMUAN =============================
 async function simpanPertemuanBaru(e) {
     e.preventDefault();
     const btn = document.getElementById('btnTerbitkanMateri');
@@ -455,15 +503,13 @@ async function simpanPertemuanBaru(e) {
             materiText: materiText,
             materiLink: materiLink,
             lkpdText: lkpdText,
-            lkpdLink: lkpdLink
+            lkpdLink: lkpdLink,
+            _synced: false
         };
 
-        // Simpan ke localStorage (selalu berhasil)
         APP_DATA.pertemuan.push(newP);
         saveDB();
-        showToast('✅ Data tersimpan di lokal!');
 
-        // Coba sinkron ke Supabase
         if (_supabase) {
             const { error } = await _supabase.from('pertemuan').insert([{
                 id: newP.id,
@@ -477,8 +523,11 @@ async function simpanPertemuanBaru(e) {
             }]);
             if (error) {
                 console.error('Supabase insert error:', error);
-                showToast('⚠️ Gagal sinkron ke server. Data tetap tersimpan di lokal.', false, true);
+                showToast('⚠️ Gagal sinkron ke server. Data tersimpan di lokal.', false, true);
             } else {
+                const idx = APP_DATA.pertemuan.findIndex(p => p.id === newP.id);
+                if (idx !== -1) APP_DATA.pertemuan[idx]._synced = true;
+                saveDB();
                 showToast('✅ Data berhasil disimpan di server!');
             }
         } else {
@@ -499,16 +548,52 @@ async function simpanPertemuanBaru(e) {
     btn.innerText = 'Terbitkan';
 }
 
+async function syncPertemuan(id) {
+    if (!_supabase) return showToast('Supabase tidak terhubung.', true);
+    const item = APP_DATA.pertemuan.find(p => p.id === id);
+    if (!item || item._synced) return showToast('Sudah tersinkron.');
+    try {
+        const { error } = await _supabase.from('pertemuan').insert([{
+            id: item.id,
+            kelas: item.kelas,
+            judul: item.judul,
+            materi_text: item.materiText,
+            materi_link: item.materiLink,
+            lkpd_text: item.lkpdText,
+            lkpd_link: item.lkpdLink,
+            created_at: new Date().toISOString()
+        }]);
+        if (error) throw error;
+        const idx = APP_DATA.pertemuan.findIndex(p => p.id === id);
+        if (idx !== -1) APP_DATA.pertemuan[idx]._synced = true;
+        saveDB();
+        showToast('✅ Berhasil tersinkron!');
+        renderDaftarPertemuanGuru();
+    } catch (err) {
+        showToast('Gagal sinkron: ' + err.message, true);
+    }
+}
+
 function renderDaftarPertemuanGuru() {
     const kelas = document.getElementById('g_daftarKelas').value;
     const container = document.getElementById('tabelDaftarPertemuanGuru');
     const selectPrev = document.getElementById('selectGuruPreviewPertemuan');
     const list = (APP_DATA.pertemuan || []).filter(p => p.kelas === kelas);
-    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Materi</th><th>LKPD</th><th>Aksi</th></tr></thead><tbody>`;
+    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Materi</th><th>LKPD</th><th>Status</th><th>Aksi</th></tr></thead><tbody>`;
     let opt = '<option value="">-- Pilih --</option>';
     list.forEach(p => {
         opt += `<option value="${p.id}">${p.judul}</option>`;
-        html += `<tr><td><strong>${p.judul}</strong></td><td>${p.materiText || '-'} ${p.materiLink ? `<a href="${p.materiLink}" target="_blank" class="file-link">🔗</a>` : ''}</td><td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link">🔗</a>` : '-'}</td><td><button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button></td></tr>`;
+        const synced = p._synced !== false;
+        html += `<tr>
+            <td><strong>${p.judul}</strong></td>
+            <td>${p.materiText || '-'} ${p.materiLink ? `<a href="${p.materiLink}" target="_blank" class="file-link">🔗</a>` : ''}</td>
+            <td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link">🔗</a>` : '-'}</td>
+            <td>${synced ? '<span class="badge badge-done">✅ Tersinkron</span>' : '<span class="badge badge-warning">⚠️ Lokal</span>'}</td>
+            <td>
+                ${!synced ? `<button id="sync-btn-${p.id}" class="sync-btn" onclick="syncPertemuan(${p.id})">Sinkron</button>` : ''}
+                <button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button>
+            </td>
+        </tr>`;
     });
     html += `</tbody></table></div>`;
     container.innerHTML = html || '<p>Belum ada pertemuan untuk kelas ini.</p>';
@@ -570,7 +655,7 @@ function loadTugasSiswa() {
     if (p.lkpdLink) {
         html += `
             <div style="background:#f0f7ff; border-left:5px solid #0284C7; padding:12px 18px; border-radius:12px; margin:10px 0;">
-                <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, lalu kirim jawaban/refleksi di bawah.</p>
+                <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, lalu kirim jawaban di bawah.</p>
             </div>
             <a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD</a>
             <div class="lkpd-iframe-wrapper" style="margin-top:12px;"><iframe src="${p.lkpdLink}" title="LKPD"></iframe></div>
@@ -582,7 +667,7 @@ function loadTugasSiswa() {
     }
     html += `
         <hr style="margin:20px 0;">
-        <h4 style="font-weight:600;">📤 Kirim Jawaban / Refleksi Tugas</h4>
+        <h4 style="font-weight:600;">📤 Kirim Jawaban</h4>
         <form onsubmit="submitTugasBiasa(event, ${p.id})">
             <div class="form-group"><label>Jawaban / Catatan</label><textarea id="jawabanTugasSiswa" rows="3" required></textarea></div>
             <button type="submit" class="btn-submit">Kirim</button>
@@ -607,27 +692,41 @@ async function submitTugasBiasa(e, pertemuanId) {
             jawaban: jawaban,
             nilai: 0,
             catatan: '',
-            submitted_at: new Date().toLocaleString('id-ID')
+            submitted_at: new Date().toLocaleString('id-ID'),
+            _synced: false
         };
         APP_DATA.submissions.push(payload);
         saveDB();
+
         if (_supabase) {
             const { error } = await _supabase.from('submissions').insert([{
-                id: payload.id, pertemuan_id: payload.pertemuan_id, kelas: payload.kelas,
-                nama_siswa: payload.nama_siswa, jawaban: payload.jawaban,
-                nilai: payload.nilai, catatan: payload.catatan, submitted_at: payload.submitted_at
+                id: payload.id,
+                pertemuan_id: payload.pertemuan_id,
+                kelas: payload.kelas,
+                nama_siswa: payload.nama_siswa,
+                jawaban: payload.jawaban,
+                nilai: payload.nilai,
+                catatan: payload.catatan,
+                submitted_at: payload.submitted_at
             }]);
             if (error) {
-                APP_DATA.submissions = APP_DATA.submissions.filter(s => s.id !== payload.id);
+                console.error('Submit error:', error);
+                showToast('⚠️ Jawaban tersimpan lokal, gagal sinkron ke server.', false, true);
+            } else {
+                const idx = APP_DATA.submissions.findIndex(s => s.id === payload.id);
+                if (idx !== -1) APP_DATA.submissions[idx]._synced = true;
                 saveDB();
-                throw new Error('Gagal simpan tugas: ' + error.message);
+                showToast('✅ Jawaban berhasil disimpan di server!');
             }
+        } else {
+            showToast('⚠️ Mode offline: Jawaban tersimpan di lokal.', false, true);
         }
-        showToast('Jawaban terkirim!');
+
         loadTugasSiswa();
         loadRekapPortofolioSiswa();
     } catch (err) {
-        showToast('Gagal kirim: ' + err.message, true);
+        showToast('❌ Gagal: ' + err.message, true);
+        console.error(err);
     }
     btn.disabled = false;
     btn.innerText = 'Kirim';
@@ -655,9 +754,10 @@ function renderPortofolioTable() {
     let subs = (APP_DATA.submissions || []).filter(s => s.kelas === kelas);
     if (filterId !== 'ALL') subs = subs.filter(s => s.pertemuan_id == filterId);
     tbody.innerHTML = '';
-    if (subs.length === 0) return tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada tugas.</td></tr>';
+    if (subs.length === 0) return tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada tugas.</td></tr>';
     subs.forEach(s => {
         const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuan_id);
+        const synced = s._synced !== false;
         tbody.innerHTML += `
             <tr>
                 <td><strong>${s.nama_siswa}</strong></td>
@@ -665,9 +765,39 @@ function renderPortofolioTable() {
                 <td>${renderJawabanSiswa(s.jawaban)}</td>
                 <td><input type="number" id="nilai_${s.id}" value="${s.nilai||0}" style="width:70px; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
                 <td><input type="text" id="catatan_${s.id}" value="${s.catatan||''}" style="width:100%; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
-                <td><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="simpanNilai('${s.id}')">Simpan</button></td>
+                <td>${synced ? '<span class="badge badge-done">✅ Tersinkron</span>' : '<span class="badge badge-warning">⚠️ Lokal</span>'}</td>
+                <td>
+                    ${!synced ? `<button class="sync-btn" onclick="syncSubmissions(${s.id})">Sinkron</button>` : ''}
+                    <button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="simpanNilai('${s.id}')">Simpan</button>
+                </td>
             </tr>`;
     });
+}
+
+async function syncSubmissions(id) {
+    if (!_supabase) return showToast('Supabase tidak terhubung.', true);
+    const item = APP_DATA.submissions.find(s => s.id === id);
+    if (!item || item._synced) return showToast('Sudah tersinkron.');
+    try {
+        const { error } = await _supabase.from('submissions').insert([{
+            id: item.id,
+            pertemuan_id: item.pertemuan_id,
+            kelas: item.kelas,
+            nama_siswa: item.nama_siswa,
+            jawaban: item.jawaban,
+            nilai: item.nilai,
+            catatan: item.catatan,
+            submitted_at: item.submitted_at
+        }]);
+        if (error) throw error;
+        const idx = APP_DATA.submissions.findIndex(s => s.id === id);
+        if (idx !== -1) APP_DATA.submissions[idx]._synced = true;
+        saveDB();
+        showToast('✅ Berhasil tersinkron!');
+        renderPortofolioTable();
+    } catch (err) {
+        showToast('Gagal sinkron: ' + err.message, true);
+    }
 }
 
 async function simpanNilai(subId) {
@@ -736,16 +866,22 @@ async function kirimRefleksi(e) {
         siswa: currentUser.name,
         tipe: tipe,
         isi: isi,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        _synced: false
     };
     if (!APP_DATA.reflections) APP_DATA.reflections = [];
     APP_DATA.reflections.push(newRef);
     saveDB();
     if (_supabase) {
-        _supabase.from('reflections').insert([{
+        const { error } = await _supabase.from('reflections').insert([{
             id: newRef.id, kelas: newRef.kelas, siswa: newRef.siswa,
             tipe: newRef.tipe, isi: newRef.isi, created_at: newRef.created_at
-        }]).then();
+        }]);
+        if (!error) {
+            const idx = APP_DATA.reflections.findIndex(r => r.id === newRef.id);
+            if (idx !== -1) APP_DATA.reflections[idx]._synced = true;
+            saveDB();
+        }
     }
     showToast('Refleksi terkirim!');
     document.getElementById('refleksiIsi').value = '';
@@ -1010,7 +1146,7 @@ async function simpanKuisBaru(e) {
     const kategori = document.getElementById('g_kuisKategori').value;
     const judul = document.getElementById('g_kuisJudul').value;
     const desc = document.getElementById('g_kuisDesc').value;
-    const newKuis = { id: Date.now(), kelas, kategori, judul, desc, soal: [...soalKuisTemp], created_at: new Date().toISOString() };
+    const newKuis = { id: Date.now(), kelas, kategori, judul, desc, soal: [...soalKuisTemp], created_at: new Date().toISOString(), _synced: false };
     APP_DATA.kuisList.push(newKuis);
     saveDB();
     if (_supabase) {
@@ -1019,10 +1155,10 @@ async function simpanKuisBaru(e) {
             judul: newKuis.judul, desc: newKuis.desc, soal: JSON.stringify(newKuis.soal),
             created_at: newKuis.created_at
         }]);
-        if (error) {
-            APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== newKuis.id);
+        if (!error) {
+            const idx = APP_DATA.kuisList.findIndex(k => k.id === newKuis.id);
+            if (idx !== -1) APP_DATA.kuisList[idx]._synced = true;
             saveDB();
-            throw new Error('Gagal simpan kuis: ' + error.message);
         }
     }
     soalKuisTemp = [];
@@ -1046,13 +1182,44 @@ function switchKuisKategoriGuru(kategori, btn) {
     const kelas = document.getElementById('g_kuisKelas')?.value || 'X Keramik A';
     const list = (APP_DATA.kuisList || []).filter(k => k.kelas === kelas && k.kategori === kategori);
     if (list.length === 0) return container.innerHTML = `<p style="color:#64748B;">Belum ada ${kategori} untuk kelas ini.</p>`;
-    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Jml Soal</th><th>Aksi</th></tr></thead><tbody>`;
+    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Jml Soal</th><th>Status</th><th>Aksi</th></tr></thead><tbody>`;
     list.forEach(k => {
         const soals = parseSoalSafely(k.soal);
-        html += `<tr><td><strong>${k.judul}</strong></td><td>${soals.length}</td><td><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="lihatHasilKuisGuru(${k.id})">Lihat Hasil</button> <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button></td></tr>`;
+        const synced = k._synced !== false;
+        html += `<tr>
+            <td><strong>${k.judul}</strong></td>
+            <td>${soals.length}</td>
+            <td>${synced ? '<span class="badge badge-done">✅ Tersinkron</span>' : '<span class="badge badge-warning">⚠️ Lokal</span>'}</td>
+            <td>
+                ${!synced ? `<button class="sync-btn" onclick="syncKuis(${k.id})">Sinkron</button>` : ''}
+                <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button>
+                <button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="lihatHasilKuisGuru(${k.id})">Lihat Hasil</button>
+            </td>
+        </tr>`;
     });
     html += `</tbody></table></div>`;
     container.innerHTML = html;
+}
+
+async function syncKuis(id) {
+    if (!_supabase) return showToast('Supabase tidak terhubung.', true);
+    const item = APP_DATA.kuisList.find(k => k.id === id);
+    if (!item || item._synced) return showToast('Sudah tersinkron.');
+    try {
+        const { error } = await _supabase.from('kuis').insert([{
+            id: item.id, kelas: item.kelas, kategori: item.kategori,
+            judul: item.judul, desc: item.desc, soal: JSON.stringify(item.soal),
+            created_at: item.created_at
+        }]);
+        if (error) throw error;
+        const idx = APP_DATA.kuisList.findIndex(k => k.id === id);
+        if (idx !== -1) APP_DATA.kuisList[idx]._synced = true;
+        saveDB();
+        showToast('✅ Kuis tersinkron!');
+        renderDaftarKuisGuru();
+    } catch (err) {
+        showToast('Gagal sinkron: ' + err.message, true);
+    }
 }
 
 function lihatHasilKuisGuru(kuisId) {
@@ -1147,7 +1314,8 @@ async function jawabKuis(e, kuisId) {
         totalCorrect: correct,
         totalWrong: totalPg - correct,
         submittedAt: new Date().toLocaleString('id-ID'),
-        jawabanEsai: jawabanEsai
+        jawabanEsai: jawabanEsai,
+        _synced: false
     };
     APP_DATA.kuisScores.push(attempt);
     saveDB();
@@ -1164,14 +1332,11 @@ async function jawabKuis(e, kuisId) {
             submitted_at: attempt.submittedAt,
             jawaban_esai: JSON.stringify(attempt.jawabanEsai)
         }]);
-        if (error) {
-            console.error('Gagal menyimpan jawaban ke Supabase:', error);
-            showToast('Jawaban tersimpan lokal, namun gagal sinkron ke server: ' + error.message, true);
-        } else {
-            showToast('Jawaban berhasil disimpan!');
+        if (!error) {
+            const idx = APP_DATA.kuisScores.findIndex(s => s.id === attempt.id);
+            if (idx !== -1) APP_DATA.kuisScores[idx]._synced = true;
+            saveDB();
         }
-    } else {
-        showToast('Jawaban tersimpan di lokal (offline)');
     }
     document.getElementById('containerSoalSiswa').innerHTML = `
         <div class="card" style="border-left:6px solid #10B981;">
