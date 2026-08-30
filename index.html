@@ -908,7 +908,7 @@
                         </tr>
                     </thead>
                     <tbody id="tabelPortofolioGuru">
-                        <tr><td colspan="6" style="text-align:center;">Memuat data portofolio murid...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;">Memuat data portofolio murid...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1590,19 +1590,21 @@
             if (p.materiText && p.materiText.trim() !== '') {
                 html += `<p style="margin-bottom:8px;">${p.materiText}</p>`;
             }
-            // Tampilkan hanya NAMA FILE, bukan konten
+            // Tampilkan hanya nama file (bukan pratinjau)
             const fileData = p.materiFile;
             if (fileData) {
                 let fileName = 'Bahan_Ajar';
                 if (typeof fileData === 'object' && fileData !== null && fileData.name) {
                     fileName = fileData.name;
                 } else if (typeof fileData === 'string' && fileData.startsWith('data:')) {
-                    // coba ekstrak nama dari base64 (tidak mungkin, gunakan default)
-                    fileName = 'Lampiran_Materi';
+                    // Ambil dari base64 jika tidak ada nama
+                    const match = fileData.match(/^data:([^;]+);/);
+                    if (match) {
+                        const ext = match[1].split('/')[1] || 'file';
+                        fileName = `Lampiran.${ext}`;
+                    }
                 }
-                html += `<div style="margin-top:8px; display:flex; align-items:center; gap:8px;">`;
-                html += `<span style="font-size:13px; color:var(--primary-purple);">📄 ${fileName}</span>`;
-                html += `</div>`;
+                html += `<div style="margin-top:6px;"><span style="font-weight:600; color:var(--primary-purple);">📎 ${fileName}</span></div>`;
             }
             if (!p.materiText && !p.materiFile) {
                 html += `<span style="color:#999; font-style:italic;">Tidak ada materi/teks kosong</span>`;
@@ -1677,7 +1679,7 @@
         }
 
         // ============================================================
-        //  FUNGSI GENERATE MATERI UNTUK SISWA (TAMPIL FULL FILE)
+        //  FUNGSI GENERATE MATERI UNTUK SISWA (TAMPILKAN FILE LENGKAP)
         // ============================================================
         function generateMaterialHTML(p) {
             let html = `<div class="card"><h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px;">${p.judul}</h3>`;
@@ -1688,7 +1690,7 @@
                 hasContent = true;
             }
 
-            // TAMPILKAN FILE MATERI (FULL)
+            // TAMPILKAN FILE MATERI (lengkap dengan pratinjau)
             const fileData = p.materiFile;
             if (fileData) {
                 let base64Data = null;
@@ -1867,7 +1869,7 @@
         window.submitTugasBiasa = submitTugasBiasa;
 
         // ============================================================
-        //  PENILAIAN & PORTOFOLIO GURU
+        //  PENILAIAN & PORTOFOLIO GURU + TOMBOL HAPUS
         // ============================================================
         function renderJawabanSiswa(jawabanRaw) {
             if (!jawabanRaw) return "<i>Belum ada jawaban</i>";
@@ -1910,7 +1912,7 @@
                 filteredSubs = filteredSubs.filter(s => (s.pertemuanId == filterId || s.pertemuan_id == filterId));
             }
             if (filteredSubs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada tugas yang dikumpulkan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada tugas yang dikumpulkan.</td></tr>`;
                 return;
             }
             filteredSubs.forEach(s => {
@@ -1925,6 +1927,7 @@
                         <td style="vertical-align: top;"><input type="number" id="nilai_${s.id}" value="${s.nilai || 0}" style="width:70px; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
                         <td style="vertical-align: top;"><input type="text" id="catatan_${s.id}" value="${s.catatan || ''}" style="width:100%; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
                         <td style="vertical-align: top;"><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="simpanNilai('${s.id}')">Simpan</button></td>
+                        <td style="vertical-align: top;"><button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="hapusSubmission('${s.id}', 'guru')">Hapus</button></td>
                     </tr>`;
             });
         }
@@ -1948,7 +1951,34 @@
         window.simpanNilai = simpanNilai;
 
         // ============================================================
-        //  PORTOFOLIO SISWA
+        //  FUNGSI HAPUS SUBMISSION (UNTUK SISWA & GURU)
+        // ============================================================
+        async function hapusSubmission(submissionId, from) {
+            if (!confirm('Yakin ingin menghapus submission ini?')) return;
+
+            // Hapus dari APP_DATA
+            APP_DATA.submissions = APP_DATA.submissions.filter(s => s.id != submissionId);
+            saveDB();
+
+            // Hapus dari Supabase
+            if (_supabase) {
+                const { error } = await _supabase.from('submissions').delete().eq('id', submissionId);
+                handleSupabaseError(error, "Hapus Submission");
+            }
+
+            showToast('Submission berhasil dihapus!');
+
+            // Refresh tampilan sesuai asal
+            if (from === 'siswa') {
+                loadRekapPortofolioSiswa();
+            } else {
+                renderPortofolioTable();
+            }
+        }
+        window.hapusSubmission = hapusSubmission;
+
+        // ============================================================
+        //  PORTOFOLIO SISWA (DENGAN TOMBOL HAPUS)
         // ============================================================
         function loadRekapPortofolioSiswa() {
             if (!currentUser) return;
@@ -1974,7 +2004,7 @@
                 if (mySubs.length === 0) {
                     html += '<p style="color:var(--text-light); margin-top:10px;">Anda belum mengumpulkan tugas LKPD apa pun.</p>';
                 } else {
-                    html += `<div class="table-responsive"><table style="margin-top:10px;"><thead><tr><th>Pertemuan</th><th>Jawaban Anda</th><th>Waktu</th><th>Nilai</th><th>Catatan Guru</th></tr></thead><tbody>`;
+                    html += `<div class="table-responsive"><table style="margin-top:10px;"><thead><tr><th>Pertemuan</th><th>Jawaban Anda</th><th>Waktu</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody>`;
                     mySubs.forEach(sub => {
                         const p = (APP_DATA.pertemuan || []).find(x => x.id == (sub.pertemuan_id || sub.pertemuanId));
                         html += `<tr>
@@ -1983,6 +2013,7 @@
                             <td style="vertical-align: top;">${sub.submitted_at || '-'}</td>
                             <td style="vertical-align: top;"><span class="badge badge-done" style="font-size:13px;">${sub.nilai !== undefined ? sub.nilai : 'Belum dinilai'}</span></td>
                             <td style="vertical-align: top;">${sub.catatan || '-'}</td>
+                            <td style="vertical-align: top;"><button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="hapusSubmission('${sub.id}', 'siswa')">Hapus</button></td>
                         </tr>`;
                     });
                     html += `</tbody></table></div>`;
