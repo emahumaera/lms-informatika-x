@@ -64,6 +64,7 @@
         .toast { background:linear-gradient(135deg,#10B981,#059669); color:#fff; padding:12px 20px; margin-top:10px; border-radius:10px; opacity:0; transition:all 0.3s; transform:translateY(20px); font-size:14px; box-shadow:0 10px 25px rgba(0,0,0,0.15); }
         .toast.show { opacity:1; transform:translateY(0); }
         .toast.error { background:linear-gradient(135deg,#EF4444,#DC2626); }
+        .toast.warning { background:linear-gradient(135deg,#F59E0B,#D97706); }
         .modal-box { position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); display:flex; justify-content:center; align-items:center; z-index:2000; }
         .modal-content { background:#fff; padding:30px; border-radius:24px; max-width:450px; width:90%; }
         .absensi-cell { cursor:pointer; font-weight:bold; text-align:center; }
@@ -72,7 +73,6 @@
         .sticky-col-cell { position:sticky; left:0; background:#fff !important; z-index:5; min-width:200px; font-weight:600; padding-left:12px !important; }
         tr:nth-child(even) .sticky-col-cell { background:#F9F5FF !important; }
         @media print { body * { visibility:hidden; } #printableArea, #printableArea * { visibility:visible; } #printableArea { position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff !important; } .no-print { display:none !important; } }
-        /* Progress Bar (opsional, tidak digunakan lagi) */
         .progress-container { display:none; }
     </style>
 </head>
@@ -141,7 +141,7 @@
     <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card">
         <form onsubmit="simpanPertemuanBaru(event)">
             <div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div>
-            <div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div>
+            <div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 2 - Algoritma Pencarian"></div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;">
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Link Materi (opsional)</label><input type="url" id="g_materiLink" placeholder="https://..."></div>
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."></div>
@@ -224,11 +224,12 @@ let isDataLoaded = false;
 function normalizeName(s) { return (s || '').toString().trim().toUpperCase(); }
 function saveDB() { localStorage.setItem('LMS_EMA_V11', JSON.stringify(APP_DATA)); }
 
-function showToast(msg, err = false) {
+function showToast(msg, err = false, warning = false) {
     const c = document.getElementById('toast-container');
     if (!c) return;
     const t = document.createElement('div');
-    t.className = 'toast' + (err ? ' error' : '');
+    if (warning) t.className = 'toast warning';
+    else t.className = 'toast' + (err ? ' error' : '');
     t.innerText = msg;
     c.appendChild(t);
     setTimeout(() => t.classList.add('show'), 10);
@@ -432,7 +433,7 @@ function ubahSandi() {
     document.getElementById('confirmPass').value = '';
 }
 
-// ============================= PERTEMUAN (tanpa upload file) =============================
+// ============================= PERTEMUAN (tanpa upload, dengan fallback) =============================
 async function simpanPertemuanBaru(e) {
     e.preventDefault();
     const btn = document.getElementById('btnTerbitkanMateri');
@@ -457,11 +458,12 @@ async function simpanPertemuanBaru(e) {
             lkpdLink: lkpdLink
         };
 
-        // Simpan ke localStorage
+        // Simpan ke localStorage (selalu berhasil)
         APP_DATA.pertemuan.push(newP);
         saveDB();
+        showToast('✅ Data tersimpan di lokal!');
 
-        // Simpan ke Supabase
+        // Coba sinkron ke Supabase
         if (_supabase) {
             const { error } = await _supabase.from('pertemuan').insert([{
                 id: newP.id,
@@ -474,13 +476,15 @@ async function simpanPertemuanBaru(e) {
                 created_at: new Date().toISOString()
             }]);
             if (error) {
-                APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== newP.id);
-                saveDB();
-                throw new Error('Gagal simpan ke Supabase: ' + error.message);
+                console.error('Supabase insert error:', error);
+                showToast('⚠️ Gagal sinkron ke server. Data tetap tersimpan di lokal.', false, true);
+            } else {
+                showToast('✅ Data berhasil disimpan di server!');
             }
+        } else {
+            showToast('⚠️ Mode offline: Data hanya tersimpan di lokal.', false, true);
         }
 
-        showToast('✅ Pertemuan berhasil diterbitkan!');
         e.target.reset();
         renderDaftarPertemuanGuru();
         populatePertemuanSiswaSelects();
