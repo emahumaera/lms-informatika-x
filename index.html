@@ -1583,37 +1583,26 @@
         window.simpanPertemuanBaru = simpanPertemuanBaru;
 
         // ============================================================
-        //  FUNGSI UNTUK MENAMPILKAN FILE MATERI (DIPERBAIKI)
+        //  FUNGSI UNTUK MENAMPILKAN FILE MATERI (HANYA NAMA FILE DI TABEL GURU)
         // ============================================================
         function generateMaterialPreviewHtml(p) {
             let html = `<div class="preview-container">`;
             if (p.materiText && p.materiText.trim() !== '') {
                 html += `<p style="margin-bottom:8px;">${p.materiText}</p>`;
             }
-            // Tampilkan file
+            // Tampilkan hanya NAMA FILE, bukan konten
             const fileData = p.materiFile;
             if (fileData) {
-                let base64Data = null, fileName = 'Bahan_Ajar', fileType = '';
-                if (typeof fileData === 'object' && fileData !== null && fileData.data) {
-                    base64Data = fileData.data;
-                    fileName = fileData.name || 'Bahan_Ajar';
-                    fileType = fileData.type || '';
+                let fileName = 'Bahan_Ajar';
+                if (typeof fileData === 'object' && fileData !== null && fileData.name) {
+                    fileName = fileData.name;
                 } else if (typeof fileData === 'string' && fileData.startsWith('data:')) {
-                    base64Data = fileData;
-                    const match = fileData.match(/^data:(image\/[a-z]+|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document);base64,/);
-                    if (match) fileType = match[1];
-                    else fileType = 'application/octet-stream';
+                    // coba ekstrak nama dari base64 (tidak mungkin, gunakan default)
+                    fileName = 'Lampiran_Materi';
                 }
-                if (base64Data) {
-                    if (fileType.startsWith('image/')) {
-                        html += `<img src="${base64Data}" class="img-preview" style="max-height:150px; width:auto; margin-top:8px;" alt="Materi">`;
-                    } else if (fileType === 'application/pdf') {
-                        html += `<iframe src="${base64Data}" style="width:100%; height:200px; border:1px solid #ddd; border-radius:8px;" frameborder="0"></iframe>`;
-                        html += `<a href="${base64Data}" download="${fileName}" class="file-link" style="font-size:11px; padding:6px 12px;">⬇️ ${fileName}</a>`;
-                    } else if (base64Data) {
-                        html += `<a href="${base64Data}" download="${fileName}" class="file-link" style="font-size:11px; padding:6px 12px;">⬇️ File: ${fileName}</a>`;
-                    }
-                }
+                html += `<div style="margin-top:8px; display:flex; align-items:center; gap:8px;">`;
+                html += `<span style="font-size:13px; color:var(--primary-purple);">📄 ${fileName}</span>`;
+                html += `</div>`;
             }
             if (!p.materiText && !p.materiFile) {
                 html += `<span style="color:#999; font-style:italic;">Tidak ada materi/teks kosong</span>`;
@@ -1688,7 +1677,7 @@
         }
 
         // ============================================================
-        //  FUNGSI GENERATE MATERI UNTUK SISWA (DIPERBAIKI)
+        //  FUNGSI GENERATE MATERI UNTUK SISWA (TAMPIL FULL FILE)
         // ============================================================
         function generateMaterialHTML(p) {
             let html = `<div class="card"><h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px;">${p.judul}</h3>`;
@@ -1699,7 +1688,7 @@
                 hasContent = true;
             }
 
-            // TAMPILKAN FILE MATERI
+            // TAMPILKAN FILE MATERI (FULL)
             const fileData = p.materiFile;
             if (fileData) {
                 let base64Data = null;
