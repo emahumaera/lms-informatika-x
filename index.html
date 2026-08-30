@@ -1,1381 +1,151 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>LMS Informatika - Bu Ema Humaera</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Informatika - Buat Pertemuan</title>
     <style>
-        /* ===== STYLE ===== */
-        * { box-sizing: border-box; margin: 0; }
-        body {
-            font-family: 'Inter', 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 35%, #F8FAFC 100%);
-            min-height: 100vh;
-            color: #1E1B4B;
-            line-height: 1.6;
-            font-size: 16px;
-        }
-        :root { --purple: #7C3AED; --purple-dark: #4C1D95; --yellow: #D97706; --success: #10B981; --danger: #EF4444; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(30,27,75,0.55); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-card { background: rgba(255,255,255,0.95); padding: 40px; border-radius: 28px; max-width: 460px; width: 90%; box-shadow: 0 25px 50px rgba(124,58,237,0.2); }
-        .login-tab { display: flex; border-bottom: 2px solid rgba(168,85,247,0.15); margin-bottom: 20px; }
-        .login-tab button { flex:1; padding: 12px; border: none; background: none; font-weight:600; cursor:pointer; color:#64748B; transition:0.3s; }
-        .login-tab button.active { color: var(--purple); border-bottom: 4px solid var(--purple); }
-        header { background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(168,85,247,0.15); position: sticky; top:0; z-index:100; }
-        .logo { font-weight:700; font-size:20px; color:var(--purple); }
-        .logo span { color:var(--purple-dark); }
-        .user-badge { background: rgba(168,85,247,0.1); color:var(--purple); padding:6px 16px; border-radius:30px; font-weight:600; font-size:13px; border:1px solid rgba(168,85,247,0.3); }
-        nav { display: flex; gap: 6px; flex-wrap: wrap; align-items:center; }
-        nav button { background: transparent; border: none; font-family: inherit; font-size:13px; font-weight:500; padding:6px 14px; border-radius:12px; cursor:pointer; transition:0.3s; white-space:nowrap; color: #1E1B4B; }
-        nav button:hover { background: rgba(168,85,247,0.12); color:var(--purple); }
-        nav button.active { background: linear-gradient(135deg, #7C3AED, #9333EA); color:#fff; box-shadow:0 4px 15px rgba(124,58,237,0.35); font-weight:600; }
-        .btn-logout { background: linear-gradient(135deg, #EF4444, #DC2626) !important; color:#fff !important; font-weight:600 !important; }
-        main { max-width: 1300px; margin:20px auto; padding:24px; background:rgba(255,255,255,0.85); backdrop-filter:blur(24px); border-radius:28px; box-shadow:0 25px 50px rgba(124,58,237,0.12); border:1px solid rgba(168,85,247,0.2); }
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-        .card { background: linear-gradient(135deg, rgba(243,232,255,0.6), rgba(255,255,255,0.9)); border-left:6px solid var(--purple); padding:22px; border-radius:20px; margin-bottom:24px; border:1px solid rgba(168,85,247,0.15); overflow-x:auto; }
-        .hero { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#7C3AED 0%,#8B5CF6 50%,#C084FC 100%); color:#fff; border-radius:24px; margin-bottom:30px; box-shadow:0 20px 45px rgba(124,58,237,0.3); }
-        .hero h1 { font-size:26px; font-weight:700; margin:0 0 10px; }
-        .form-group { margin-bottom:18px; text-align:left; }
-        .form-group label { display:block; font-weight:600; font-size:14px; margin-bottom:4px; }
-        .form-group input, .form-group textarea, .form-group select { width:100%; padding:12px 14px; border:2px solid rgba(168,85,247,0.25); border-radius:14px; font-family:inherit; font-size:15px; transition:0.3s; background:#fff; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:var(--purple); outline:none; box-shadow:0 0 20px rgba(124,58,237,0.2); }
-        .btn-submit { background: linear-gradient(135deg, #7C3AED, #9333EA); color:#fff; border:none; padding:12px 24px; border-radius:14px; cursor:pointer; font-weight:600; font-family:inherit; box-shadow:0 4px 20px rgba(124,58,237,0.3); transition:0.3s; display:inline-block; text-align:center; }
-        .btn-submit:hover { filter:brightness(1.05); transform:translateY(-1px); }
-        .btn-danger { background:linear-gradient(135deg,#EF4444,#DC2626); color:#fff; border:none; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:500; }
-        .btn-external { background:linear-gradient(135deg,#0284C7,#0EA5E9); color:#fff; padding:10px 20px; border-radius:14px; display:inline-block; text-decoration:none; }
-        .table-responsive { width:100%; overflow-x:auto; border-radius:16px; border:1px solid rgba(168,85,247,0.2); margin-top:12px; background:#fff; }
-        table { width:100%; border-collapse:collapse; }
-        th, td { padding:10px 12px; border:1px solid rgba(168,85,247,0.15); text-align:left; font-size:14px; }
-        th { background:linear-gradient(135deg,#7C3AED,#9333EA); color:#fff; font-weight:600; white-space:nowrap; }
-        tr:nth-child(even) { background:rgba(243,232,255,0.3); }
-        .badge { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; display:inline-block; }
-        .badge-done { background:rgba(16,185,129,0.15); color:#059669; border:1px solid rgba(16,185,129,0.3); }
-        .badge-purple { background:rgba(124,58,237,0.15); color:#7C3AED; border:1px solid rgba(124,58,237,0.3); }
-        .img-preview { max-width:100%; max-height:350px; border-radius:14px; margin-top:10px; }
-        .file-link { display:inline-block; background:rgba(124,58,237,0.1); color:#7C3AED; padding:6px 14px; border-radius:10px; font-size:13px; text-decoration:none; font-weight:600; border:1px solid rgba(124,58,237,0.2); transition:0.2s; }
-        .file-link:hover { background:rgba(124,58,237,0.2); }
-        .lkpd-iframe-wrapper { width:100%; height:700px; border:none; border-radius:16px; background:#fff; overflow:hidden; }
-        .lkpd-iframe-wrapper iframe { width:100%; height:100%; border:none; }
-        #toast-container { position:fixed; bottom:20px; right:20px; z-index:9999; }
-        .toast { background:linear-gradient(135deg,#10B981,#059669); color:#fff; padding:12px 20px; margin-top:10px; border-radius:10px; opacity:0; transition:all 0.3s; transform:translateY(20px); font-size:14px; box-shadow:0 10px 25px rgba(0,0,0,0.15); }
-        .toast.show { opacity:1; transform:translateY(0); }
-        .toast.error { background:linear-gradient(135deg,#EF4444,#DC2626); }
-        .modal-box { position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); display:flex; justify-content:center; align-items:center; z-index:2000; }
-        .modal-content { background:#fff; padding:30px; border-radius:24px; max-width:450px; width:90%; }
-        .absensi-cell { cursor:pointer; font-weight:bold; text-align:center; }
-        .absensi-cell:hover { background:rgba(124,58,237,0.15) !important; }
-        .sticky-col-header { position:sticky; left:0; background:linear-gradient(135deg,#7C3AED,#9333EA) !important; color:#fff !important; z-index:10; min-width:200px; text-align:left !important; padding-left:12px !important; }
-        .sticky-col-cell { position:sticky; left:0; background:#fff !important; z-index:5; min-width:200px; font-weight:600; padding-left:12px !important; }
-        tr:nth-child(even) .sticky-col-cell { background:#F9F5FF !important; }
-        @media print { body * { visibility:hidden; } #printableArea, #printableArea * { visibility:visible; } #printableArea { position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff !important; } .no-print { display:none !important; } }
-        /* Progress Bar */
-        .progress-container { display:none; margin:15px 0; padding:10px; background:#f8fafc; border-radius:12px; border:1px solid rgba(168,85,247,0.2); }
-        .progress-container.show { display:block; }
-        .progress-bar-track { background:#e5e7eb; border-radius:8px; height:12px; overflow:hidden; position:relative; }
-        .progress-bar-fill { height:100%; background:linear-gradient(135deg, #7C3AED, #9333EA); border-radius:8px; width:0%; transition:width 0.3s ease; }
-        .progress-text { display:flex; justify-content:space-between; font-size:13px; color:#64748B; margin-top:4px; }
-        .progress-status { font-weight:500; color:var(--purple); }
+        body { font-family: Arial, sans-serif; background-color: #f3f0ff; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #5b21b6; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #5b21b6; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 5px; box-sizing: border-box; }
+        .row { display: flex; gap: 20px; }
+        .col { flex: 1; }
+        .btn-submit { width: 100%; background-color: #7c3aed; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-submit:hover { background-color: #6d28d9; }
+        .error-msg { color: red; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<!-- MODAL LOGIN -->
-<div class="modal-overlay" id="loginModal">
-    <div class="login-card">
-        <h2 style="color:var(--yellow); font-weight:700;">LMS Informatika</h2>
-        <p style="color:#64748B; font-size:13px; margin-bottom:20px;">Kelas X Keramik A &amp; X DKV B — Bu Ema Humaera</p>
-        <div class="login-tab">
-            <button class="active" id="tabSiswaBtn" onclick="switchLogin('siswa')">Murid</button>
-            <button id="tabGuruBtn" onclick="switchLogin('guru')">Guru / Admin</button>
+<div class="container">
+    <h2>✨ Buat Pertemuan Baru</h2>
+
+    <div class="form-group">
+        <label>Kelas</label>
+        <select id="kelas">
+            <option value="X Keramik A">X Keramik A</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Judul</label>
+        <input type="text" id="judul" value="Pertemuan 2 - Algoritma Pencarian">
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label>Materi Ajar</label>
+                <input type="file" id="materiFile">
+            </div>
         </div>
-        <form id="formSiswa" onsubmit="loginSiswa(event)">
-            <div class="form-group"><label>Nama Lengkap</label><input type="text" id="inputNamaSiswaLogin" placeholder="Ketik nama lengkap..." required autocomplete="off"></div>
-            <div class="form-group"><label>Kelas</label><select id="inputKelasSiswa" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div>
-            <div class="form-group"><label>Password (kosongkan jika belum punya)</label><input type="password" id="inputPasswordSiswa" placeholder="Password"></div>
-            <button type="submit" class="btn-submit" style="width:100%;">Masuk Pembelajaran</button>
-        </form>
-        <form id="formGuru" onsubmit="loginGuru(event)" style="display:none;">
-            <div class="form-group"><label>PIN Guru</label><input type="password" id="inputPinGuru" placeholder="Masukkan PIN" required></div>
-            <button type="submit" class="btn-submit" style="width:100%; background:linear-gradient(135deg,#4C1D95,#7C3AED);">Masuk Panel</button>
-        </form>
+        <div class="col">
+            <div class="form-group">
+                <label>LKPD</label>
+                <input type="file" id="lkpdFile">
+            </div>
+        </div>
     </div>
+
+    <button class="btn-submit" id="btnTerbitkan">Terbitkan</button>
+    <div id="status" class="error-msg"></div>
 </div>
 
-<!-- MODAL UBAH SANDI -->
-<div class="modal-box" id="modalUbahSandi" style="display:none;">
-    <div class="modal-content">
-        <h3 style="color:var(--purple); font-weight:700; margin-bottom:16px;">🔑 Ubah Password</h3>
-        <div class="form-group"><label>Password Lama</label><input type="password" id="oldPass" placeholder="Kosongkan jika belum ada"></div>
-        <div class="form-group"><label>Password Baru</label><input type="password" id="newPass" placeholder="Minimal 4 karakter"></div>
-        <div class="form-group"><label>Konfirmasi Password Baru</label><input type="password" id="confirmPass" placeholder="Ulangi password baru"></div>
-        <button class="btn-submit" onclick="ubahSandi()" style="width:100%;">Simpan</button>
-        <button class="btn-danger" onclick="document.getElementById('modalUbahSandi').style.display='none'" style="margin-top:10px; width:100%;">Batal</button>
-    </div>
-</div>
+<!-- Import Supabase JS V2 -->
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
-<!-- HEADER -->
-<header>
-    <div class="logo"><span>LMS</span> Informatika</div>
-    <div class="user-badge" id="userBadge">Belum Login</div>
-    <nav id="navbarMenu"></nav>
-</header>
+    // KONFIGURASI (Sudah diisi sesuai data Anda)
+    const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakj.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<!-- MAIN -->
-<main>
-    <!-- ========== SISWA ========== -->
-    <section id="s_beranda" class="section active">
-        <div class="hero"><h1>Selamat Datang di Pembelajaran Informatika!</h1><h2>Kelas X Keramik A &amp; X DKV B</h2></div>
-        <div class="card"><h3 style="color:var(--purple);">📌 Kesepakatan Kelas</h3><p>1. Hadir tepat waktu dan tertib.<br>2. Menghargai guru dan teman.<br>3. Aktif belajar dan jujur.<br>4. Jaga kebersihan dan fasilitas.<br>5. HP dalam mode senyap.<br>6. Patuhi aturan keselamatan praktik.</p></div>
-        <div class="card"><h3 style="color:var(--purple);">📌 Konsekuensi</h3><p>1. Terlambat: ambil surat keterlambatan di BK.<br>2. Main HP/game: HP disita &amp; menulis permohonan maaf 50 kali.</p></div>
-        <div class="card"><h3 style="color:var(--purple);">📌 Cara Penggunaan LMS</h3><p>Navigasi menu di atas. Materi, Tugas LKPD, Asesmen, Portofolio, Refleksi, dan Ubah Sandi.</p></div>
-    </section>
+    // BUCKET TARGET
+    const BUCKET_NAME = 'lms-files';
 
-    <section id="s_materi" class="section"><h2 style="color:var(--purple); font-weight:700;">📚 Materi Pembelajaran</h2><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanMateri" onchange="loadMateriSiswa()"></select></div><div id="contentMateriSiswa"></div></section>
-    <section id="s_tugas" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Tugas LKPD</h2><div class="card"><p>Pilih pertemuan, kerjakan LKPD, unggah bukti.</p><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select></div></div><div id="contentTugasSiswa"></div></section>
-    <section id="s_kuis" class="section"><h2 style="color:var(--purple); font-weight:700;">🧠 Asesmen &amp; Kuis</h2><div class="card"><div class="login-tab" style="margin-bottom:16px; overflow-x:auto; display:flex; gap:4px;"><button class="active" onclick="switchKuisKategoriSiswa('Asesmen Diagnostik', this)">Diagnostik</button><button onclick="switchKuisKategoriSiswa('Pretest', this)">Pretest</button><button onclick="switchKuisKategoriSiswa('Postest', this)">Postest</button><button onclick="switchKuisKategoriSiswa('Kuis', this)">Kuis</button></div><div class="form-group"><label>Pilih Asesmen</label><select id="selectKuisSiswa" onchange="tampilkanKuisDanSoalSiswa(this.value)"></select></div></div><div id="containerSoalSiswa"></div><div class="card"><h3 style="color:var(--purple);">📜 Riwayat Asesmen</h3><div id="containerRiwayatKuisSiswa"></div></div></section>
-    <section id="s_portofolio" class="section"><div id="printableArea"><h2 style="color:var(--purple); font-weight:700;">🏆 Portofolio Saya</h2><div class="card"><h3>📊 Rekapitulasi Kehadiran</h3><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:12px; text-align:center;"><div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#059669;" id="portHadir">0</span><p style="margin:0; font-weight:600;">Hadir</p></div><div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#D97706;" id="portSakit">0</span><p style="margin:0; font-weight:600;">Sakit</p></div><div style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#0284C7;" id="portIzin">0</span><p style="margin:0; font-weight:600;">Izin</p></div><div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#DC2626;" id="portAlfa">0</span><p style="margin:0; font-weight:600;">Alfa</p></div></div></div><div class="card"><h3>📝 Rekap Tugas LKPD</h3><div id="rekapPortofolioSiswa"></div></div><div class="card"><h3>🧠 Rekap Hasil Asesmen</h3><div id="containerPortofolioKuis"></div></div></div><button onclick="window.print()" class="btn-submit no-print" style="background:linear-gradient(135deg,#10B981,#059669);">📥 Unduh Portofolio (PDF)</button></section>
-    <section id="s_refleksi" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Refleksi &amp; Saran</h2><div class="card"><form onsubmit="kirimRefleksi(event)"><div class="form-group"><label>Jenis</label><select id="refleksiTipe" required><option value="Refleksi">Refleksi</option><option value="Rangkuman">Rangkuman</option><option value="Saran">Saran Pembelajaran</option><option value="unek-unek">Sekadar unek‑unek</option></select></div><div class="form-group"><label>Isi</label><textarea id="refleksiIsi" rows="5" required></textarea></div><button type="submit" class="btn-submit">Kirim</button></form></div><div class="card"><h3>Riwayat Refleksi Saya</h3><div id="riwayatRefleksiSiswa"></div></div></section>
+    // FUNGSI UNTUK MEMASTIKAN BUCKET ADA (MENGATASI ERROR NULL)
+    async function ensureBucketExists() {
+        // Ambil daftar bucket
+        const { data: buckets, error: bucketErr } = await supabase.storage.listBuckets();
 
-    <!-- ========== GURU ========== -->
-    <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
-    <section id="g_daftar_pertemuan" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Modul Materi</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_daftarKelas" onchange="renderDaftarPertemuanGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelDaftarPertemuanGuru"></div></div><div class="card"><h3>👁️ Pratinjau Materi</h3><div class="form-group"><label>Pilih Pertemuan</label><select id="selectGuruPreviewPertemuan" onchange="renderGuruMaterialPreview()"></select></div><div id="guruMaterialPreviewContainer"></div></div></section>
-    <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card">
-        <form onsubmit="simpanPertemuanBaru(event)">
-            <div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div>
-            <div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;">
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
-            </div>
-            <div id="progressMateri" class="progress-container">
-                <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
-                <div class="progress-text"><span id="progressMateriStatus" class="progress-status">⏳ Menyiapkan...</span><span id="progressMateriPersen">0%</span></div>
-            </div>
-            <button type="submit" id="btnTerbitkanMateri" class="btn-submit" style="width:100%;">Terbitkan</button>
-        </form>
-    </div></section>
-    <section id="g_kuis" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Kelola Asesmen</h2><div class="card"><form onsubmit="simpanKuisBaru(event)"><div class="form-group"><label>Kelas</label><select id="g_kuisKelas" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Kategori</label><select id="g_kuisKategori"><option value="Asesmen Diagnostik">Diagnostik</option><option value="Pretest">Pretest</option><option value="Postest">Postest</option><option value="Kuis">Kuis</option></select></div><div class="form-group"><label>Judul</label><input type="text" id="g_kuisJudul" required placeholder="Judul asesmen"></div><div class="form-group"><label>Deskripsi</label><textarea id="g_kuisDesc" rows="2"></textarea></div><h3 style="color:var(--purple); margin:16px 0 8px;">Daftar Soal</h3><div id="containerSoalGuru"></div><div style="margin-bottom:16px;"><button type="button" class="btn-submit" style="width:100%; border:2px dashed #7C3AED; background:rgba(124,58,237,0.05); color:#7C3AED;" onclick="tambahFormSoal()">+ Tambah Soal</button></div><button type="submit" class="btn-submit" style="width:100%;">Terbitkan Asesmen</button></form></div><div class="card"><h3>📋 Daftar Asesmen</h3><div class="login-tab" style="margin-bottom:16px; overflow-x:auto; display:flex; gap:4px;"><button class="active" onclick="switchKuisKategoriGuru('Asesmen Diagnostik', this)">Diagnostik</button><button onclick="switchKuisKategoriGuru('Pretest', this)">Pretest</button><button onclick="switchKuisKategoriGuru('Postest', this)">Postest</button><button onclick="switchKuisKategoriGuru('Kuis', this)">Kuis</button></div><div id="tabelDaftarKuisGuru"></div></div><div id="containerHasilKuisGuru" style="display:none;"></div></section>
-    <section id="g_siswa" class="section"><h2 style="color:var(--purple); font-weight:700;">👥 Kelola Murid</h2><div class="card"><form onsubmit="tambahSiswa(event)"><div class="form-group"><label>Kelas</label><select id="g_siswaKelas" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Nama Lengkap</label><input type="text" id="g_namaSiswaBaru" required placeholder="Contoh: SYAMSUL ANWAR"></div><button type="submit" class="btn-submit">Tambahkan</button></form></div><div class="table-responsive"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead><tbody id="tabelDaftarSiswa"></tbody></table></div></section>
-    <section id="g_absensi" class="section"><h2 style="color:var(--purple); font-weight:700;">📊 Absensi Kelas</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_absensiKelas" onchange="renderAbsensiMatrix(); renderRekapAbsensiGuru();"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><h3 style="color:var(--purple);">📈 Rekapitulasi Kehadiran</h3><div class="table-responsive"><table><thead><tr><th>No</th><th>Nama</th><th style="color:#059669;">Hadir</th><th style="color:#D97706;">Sakit</th><th style="color:#0284C7;">Izin</th><th style="color:#DC2626;">Alfa</th><th>%</th></tr></thead><tbody id="tabelRekapAbsensiGuruBody"></tbody></table></div></div><div class="card"><h3 style="color:var(--purple);">🗓️ Matriks Absensi (Klik sel untuk ubah)</h3><div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;"><div class="form-group"><label>Pertemuan</label><select id="absensiKolomPilih" onchange="renderAbsensiMatrix()"></select></div><div class="form-group"><label>Tanggal</label><input type="date" id="absensiTanggalInput" onchange="simpanTanggalAbsensi()"></div></div><div class="table-responsive"><table class="absensi-table"><thead><tr><th rowspan="3" class="sticky-col-header">NAMA</th><th colspan="30">PERTEMUAN</th><th rowspan="3" style="vertical-align:middle; background:linear-gradient(135deg,#7C3AED,#9333EA); color:#fff; min-width:60px;">%</th></tr><tr id="rowHeaderMeetingCols"></tr><tr id="rowHeaderMeetingDates"></tr></thead><tbody id="tabelMatriksAbsensiBody"></tbody></table></div></div></section>
-    <section id="g_refleksi" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Refleksi &amp; Saran Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="filterRefleksiKelas" onchange="renderRefleksiGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelRefleksiGuru"></div></div></section>
-</main>
-
-<div id="toast-container"></div>
-
-<script>
-// ============================= SUPABASE =============================
-// 🔥 PERBAIKI URL dan KEY sesuai dashboard Anda
-const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakjd.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
-const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
-const _supabase = supabaseClient;
-const BUCKET_NAME = 'lms-files';
-
-// ============================= DATA AWAL =============================
-const defaultStudents = [
-    { nama: "ABHIYASA PUTRA ALDARYFANI", kelas: "X Keramik A", password: "" },
-    { nama: "ANANDA VITTO ADITYA PUTRA", kelas: "X Keramik A", password: "" },
-    { nama: "ARYA DWI PANDU WICAKSONO", kelas: "X Keramik A", password: "" },
-    { nama: "AURELIO BARCA ADIWANGSA", kelas: "X Keramik A", password: "" },
-    { nama: "DAVID ALLEN ANUGERAH", kelas: "X Keramik A", password: "" },
-    { nama: "LUTFAN MACHUS NUGROHO", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMAD TEGUH FEBRIYANSYAH", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD ABDUL DAWWAS", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD ABIEL PUTRA WIBOWO", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD ALDAFA SAPUTRA", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD ANGGAS FAHRI IRAWAN", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD BISMA BRILLIAN SAPTOTO", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD CEVIN PUTRA MEDA", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD DAFA FEBRIAN WAHNURI", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD FAHRI NUR AZZAM", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD HUDA PUTRA MUDANTO", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD JUNIOR FARHAN WAHYUDI", kelas: "X Keramik A", password: "" },
-    { nama: "MUHAMMAD ZAKI PERMANA", kelas: "X Keramik A", password: "" },
-    { nama: "NATANELIA AZZARIA ALYUSUF", kelas: "X Keramik A", password: "" },
-    { nama: "NAYLA MAHARDIKA PRASASTI", kelas: "X Keramik A", password: "" },
-    { nama: "NUR EVAN SATRIA PRATAMA", kelas: "X Keramik A", password: "" },
-    { nama: "NURUL USWAHTUN HASANAH", kelas: "X Keramik A", password: "" },
-    { nama: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
-    { nama: "QIENKIN AURELIN AMANDA", kelas: "X Keramik A", password: "" },
-    { nama: "RADITYA LISTIAN PRASETYO", kelas: "X Keramik A", password: "" },
-    { nama: "RAFA PRATAMA SAPUTRA", kelas: "X Keramik A", password: "" },
-    { nama: "RAY MAHENDRA PUTRA", kelas: "X Keramik A", password: "" },
-    { nama: "RETNO NAWANG SARI", kelas: "X Keramik A", password: "" },
-    { nama: "RIRIN LESTARI", kelas: "X Keramik A", password: "" },
-    { nama: "RISANG RAMADHAN", kelas: "X Keramik A", password: "" },
-    { nama: "SRI LESTARI", kelas: "X Keramik A", password: "" },
-    { nama: "TEGAR PUTRA PRASTIKA", kelas: "X Keramik A", password: "" },
-    { nama: "WIJDAN PRIYA PRATAMA", kelas: "X Keramik A", password: "" },
-    { nama: "YORDAN HAFIS YUDISTIRA", kelas: "X Keramik A", password: "" },
-    { nama: "ZAMIR ALFAD GTHA", kelas: "X Keramik A", password: "" },
-];
-
-let APP_DATA = JSON.parse(localStorage.getItem('LMS_EMA_V11')) || {
-    students: [...defaultStudents],
-    pertemuan: [],
-    submissions: [],
-    absensi: { "X Keramik A": {}, "X DKV B": {} },
-    absensiDates: { "X Keramik A": {}, "X DKV B": {} },
-    kuisList: [],
-    kuisScores: [],
-    reflections: []
-};
-if (!APP_DATA.students || APP_DATA.students.length === 0) APP_DATA.students = [...defaultStudents];
-if (!APP_DATA.absensi["X DKV B"]) APP_DATA.absensi["X DKV B"] = {};
-if (!APP_DATA.absensiDates["X DKV B"]) APP_DATA.absensiDates["X DKV B"] = {};
-
-let currentUser = null;
-let soalKuisTemp = [];
-let isDataLoaded = false;
-
-function normalizeName(s) { return (s || '').toString().trim().toUpperCase(); }
-function saveDB() { localStorage.setItem('LMS_EMA_V11', JSON.stringify(APP_DATA)); }
-
-function showToast(msg, err = false) {
-    const c = document.getElementById('toast-container');
-    if (!c) return;
-    const t = document.createElement('div');
-    t.className = 'toast' + (err ? ' error' : '');
-    t.innerText = msg;
-    c.appendChild(t);
-    setTimeout(() => t.classList.add('show'), 10);
-    setTimeout(() => { t.classList.remove('show'); setTimeout(() => { if (c.contains(t)) c.removeChild(t); }, 300); }, 4000);
-}
-
-function parseSoalSafely(data) {
-    if (!data) return [];
-    let parsed = data;
-    try { while (typeof parsed === 'string') parsed = JSON.parse(parsed); } catch (e) { return []; }
-    return Array.isArray(parsed) ? parsed : [];
-}
-
-// ============================= PROGRESS HELPER =============================
-function updateProgress(elementId, percent, status) {
-    const container = document.getElementById(elementId);
-    if (!container) return;
-    const fill = container.querySelector('.progress-bar-fill');
-    const statusEl = container.querySelector('.progress-status');
-    const persenEl = container.querySelector('.progress-text span:last-child');
-    if (fill) fill.style.width = Math.min(100, percent) + '%';
-    if (statusEl) statusEl.textContent = status || '⏳ Memproses...';
-    if (persenEl) persenEl.textContent = Math.min(100, percent) + '%';
-    container.classList.add('show');
-}
-
-function hideProgress(elementId) {
-    const container = document.getElementById(elementId);
-    if (container) container.classList.remove('show');
-}
-
-// ============================= UPLOAD FILE KE SUPABASE STORAGE =============================
-async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateri') {
-    if (!_supabase) throw new Error('Supabase tidak terhubung.');
-    if (!file) return null;
-
-    updateProgress(progressId, 5, '🔍 Memeriksa bucket...');
-
-    // Cek bucket
-    try {
-        const { data: buckets } = await _supabase.storage.listBuckets();
-        const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
-        if (!bucketExists) {
-            throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
+        // Jika error null atau data tidak ada (null), langsung buat bucket baru
+        if (bucketErr || !buckets || !Array.isArray(buckets)) {
+            console.warn("Bucket tidak ditemukan, membuat bucket baru...");
+            await supabase.storage.createBucket(BUCKET_NAME, { public: true });
+        } else if (!buckets.some(b => b.name === BUCKET_NAME)) {
+            // Jika data ada tapi bucket 'lms-files' tidak ada di daftar
+            console.log("Bucket lms-files belum ada, membuat baru...");
+            await supabase.storage.createBucket(BUCKET_NAME, { public: true });
         }
-    } catch (e) {
-        throw new Error('Gagal mengecek bucket: ' + e.message);
     }
 
-    let fileToUpload = file;
-    // Kompres gambar jika > 500KB
-    if (file.type.startsWith('image/') && file.size > 500 * 1024) {
-        updateProgress(progressId, 15, '🖼️ Mengompres gambar...');
+    // FUNGSI UPLOAD FILE
+    async function uploadFile(file, folderName) {
+        if (!file) return null;
+
+        // Pastikan bucket ada sebelum upload
+        await ensureBucketExists();
+
+        // Buat path unik agar nama file tidak tabrakan
+        const filePath = `${folderName}/${Date.now()}_${file.name}`;
+
+        // Proses Upload
+        const { error: uploadError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, file, { upsert: false });
+
+        if (uploadError) {
+            throw new Error(`Gagal upload file ${file.name}: ${uploadError.message}`);
+        }
+
+        // Ambil URL Publik
+        const { data: urlData } = supabase.storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(filePath);
+
+        return urlData.publicUrl;
+    }
+
+    // FUNGSI UTAMA SAAT TOMBOL DIKLIK
+    document.getElementById('btnTerbitkan').addEventListener('click', async () => {
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = "Memproses upload...";
+
         try {
-            fileToUpload = await compressImage(file, 500);
-        } catch (e) {
-            console.warn('Kompresi gagal, upload original:', e);
-            fileToUpload = file;
-        }
-    }
-
-    updateProgress(progressId, 30, '📤 Mengunggah ke Storage...');
-
-    const ext = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-    const filePath = `${folder}/${fileName}`;
-
-    let progressInterval = setInterval(() => {
-        const currentFill = document.querySelector(`#${progressId} .progress-bar-fill`);
-        if (currentFill) {
-            const current = parseFloat(currentFill.style.width) || 30;
-            if (current < 85) {
-                currentFill.style.width = Math.min(85, current + 5) + '%';
-            }
-        }
-    }, 500);
-
-    const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
-        cacheControl: '3600',
-        upsert: false
-    });
-
-    clearInterval(progressInterval);
-
-    if (error) {
-        console.error('Upload error detail:', error);
-        throw new Error('Gagal upload ke Storage: ' + error.message);
-    }
-
-    updateProgress(progressId, 90, '📦 Mendapatkan URL...');
-    const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-    updateProgress(progressId, 95, '✅ File berhasil diunggah!');
-    return urlData.publicUrl;
-}
-
-function compressImage(file, maxKB) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                const MAX_SIZE = 800;
-                if (w > MAX_SIZE || h > MAX_SIZE) {
-                    const ratio = Math.min(MAX_SIZE/w, MAX_SIZE/h);
-                    w = Math.round(w * ratio);
-                    h = Math.round(h * ratio);
-                }
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                let quality = 0.85;
-                let dataUrl = canvas.toDataURL('image/jpeg', quality);
-                let sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
-                while (sizeKB > maxKB && quality > 0.2) {
-                    quality -= 0.1;
-                    dataUrl = canvas.toDataURL('image/jpeg', quality);
-                    sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
-                }
-                const blob = dataURLToBlob(dataUrl);
-                resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
-            };
-            img.onerror = reject;
-            img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function dataURLToBlob(dataUrl) {
-    const parts = dataUrl.split(',');
-    const mime = parts[0].match(/:(.*?);/)[1];
-    const bstr = atob(parts[1]);
-    const n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-    return new Blob([u8arr], { type: mime });
-}
-
-// ============================= LOAD SUPABASE =============================
-async function loadAllDataFromSupabase() {
-    if (!_supabase) return;
-    try {
-        const [stRes, pRes, subRes, absRes, kuisRes, qaRes, refRes] = await Promise.all([
-            _supabase.from('students').select('*'),
-            _supabase.from('pertemuan').select('*'),
-            _supabase.from('submissions').select('*'),
-            _supabase.from('absensi').select('*'),
-            _supabase.from('kuis').select('*'),
-            _supabase.from('quiz_attempts').select('*'),
-            _supabase.from('reflections').select('*')
-        ]);
-        if (stRes.data && stRes.data.length) {
-            const merged = [...APP_DATA.students, ...stRes.data.map(s => ({ nama: s.nama_siswa, kelas: s.kelas, password: s.password || '' }))];
-            APP_DATA.students = Array.from(new Map(merged.map(s => [s.nama + '|' + s.kelas, s])).values());
-        }
-        if (pRes.data && pRes.data.length) {
-            APP_DATA.pertemuan = pRes.data.map(p => ({
-                id: p.id, kelas: p.kelas, judul: p.judul,
-                materiText: p.materi_text || '', materiFile: p.materi_file ? JSON.parse(p.materi_file) : null,
-                lkpdText: p.lkpd_text || '', lkpdLink: p.lkpd_link || '', lkpdFile: p.lkpd_file ? JSON.parse(p.lkpd_file) : null
-            }));
-        }
-        if (subRes.data) {
-            APP_DATA.submissions = subRes.data.map(s => ({
-                id: s.id, pertemuan_id: s.pertemuan_id, kelas: s.kelas, nama_siswa: s.nama_siswa,
-                jawaban: s.jawaban, nilai: s.nilai || 0, catatan: s.catatan || '', submitted_at: s.submitted_at
-            }));
-        }
-        if (absRes.data) {
-            absRes.data.forEach(a => {
-                const kelas = a.kelas || 'X Keramik A';
-                if (!APP_DATA.absensi[kelas]) APP_DATA.absensi[kelas] = {};
-                if (!APP_DATA.absensi[kelas][a.nama_siswa]) APP_DATA.absensi[kelas][a.nama_siswa] = {};
-                APP_DATA.absensi[kelas][a.nama_siswa][a.pertemuan_id] = a.status_kehadiran;
-            });
-        }
-        if (kuisRes.data) {
-            APP_DATA.kuisList = kuisRes.data.map(k => ({
-                id: k.id, kelas: k.kelas, kategori: k.kategori, judul: k.judul, desc: k.desc || '',
-                soal: parseSoalSafely(k.soal), created_at: k.created_at
-            }));
-        }
-        if (qaRes.data) {
-            APP_DATA.kuisScores = qaRes.data.map(q => ({
-                id: q.id, kelas: q.kelas, studentName: q.student_name, quizId: q.quiz_id,
-                quizTitle: q.quiz_title, score: q.score, totalCorrect: q.total_correct, totalWrong: q.total_wrong,
-                submittedAt: q.submitted_at
-            }));
-        }
-        if (refRes.data) {
-            APP_DATA.reflections = refRes.data.map(r => ({
-                id: r.id, kelas: r.kelas, siswa: r.siswa, tipe: r.tipe, isi: r.isi, created_at: r.created_at
-            }));
-        }
-        saveDB();
-        isDataLoaded = true;
-    } catch (e) {
-        console.warn('Supabase offline, pakai cache:', e);
-        isDataLoaded = true;
-    }
-}
-
-// ============================= LOGIN =============================
-function switchLogin(role) {
-    const tabS = document.getElementById('tabSiswaBtn'), tabG = document.getElementById('tabGuruBtn');
-    if (role === 'siswa') {
-        tabS.classList.add('active'); tabG.classList.remove('active');
-        document.getElementById('formSiswa').style.display = 'block';
-        document.getElementById('formGuru').style.display = 'none';
-    } else {
-        tabG.classList.add('active'); tabS.classList.remove('active');
-        document.getElementById('formSiswa').style.display = 'none';
-        document.getElementById('formGuru').style.display = 'block';
-    }
-}
-
-async function loginSiswa(e) {
-    e.preventDefault();
-    const nama = normalizeName(document.getElementById('inputNamaSiswaLogin').value);
-    const kelas = document.getElementById('inputKelasSiswa').value;
-    const pass = document.getElementById('inputPasswordSiswa').value;
-    if (!isDataLoaded) await loadAllDataFromSupabase();
-    const found = APP_DATA.students.find(s => s.nama === nama && s.kelas === kelas);
-    if (!found) return showToast('Nama atau kelas tidak terdaftar!', true);
-    if (found.password && found.password !== pass) return showToast('Password salah!', true);
-    currentUser = { role: 'siswa', name: nama, kelas: kelas };
-    await initApp();
-}
-
-async function loginGuru(e) {
-    e.preventDefault();
-    const pin = document.getElementById('inputPinGuru').value;
-    if (pin !== 'guru123') return showToast('PIN salah!', true);
-    if (!isDataLoaded) await loadAllDataFromSupabase();
-    currentUser = { role: 'guru', name: 'Bu Ema Humaera' };
-    await initApp();
-}
-
-function logout() {
-    currentUser = null;
-    document.getElementById('loginModal').style.display = 'flex';
-    document.getElementById('inputNamaSiswaLogin').value = '';
-    document.getElementById('inputPinGuru').value = '';
-}
-
-// ============================= INIT =============================
-async function initApp() {
-    document.getElementById('loginModal').style.display = 'none';
-    const nav = document.getElementById('navbarMenu');
-    const badge = document.getElementById('userBadge');
-    if (currentUser.role === 'siswa') {
-        badge.innerHTML = `👤 ${currentUser.name} (${currentUser.kelas})`;
-        nav.innerHTML = `
-            <button class="nav-btn active" onclick="showSection('s_beranda', this)">Beranda</button>
-            <button class="nav-btn" onclick="showSection('s_materi', this)">Materi</button>
-            <button class="nav-btn" onclick="showSection('s_tugas', this)">Tugas</button>
-            <button class="nav-btn" onclick="showSection('s_kuis', this)">Asesmen</button>
-            <button class="nav-btn" onclick="showSection('s_portofolio', this)">Portofolio</button>
-            <button class="nav-btn" onclick="showSection('s_refleksi', this)">Refleksi</button>
-            <button class="nav-btn" onclick="document.getElementById('modalUbahSandi').style.display='flex'">🔑 Ubah Sandi</button>
-            <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
-        `;
-        showSection('s_beranda');
-        populatePertemuanSiswaSelects();
-        loadRekapPortofolioSiswa();
-        loadRiwayatRefleksiSiswa();
-    } else {
-        badge.innerHTML = `👩‍🏫 Guru: Bu Ema Humaera`;
-        nav.innerHTML = `
-            <button class="nav-btn active" onclick="showSection('g_portofolio', this)">Portofolio</button>
-            <button class="nav-btn" onclick="showSection('g_daftar_pertemuan', this)">Modul</button>
-            <button class="nav-btn" onclick="showSection('g_kelola', this)">+ Buat Pertemuan</button>
-            <button class="nav-btn" onclick="showSection('g_kuis', this)">Kelola Asesmen</button>
-            <button class="nav-btn" onclick="showSection('g_siswa', this)">Data Murid</button>
-            <button class="nav-btn" onclick="showSection('g_absensi', this)">Absensi</button>
-            <button class="nav-btn" onclick="showSection('g_refleksi', this)">Refleksi</button>
-            <button class="nav-btn btn-logout" onclick="logout()">Keluar</button>
-        `;
-        showSection('g_portofolio');
-        renderDaftarPertemuanGuru();
-        renderDaftarSiswaTable();
-        renderAbsensiMatrix();
-        renderRekapAbsensiGuru();
-        renderRefleksiGuru();
-        switchKuisKategoriGuru('Asesmen Diagnostik', document.querySelector('#g_kuis .login-tab button'));
-        populateFilterPertemuan();
-    }
-}
-
-function showSection(id, btn) {
-    document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-    const target = document.getElementById(id);
-    if (target) { target.classList.add('active'); target.style.display = 'block'; }
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    if (id === 's_portofolio') loadRekapPortofolioSiswa();
-    if (id === 's_kuis') loadRiwayatKuisSiswa();
-    if (id === 'g_absensi') { renderAbsensiMatrix(); renderRekapAbsensiGuru(); }
-    if (id === 'g_portofolio') renderPortofolioTable();
-    if (id === 'g_refleksi') renderRefleksiGuru();
-}
-
-// ============================= UBAH SANDI =============================
-function ubahSandi() {
-    const old = document.getElementById('oldPass').value;
-    const newp = document.getElementById('newPass').value;
-    const confirm = document.getElementById('confirmPass').value;
-    if (newp.length < 4) return showToast('Password baru minimal 4 karakter!', true);
-    if (newp !== confirm) return showToast('Password baru tidak cocok!', true);
-    const student = APP_DATA.students.find(s => s.nama === currentUser.name && s.kelas === currentUser.kelas);
-    if (!student) return showToast('Data tidak ditemukan!', true);
-    if (student.password && student.password !== old) return showToast('Password lama salah!', true);
-    student.password = newp;
-    saveDB();
-    if (_supabase) {
-        _supabase.from('students').update({ password: newp }).eq('nama_siswa', student.nama).eq('kelas', student.kelas).then();
-    }
-    showToast('Password berhasil diubah!');
-    document.getElementById('modalUbahSandi').style.display = 'none';
-    document.getElementById('oldPass').value = '';
-    document.getElementById('newPass').value = '';
-    document.getElementById('confirmPass').value = '';
-}
-
-// ============================= PERTEMUAN =============================
-async function simpanPertemuanBaru(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnTerbitkanMateri');
-    btn.disabled = true;
-    btn.innerText = '⏳ Memproses...';
-
-    const progressId = 'progressMateri';
-    updateProgress(progressId, 0, '🚀 Memulai...');
-
-    try {
-        const kelas = document.getElementById('g_kelasPertemuan').value;
-        const judul = document.getElementById('g_judulPertemuan').value;
-        const materiText = document.getElementById('g_materiText').value;
-        const lkpdText = document.getElementById('g_lkpdText').value;
-        const lkpdLink = document.getElementById('g_lkpdLink').value;
-
-        const materiFileInput = document.getElementById('g_materiFile');
-        const lkpdFileInput = document.getElementById('g_lkpdFile');
-
-        let materiFileUrl = null, lkpdFileUrl = null;
-
-        // Upload file materi
-        if (materiFileInput.files.length > 0) {
-            updateProgress(progressId, 10, '📤 Mengunggah materi...');
-            materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi', progressId);
-        }
-
-        // Upload file LKPD
-        if (lkpdFileInput.files.length > 0) {
-            updateProgress(progressId, 50, '📤 Mengunggah LKPD...');
-            lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd', progressId);
-        }
-
-        const newP = {
-            id: Date.now(),
-            kelas: kelas,
-            judul: judul,
-            materiText: materiText,
-            materiFile: materiFileUrl ? { url: materiFileUrl, name: materiFileInput.files[0].name } : null,
-            lkpdText: lkpdText,
-            lkpdLink: lkpdLink,
-            lkpdFile: lkpdFileUrl ? { url: lkpdFileUrl, name: lkpdFileInput.files[0].name } : null
-        };
-
-        updateProgress(progressId, 85, '💾 Menyimpan ke database...');
-
-        // Simpan ke localStorage
-        APP_DATA.pertemuan.push(newP);
-        saveDB();
-
-        // Simpan ke Supabase
-        if (_supabase) {
-            const { error } = await _supabase.from('pertemuan').insert([{
-                id: newP.id,
-                kelas: newP.kelas,
-                judul: newP.judul,
-                materi_text: newP.materiText,
-                materi_file: newP.materiFile ? JSON.stringify(newP.materiFile) : null,
-                lkpd_text: newP.lkpdText,
-                lkpd_link: newP.lkpdLink,
-                lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null,
-                created_at: new Date().toISOString()
-            }]);
-            if (error) {
-                // Rollback lokal jika Supabase gagal
-                APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== newP.id);
-                saveDB();
-                throw new Error('Gagal simpan ke Supabase: ' + error.message);
-            }
-        }
-
-        updateProgress(progressId, 100, '✅ Selesai!');
-        showToast('✅ Pertemuan berhasil diterbitkan!');
-        e.target.reset();
-        renderDaftarPertemuanGuru();
-        populatePertemuanSiswaSelects();
-        populateFilterPertemuan();
-
-        setTimeout(() => hideProgress(progressId), 3000);
-
-    } catch (err) {
-        hideProgress(progressId);
-        showToast('❌ Gagal: ' + err.message, true);
-        console.error(err);
-    }
-
-    btn.disabled = false;
-    btn.innerText = 'Terbitkan';
-}
-
-function renderDaftarPertemuanGuru() {
-    const kelas = document.getElementById('g_daftarKelas').value;
-    const container = document.getElementById('tabelDaftarPertemuanGuru');
-    const selectPrev = document.getElementById('selectGuruPreviewPertemuan');
-    const list = (APP_DATA.pertemuan || []).filter(p => p.kelas === kelas);
-    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Materi</th><th>LKPD</th><th>Aksi</th></tr></thead><tbody>`;
-    let opt = '<option value="">-- Pilih --</option>';
-    list.forEach(p => {
-        opt += `<option value="${p.id}">${p.judul}</option>`;
-        html += `<tr><td><strong>${p.judul}</strong></td><td>${p.materiText || '-'} ${p.materiFile ? `<a href="${p.materiFile.url}" target="_blank" class="file-link">📎</a>` : ''}</td><td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link">🔗</a>` : '-'} ${p.lkpdFile ? `<a href="${p.lkpdFile.url}" target="_blank" class="file-link">📎</a>` : ''}</td><td><button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button></td></tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html || '<p>Belum ada pertemuan untuk kelas ini.</p>';
-    if (selectPrev) selectPrev.innerHTML = opt;
-}
-
-async function hapusPertemuan(id) {
-    if (!confirm('Yakin hapus?')) return;
-    APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== id);
-    saveDB();
-    if (_supabase) _supabase.from('pertemuan').delete().eq('id', id).then();
-    renderDaftarPertemuanGuru();
-    showToast('Pertemuan dihapus.');
-}
-
-function renderGuruMaterialPreview() {
-    const id = document.getElementById('selectGuruPreviewPertemuan').value;
-    const container = document.getElementById('guruMaterialPreviewContainer');
-    if (!id) { container.innerHTML = ''; return; }
-    const p = APP_DATA.pertemuan.find(x => x.id == id);
-    if (p) container.innerHTML = generateMaterialHTML(p);
-    else container.innerHTML = '';
-}
-
-function generateMaterialHTML(p) {
-    let html = `<div class="card"><h3 style="color:var(--purple);">${p.judul}</h3>`;
-    if (p.materiText) html += `<p>${p.materiText}</p>`;
-    if (p.materiFile) {
-        const url = p.materiFile.url;
-        const name = p.materiFile.name || 'file';
-        if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            html += `<img src="${url}" class="img-preview" alt="materi">`;
-        } else {
-            html += `<a href="${url}" target="_blank" class="file-link">📎 ${name}</a>`;
-        }
-    }
-    html += `</div>`;
-    return html;
-}
-
-function populatePertemuanSiswaSelects() {
-    const kelas = currentUser ? currentUser.kelas : 'X Keramik A';
-    const list = (APP_DATA.pertemuan || []).filter(p => p.kelas === kelas);
-    const selMat = document.getElementById('selectPertemuanMateri');
-    const selTug = document.getElementById('selectPertemuanTugas');
-    let html = '<option value="">-- Pilih --</option>';
-    list.forEach(p => html += `<option value="${p.id}">${p.judul}</option>`);
-    if (selMat) selMat.innerHTML = html;
-    if (selTug) selTug.innerHTML = html;
-}
-
-function loadMateriSiswa() {
-    const id = document.getElementById('selectPertemuanMateri').value;
-    const container = document.getElementById('contentMateriSiswa');
-    if (!id) { container.innerHTML = ''; return; }
-    const p = APP_DATA.pertemuan.find(x => x.id == id);
-    container.innerHTML = p ? generateMaterialHTML(p) : '';
-}
-
-function loadTugasSiswa() {
-    const id = document.getElementById('selectPertemuanTugas').value;
-    const container = document.getElementById('contentTugasSiswa');
-    if (!id) { container.innerHTML = ''; return; }
-    const p = APP_DATA.pertemuan.find(x => x.id == id);
-    if (!p) return container.innerHTML = '<div class="card"><p>Tidak ditemukan.</p></div>';
-    let html = `<div class="card"><h3 style="color:var(--purple);">${p.judul}</h3>`;
-    if (p.lkpdLink) {
-        html += `
-            <div style="background:#f0f7ff; border-left:5px solid #0284C7; padding:12px 18px; border-radius:12px; margin:10px 0;">
-                <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, screenshot/download, lalu unggah bukti.</p>
-            </div>
-            <a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD</a>
-            <div class="lkpd-iframe-wrapper" style="margin-top:12px;"><iframe src="${p.lkpdLink}" title="LKPD"></iframe></div>
-        `;
-    } else if (p.lkpdText) {
-        html += `<p>${p.lkpdText}</p>`;
-    } else {
-        html += `<p style="color:#64748B;">Tidak ada LKPD untuk pertemuan ini.</p>`;
-    }
-    html += `
-        <hr style="margin:20px 0;">
-        <h4 style="font-weight:600;">📤 Unggah Bukti</h4>
-        <form onsubmit="submitTugasBiasa(event, ${p.id})">
-            <div class="form-group"><label>File (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
-            <div class="form-group"><label>Catatan</label><textarea id="catatanTugasSiswa" rows="2"></textarea></div>
-            <button type="submit" class="btn-submit">Kirim</button>
-        </form>
-    </div>`;
-    container.innerHTML = html;
-}
-
-async function submitTugasBiasa(e, pertemuanId) {
-    e.preventDefault();
-    const fileInput = document.getElementById('fileTugasSiswa');
-    const file = fileInput.files[0];
-    if (!file) return showToast('Pilih file!', true);
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerText = 'Mengunggah...';
-    try {
-        let fileUrl = null;
-        if (file) {
-            fileUrl = await uploadFileToSupabase(file, 'tugas', 'progressMateri');
-        }
-        const catatan = document.getElementById('catatanTugasSiswa').value || '';
-        const payload = {
-            id: Date.now(),
-            pertemuan_id: pertemuanId,
-            kelas: currentUser.kelas,
-            nama_siswa: currentUser.name,
-            jawaban: fileUrl ? JSON.stringify({ url: fileUrl, name: file.name }) : null,
-            nilai: 0,
-            catatan: catatan,
-            submitted_at: new Date().toLocaleString('id-ID')
-        };
-        APP_DATA.submissions.push(payload);
-        saveDB();
-        if (_supabase) {
-            const { error } = await _supabase.from('submissions').insert([{
-                id: payload.id, pertemuan_id: payload.pertemuan_id, kelas: payload.kelas,
-                nama_siswa: payload.nama_siswa, jawaban: payload.jawaban,
-                nilai: payload.nilai, catatan: payload.catatan, submitted_at: payload.submitted_at
-            }]);
-            if (error) {
-                APP_DATA.submissions = APP_DATA.submissions.filter(s => s.id !== payload.id);
-                saveDB();
-                throw new Error('Gagal simpan tugas: ' + error.message);
-            }
-        }
-        showToast('Tugas terkirim!');
-        loadTugasSiswa();
-        loadRekapPortofolioSiswa();
-    } catch (err) {
-        showToast('Gagal upload: ' + err.message, true);
-    }
-    btn.disabled = false;
-    btn.innerText = 'Kirim';
-}
-
-// ============================= PORTOFOLIO GURU =============================
-function renderJawabanSiswa(raw) {
-    if (!raw) return '<i>Belum ada</i>';
-    try {
-        const parsed = JSON.parse(raw);
-        if (parsed.url) {
-            return `<a href="${parsed.url}" target="_blank" class="file-link">📎 ${parsed.name || 'file'}</a>`;
-        }
-    } catch(e) {}
-    return raw;
-}
-
-function populateFilterPertemuan() {
-    const sel = document.getElementById('selectFilterPertemuan');
-    const kelas = document.getElementById('g_portofolioKelas').value;
-    const list = (APP_DATA.pertemuan || []).filter(p => p.kelas === kelas);
-    let html = '<option value="ALL">-- Semua --</option>';
-    list.forEach(p => html += `<option value="${p.id}">${p.judul}</option>`);
-    sel.innerHTML = html;
-}
-
-function renderPortofolioTable() {
-    const kelas = document.getElementById('g_portofolioKelas').value;
-    const filterId = document.getElementById('selectFilterPertemuan').value;
-    const tbody = document.getElementById('tabelPortofolioGuru');
-    let subs = (APP_DATA.submissions || []).filter(s => s.kelas === kelas);
-    if (filterId !== 'ALL') subs = subs.filter(s => s.pertemuan_id == filterId);
-    tbody.innerHTML = '';
-    if (subs.length === 0) return tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada tugas.</td></tr>';
-    subs.forEach(s => {
-        const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuan_id);
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${s.nama_siswa}</strong></td>
-                <td>${p ? p.judul : 'Pertemuan '+s.pertemuan_id}</td>
-                <td>${renderJawabanSiswa(s.jawaban)}</td>
-                <td><input type="number" id="nilai_${s.id}" value="${s.nilai||0}" style="width:70px; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
-                <td><input type="text" id="catatan_${s.id}" value="${s.catatan||''}" style="width:100%; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
-                <td><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="simpanNilai('${s.id}')">Simpan</button></td>
-            </tr>`;
-    });
-}
-
-async function simpanNilai(subId) {
-    const nilai = parseInt(document.getElementById(`nilai_${subId}`).value) || 0;
-    const catatan = document.getElementById(`catatan_${subId}`).value;
-    const sub = APP_DATA.submissions.find(s => s.id == subId);
-    if (sub) { sub.nilai = nilai; sub.catatan = catatan; }
-    saveDB();
-    if (_supabase) _supabase.from('submissions').update({ nilai, catatan }).eq('id', subId).then();
-    showToast('Nilai disimpan.');
-}
-
-// ============================= PORTOFOLIO SISWA =============================
-function loadRekapPortofolioSiswa() {
-    if (!currentUser) return;
-    const sName = currentUser.name, kelas = currentUser.kelas;
-    let hadir=0,sakit=0,izin=0,alfa=0;
-    const absData = APP_DATA.absensi[kelas] || {};
-    if (absData[sName]) {
-        Object.values(absData[sName]).forEach(st => {
-            if (st === 'H') hadir++;
-            else if (st === 'S') sakit++;
-            else if (st === 'I') izin++;
-            else if (st === 'A') alfa++;
-        });
-    }
-    document.getElementById('portHadir').innerText = hadir;
-    document.getElementById('portSakit').innerText = sakit;
-    document.getElementById('portIzin').innerText = izin;
-    document.getElementById('portAlfa').innerText = alfa;
-    const mySubs = (APP_DATA.submissions || []).filter(s => s.nama_siswa === sName && s.kelas === kelas);
-    const containerTugas = document.getElementById('rekapPortofolioSiswa');
-    let html = '';
-    if (mySubs.length === 0) html = '<p style="color:#64748B;">Belum ada tugas dikumpulkan.</p>';
-    else {
-        html = `<div class="table-responsive"><table><thead><tr><th>Pertemuan</th><th>Jawaban</th><th>Nilai</th><th>Catatan</th></tr></thead><tbody>`;
-        mySubs.forEach(s => {
-            const p = APP_DATA.pertemuan.find(x => x.id == s.pertemuan_id);
-            html += `<tr><td>${p ? p.judul : 'Pertemuan '+s.pertemuan_id}</td><td>${renderJawabanSiswa(s.jawaban)}</td><td><span class="badge badge-done">${s.nilai||0}</span></td><td>${s.catatan||'-'}</td></tr>`;
-        });
-        html += `</tbody></table></div>`;
-    }
-    containerTugas.innerHTML = html;
-    const myScores = (APP_DATA.kuisScores || []).filter(q => q.studentName === sName && q.kelas === kelas);
-    const containerKuis = document.getElementById('containerPortofolioKuis');
-    if (myScores.length === 0) containerKuis.innerHTML = '<p style="color:#64748B;">Belum ada asesmen dikerjakan.</p>';
-    else {
-        let htmlK = `<div class="table-responsive"><table><thead><tr><th>Asesmen</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu</th></tr></thead><tbody>`;
-        myScores.forEach(q => {
-            htmlK += `<tr><td><strong>${q.quizTitle}</strong></td><td><span class="badge badge-purple">${q.score}</span></td><td style="color:#059669;">${q.totalCorrect}</td><td style="color:#DC2626;">${q.totalWrong}</td><td>${q.submittedAt||'-'}</td></tr>`;
-        });
-        htmlK += `</tbody></table></div>`;
-        containerKuis.innerHTML = htmlK;
-    }
-}
-
-// ============================= REFLEKSI =============================
-async function kirimRefleksi(e) {
-    e.preventDefault();
-    const tipe = document.getElementById('refleksiTipe').value;
-    const isi = document.getElementById('refleksiIsi').value;
-    if (!currentUser) return;
-    const newRef = {
-        id: Date.now(),
-        kelas: currentUser.kelas,
-        siswa: currentUser.name,
-        tipe: tipe,
-        isi: isi,
-        created_at: new Date().toISOString()
-    };
-    if (!APP_DATA.reflections) APP_DATA.reflections = [];
-    APP_DATA.reflections.push(newRef);
-    saveDB();
-    if (_supabase) {
-        _supabase.from('reflections').insert([{
-            id: newRef.id, kelas: newRef.kelas, siswa: newRef.siswa,
-            tipe: newRef.tipe, isi: newRef.isi, created_at: newRef.created_at
-        }]).then();
-    }
-    showToast('Refleksi terkirim!');
-    document.getElementById('refleksiIsi').value = '';
-    loadRiwayatRefleksiSiswa();
-}
-
-function loadRiwayatRefleksiSiswa() {
-    if (!currentUser) return;
-    const data = (APP_DATA.reflections || []).filter(r => r.siswa === currentUser.name && r.kelas === currentUser.kelas);
-    const container = document.getElementById('riwayatRefleksiSiswa');
-    if (data.length === 0) return container.innerHTML = '<p style="color:#64748B;">Belum ada refleksi.</p>';
-    let html = `<div class="table-responsive"><table><thead><tr><th>Tipe</th><th>Isi</th><th>Waktu</th></tr></thead><tbody>`;
-    data.forEach(r => {
-        html += `<tr><td><span class="badge badge-purple">${r.tipe}</span></td><td>${r.isi}</td><td>${new Date(r.created_at).toLocaleString('id-ID')}</td></tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html;
-}
-
-function renderRefleksiGuru() {
-    const kelas = document.getElementById('filterRefleksiKelas').value;
-    const data = (APP_DATA.reflections || []).filter(r => r.kelas === kelas);
-    const container = document.getElementById('tabelRefleksiGuru');
-    if (data.length === 0) return container.innerHTML = '<p style="color:#64748B;">Belum ada refleksi dari murid.</p>';
-    let html = `<div class="table-responsive"><table><thead><tr><th>Murid</th><th>Tipe</th><th>Isi</th><th>Waktu</th></tr></thead><tbody>`;
-    data.forEach(r => {
-        html += `<tr><td><strong>${r.siswa}</strong></td><td><span class="badge badge-purple">${r.tipe}</span></td><td>${r.isi}</td><td>${new Date(r.created_at).toLocaleString('id-ID')}</td></tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html;
-}
-
-// ============================= DAFTAR SISWA =============================
-function renderDaftarSiswaTable() {
-    const tbody = document.getElementById('tabelDaftarSiswa');
-    tbody.innerHTML = '';
-    APP_DATA.students.slice().sort((a,b) => a.nama.localeCompare(b.nama)).forEach((s, i) => {
-        tbody.innerHTML += `<tr><td>${i+1}</td><td><strong>${s.nama}</strong></td><td>${s.kelas}</td><td><button class="btn-danger" onclick="hapusSiswa('${encodeURIComponent(s.nama)}','${s.kelas}')">Hapus</button></td></tr>`;
-    });
-}
-
-async function tambahSiswa(e) {
-    e.preventDefault();
-    const nama = normalizeName(document.getElementById('g_namaSiswaBaru').value);
-    const kelas = document.getElementById('g_siswaKelas').value;
-    if (!nama) return showToast('Nama kosong!', true);
-    if (APP_DATA.students.find(s => s.nama === nama && s.kelas === kelas)) return showToast('Sudah terdaftar!', true);
-    APP_DATA.students.push({ nama, kelas, password: '' });
-    saveDB();
-    if (_supabase) {
-        _supabase.from('students').insert([{ nama_siswa: nama, kelas: kelas, password: '' }]).then();
-    }
-    document.getElementById('g_namaSiswaBaru').value = '';
-    renderDaftarSiswaTable();
-    renderAbsensiMatrix();
-    renderRekapAbsensiGuru();
-    showToast('Murid ditambahkan.');
-}
-
-async function hapusSiswa(namaEnc, kelas) {
-    const nama = decodeURIComponent(namaEnc);
-    if (!confirm(`Hapus ${nama}?`)) return;
-    APP_DATA.students = APP_DATA.students.filter(s => !(s.nama === nama && s.kelas === kelas));
-    saveDB();
-    if (_supabase) _supabase.from('students').delete().eq('nama_siswa', nama).eq('kelas', kelas).then();
-    renderDaftarSiswaTable();
-    renderAbsensiMatrix();
-    renderRekapAbsensiGuru();
-}
-
-// ============================= ABSENSI =============================
-function renderRekapAbsensiGuru() {
-    const kelas = document.getElementById('g_absensiKelas').value;
-    const tbody = document.getElementById('tabelRekapAbsensiGuruBody');
-    const students = APP_DATA.students.filter(s => s.kelas === kelas);
-    tbody.innerHTML = '';
-    students.slice().sort((a,b) => a.nama.localeCompare(b.nama)).forEach((s, idx) => {
-        let hadir=0,sakit=0,izin=0,alfa=0;
-        const absData = APP_DATA.absensi[kelas] || {};
-        if (absData[s.nama]) {
-            Object.values(absData[s.nama]).forEach(st => {
-                if (st === 'H') hadir++;
-                else if (st === 'S') sakit++;
-                else if (st === 'I') izin++;
-                else if (st === 'A') alfa++;
-            });
-        }
-        const pct = Math.round((hadir / 30) * 100);
-        tbody.innerHTML += `<tr><td>${idx+1}</td><td><strong>${s.nama}</strong></td><td style="text-align:center; font-weight:bold; color:#059669;">${hadir}</td><td style="text-align:center; font-weight:bold; color:#D97706;">${sakit}</td><td style="text-align:center; font-weight:bold; color:#0284C7;">${izin}</td><td style="text-align:center; font-weight:bold; color:#DC2626;">${alfa}</td><td style="text-align:center; font-weight:bold;">${pct}%</td></tr>`;
-    });
-}
-
-function initAbsensiHeaders() {
-    const opt = document.getElementById('absensiKolomPilih');
-    const rowCols = document.getElementById('rowHeaderMeetingCols');
-    const rowDates = document.getElementById('rowHeaderMeetingDates');
-    if (!opt || !rowCols || !rowDates) return;
-    let opts = '', cols = '', dates = '';
-    for (let i=1; i<=30; i++) {
-        opts += `<option value="${i}">Pertemuan ${i}</option>`;
-        cols += `<th style="min-width:38px; text-align:center;">${i}</th>`;
-        const dateVal = (APP_DATA.absensiDates[currentUser?.kelas || 'X Keramik A'] || {})[i] || '-';
-        dates += `<th id="tgl_th_${i}" style="font-size:9px; color:#64748B; text-align:center;">${dateVal}</th>`;
-    }
-    opt.innerHTML = opts;
-    rowCols.innerHTML = cols;
-    rowDates.innerHTML = dates;
-}
-
-function renderAbsensiMatrix() {
-    const kelas = document.getElementById('g_absensiKelas').value;
-    const tbody = document.getElementById('tabelMatriksAbsensiBody');
-    const students = APP_DATA.students.filter(s => s.kelas === kelas);
-    tbody.innerHTML = '';
-    if (!APP_DATA.absensi[kelas]) APP_DATA.absensi[kelas] = {};
-    students.slice().sort((a,b) => a.nama.localeCompare(b.nama)).forEach(s => {
-        if (!APP_DATA.absensi[kelas][s.nama]) APP_DATA.absensi[kelas][s.nama] = {};
-        let row = `<tr><td class="sticky-col-cell">${s.nama}</td>`;
-        let hadir = 0;
-        for (let col=1; col<=30; col++) {
-            const status = APP_DATA.absensi[kelas][s.nama][col] || '-';
-            if (status === 'H') hadir++;
-            row += `<td class="absensi-cell" onclick="toggleAbsensi('${encodeURIComponent(s.nama)}', ${col}, '${kelas}')">${status}</td>`;
-        }
-        row += `<td style="font-weight:600; text-align:center;">${Math.round((hadir/30)*100)}%</td></tr>`;
-        tbody.innerHTML += row;
-    });
-}
-
-async function toggleAbsensi(namaEnc, col, kelas) {
-    const nama = decodeURIComponent(namaEnc);
-    const states = ["-", "H", "S", "I", "A"];
-    const current = (APP_DATA.absensi[kelas]?.[nama]?.[col]) || "-";
-    const nextIdx = (states.indexOf(current) + 1) % states.length;
-    const newStatus = states[nextIdx];
-    if (!APP_DATA.absensi[kelas]) APP_DATA.absensi[kelas] = {};
-    if (!APP_DATA.absensi[kelas][nama]) APP_DATA.absensi[kelas][nama] = {};
-    APP_DATA.absensi[kelas][nama][col] = newStatus;
-    saveDB();
-    if (_supabase) {
-        _supabase.from('absensi').upsert({
-            nama_siswa: nama, pertemuan_id: col, status_kehadiran: newStatus, kelas: kelas
-        }).then();
-    }
-    renderAbsensiMatrix();
-    renderRekapAbsensiGuru();
-}
-
-function simpanTanggalAbsensi() {
-    const kelas = document.getElementById('g_absensiKelas').value;
-    const col = document.getElementById('absensiKolomPilih').value;
-    const date = document.getElementById('absensiTanggalInput').value;
-    if (!APP_DATA.absensiDates[kelas]) APP_DATA.absensiDates[kelas] = {};
-    APP_DATA.absensiDates[kelas][col] = date;
-    saveDB();
-    document.getElementById(`tgl_th_${col}`).innerText = date;
-    showToast('Tanggal tersimpan.');
-}
-
-// ============================= KUIS =============================
-function tambahFormSoal() {
-    const container = document.getElementById('containerSoalGuru');
-    const idx = soalKuisTemp.length;
-    soalKuisTemp.push({ type: 'pilihan_ganda', q: '', options: ['','','',''], correct: 0 });
-    const div = document.createElement('div');
-    div.id = `q_block_${idx}`;
-    div.style.cssText = 'background:#fff; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid rgba(168,85,247,0.2); border-left:5px solid #7C3AED;';
-    container.appendChild(div);
-    renderSoalBlock(idx);
-}
-
-function renderSoalBlock(idx) {
-    const div = document.getElementById(`q_block_${idx}`);
-    if (!div) return;
-    const q = soalKuisTemp[idx];
-    let optHTML = '';
-    if (q.type === 'pilihan_ganda') {
-        optHTML = `
-            <label style="font-size:12px; font-weight:600;">Pilihan Jawaban</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                ${['A','B','C','D'].map((l, i) => `<input type="text" id="opt_${idx}_${i}" value="${q.options[i]||''}" placeholder="Opsi ${l}" onchange="updateTempQ(${idx})">`).join('')}
-            </div>
-            <div class="form-group"><label>Kunci Jawaban</label>
-                <select id="correct_${idx}" onchange="updateTempQ(${idx})">
-                    ${[0,1,2,3].map(i => `<option value="${i}" ${q.correct==i?'selected':''}>Opsi ${String.fromCharCode(65+i)}</option>`).join('')}
-                </select>
-            </div>
-        `;
-    } else if (q.type === 'skala_likert') {
-        optHTML = `<label style="font-size:12px; font-weight:600;">Opsi Likert</label>
-            <div id="likert_opts_container_${idx}">${(q.options||[]).map((o, i) => `<input type="text" id="likert_opt_${idx}_${i}" value="${o}" placeholder="Opsi ${i+1}" onchange="updateTempQ(${idx})">`).join('')}</div>
-            <button type="button" onclick="tambahOpsiLikert(${idx})" class="btn-submit" style="padding:4px 10px; font-size:12px; background:#0284C7;">+ Tambah Opsi</button>
-        `;
-    } else if (q.type === 'esai') {
-        optHTML = `<p style="font-size:12px; color:#64748B;">*Soal esai dijawab dengan teks terbuka.</p>`;
-    }
-    div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong>Soal ${idx+1}</strong>
-            <button type="button" class="btn-danger" onclick="hapusFormSoal(${idx})">Hapus</button>
-        </div>
-        <div class="form-group"><label>Jenis</label>
-            <select id="q_type_${idx}" onchange="gantiJenisSoal(${idx}, this.value)">
-                <option value="pilihan_ganda" ${q.type==='pilihan_ganda'?'selected':''}>Pilihan Ganda</option>
-                <option value="esai" ${q.type==='esai'?'selected':''}>Esai</option>
-                <option value="skala_likert" ${q.type==='skala_likert'?'selected':''}>Skala Likert</option>
-            </select>
-        </div>
-        <div class="form-group"><label>Pertanyaan</label><input type="text" id="q_${idx}" value="${q.q}" onchange="updateTempQ(${idx})" placeholder="Tulis soal..." required></div>
-        ${optHTML}
-    `;
-}
-
-function gantiJenisSoal(idx, newType) {
-    soalKuisTemp[idx].type = newType;
-    if (newType === 'skala_likert' && (!soalKuisTemp[idx].options || soalKuisTemp[idx].options.length < 2)) {
-        soalKuisTemp[idx].options = ["Sangat Tidak Setuju","Tidak Setuju","Netral","Setuju","Sangat Setuju"];
-    } else if (newType === 'pilihan_ganda' && (!soalKuisTemp[idx].options || soalKuisTemp[idx].options.length < 4)) {
-        soalKuisTemp[idx].options = ["","","",""];
-    }
-    renderSoalBlock(idx);
-}
-
-function tambahOpsiLikert(idx) {
-    if (!soalKuisTemp[idx].options) soalKuisTemp[idx].options = [];
-    soalKuisTemp[idx].options.push("Pilihan Baru");
-    renderSoalBlock(idx);
-}
-
-function hapusFormSoal(idx) {
-    soalKuisTemp.splice(idx, 1);
-    const container = document.getElementById('containerSoalGuru');
-    container.innerHTML = '';
-    soalKuisTemp.forEach((_, i) => {
-        const div = document.createElement('div');
-        div.id = `q_block_${i}`;
-        div.style.cssText = 'background:#fff; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid rgba(168,85,247,0.2); border-left:5px solid #7C3AED;';
-        container.appendChild(div);
-        renderSoalBlock(i);
-    });
-}
-
-function updateTempQ(idx) {
-    const q = soalKuisTemp[idx];
-    if (!q) return;
-    const qInput = document.getElementById(`q_${idx}`);
-    if (qInput) q.q = qInput.value;
-    if (q.type === 'pilihan_ganda') {
-        q.options = [0,1,2,3].map(i => document.getElementById(`opt_${idx}_${i}`)?.value || '');
-        const c = document.getElementById(`correct_${idx}`);
-        if (c) q.correct = parseInt(c.value);
-    } else if (q.type === 'skala_likert') {
-        q.options = q.options.map((_, i) => document.getElementById(`likert_opt_${idx}_${i}`)?.value || '');
-    }
-}
-
-async function simpanKuisBaru(e) {
-    e.preventDefault();
-    if (soalKuisTemp.length === 0) return showToast('Tambahkan minimal 1 soal!', true);
-    soalKuisTemp.forEach((_, idx) => updateTempQ(idx));
-    const kelas = document.getElementById('g_kuisKelas').value;
-    const kategori = document.getElementById('g_kuisKategori').value;
-    const judul = document.getElementById('g_kuisJudul').value;
-    const desc = document.getElementById('g_kuisDesc').value;
-    const newKuis = { id: Date.now(), kelas, kategori, judul, desc, soal: [...soalKuisTemp], created_at: new Date().toISOString() };
-    APP_DATA.kuisList.push(newKuis);
-    saveDB();
-    if (_supabase) {
-        const { error } = await _supabase.from('kuis').insert([{
-            id: newKuis.id, kelas: newKuis.kelas, kategori: newKuis.kategori,
-            judul: newKuis.judul, desc: newKuis.desc, soal: JSON.stringify(newKuis.soal),
-            created_at: newKuis.created_at
-        }]);
-        if (error) {
-            APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== newKuis.id);
-            saveDB();
-            throw new Error('Gagal simpan kuis: ' + error.message);
-        }
-    }
-    soalKuisTemp = [];
-    document.getElementById('containerSoalGuru').innerHTML = '';
-    document.getElementById('g_kuisJudul').value = '';
-    document.getElementById('g_kuisDesc').value = '';
-    showToast('Asesmen diterbitkan!');
-    renderDaftarKuisGuru();
-}
-
-function renderDaftarKuisGuru() {
-    const kategori = document.querySelector('#g_kuis .login-tab .active')?.innerText || 'Diagnostik';
-    const kelas = document.getElementById('g_kuisKelas')?.value || 'X Keramik A';
-    switchKuisKategoriGuru(kategori, document.querySelector('#g_kuis .login-tab .active'));
-}
-
-function switchKuisKategoriGuru(kategori, btn) {
-    document.querySelectorAll('#g_kuis .login-tab button').forEach(t => t.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    const container = document.getElementById('tabelDaftarKuisGuru');
-    const kelas = document.getElementById('g_kuisKelas')?.value || 'X Keramik A';
-    const list = (APP_DATA.kuisList || []).filter(k => k.kelas === kelas && k.kategori === kategori);
-    if (list.length === 0) return container.innerHTML = `<p style="color:#64748B;">Belum ada ${kategori} untuk kelas ini.</p>`;
-    let html = `<div class="table-responsive"><table><thead><tr><th>Judul</th><th>Jml Soal</th><th>Aksi</th></tr></thead><tbody>`;
-    list.forEach(k => {
-        const soals = parseSoalSafely(k.soal);
-        html += `<tr><td><strong>${k.judul}</strong></td><td>${soals.length}</td><td><button class="btn-submit" style="padding:6px 12px; font-size:12px;" onclick="lihatHasilKuisGuru(${k.id})">Lihat Hasil</button> <button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button></td></tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html;
-}
-
-function lihatHasilKuisGuru(kuisId) {
-    const container = document.getElementById('containerHasilKuisGuru');
-    container.style.display = 'block';
-    const results = (APP_DATA.kuisScores || []).filter(s => s.quizId == kuisId);
-    if (results.length === 0) {
-        container.innerHTML = `<div class="card"><p style="color:#64748B;">Belum ada murid mengerjakan.</p></div>`;
-        return;
-    }
-    let html = `<div class="card"><h3>📊 Rekap Hasil</h3><div class="table-responsive"><table><thead><tr><th>Murid</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu</th></tr></thead><tbody>`;
-    results.forEach(r => {
-        html += `<tr><td><strong>${r.studentName}</strong></td><td><span class="badge badge-purple">${r.score}</span></td><td style="color:#059669;">${r.totalCorrect}</td><td style="color:#DC2626;">${r.totalWrong}</td><td>${r.submittedAt||'-'}</td></tr>`;
-    });
-    html += `</tbody></table></div></div>`;
-    container.innerHTML = html;
-}
-
-async function hapusKuis(id) {
-    if (!confirm('Hapus asesmen ini?')) return;
-    APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
-    saveDB();
-    if (_supabase) _supabase.from('kuis').delete().eq('id', id).then();
-    renderDaftarKuisGuru();
-    showToast('Asesmen dihapus.');
-}
-
-// ============================= SISWA: KUIS =============================
-function switchKuisKategoriSiswa(kategori, btn) {
-    document.querySelectorAll('#s_kuis .login-tab button').forEach(t => t.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    const select = document.getElementById('selectKuisSiswa');
-    const kelas = currentUser ? currentUser.kelas : 'X Keramik A';
-    const list = (APP_DATA.kuisList || []).filter(k => k.kelas === kelas && k.kategori === kategori);
-    let html = `<option value="">-- Pilih ${kategori} --</option>`;
-    list.forEach(k => html += `<option value="${k.id}">${k.judul}</option>`);
-    select.innerHTML = html;
-    document.getElementById('containerSoalSiswa').innerHTML = '';
-}
-
-function tampilkanKuisDanSoalSiswa(kuisId) {
-    const container = document.getElementById('containerSoalSiswa');
-    if (!kuisId) { container.innerHTML = ''; return; }
-    const kuis = (APP_DATA.kuisList || []).find(k => k.id == kuisId);
-    if (!kuis) return;
-    const daftarSoal = parseSoalSafely(kuis.soal);
-    if (daftarSoal.length === 0) return container.innerHTML = '<div class="card"><p>Belum ada soal.</p></div>';
-    let html = `<div class="card"><h3 style="color:var(--purple);">${kuis.judul}</h3><p>${kuis.desc||''}</p><hr style="margin:12px 0;"><form onsubmit="jawabKuis(event, ${kuis.id})">`;
-    daftarSoal.forEach((q, idx) => {
-        const type = q.type || 'pilihan_ganda';
-        html += `<div style="margin-bottom:16px; background:#fff; padding:16px; border-radius:12px; border:1px solid rgba(168,85,247,0.15);">`;
-        html += `<p style="font-weight:600;">${idx+1}. ${q.q||'Pertanyaan tidak tersedia'}</p>`;
-        if (type === 'pilihan_ganda' || type === 'skala_likert') {
-            (q.options||[]).forEach((opt, oi) => {
-                if (opt) html += `<label style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:4px 0; background:rgba(243,232,255,0.2); border-radius:8px;"><input type="radio" name="soal_${idx}" value="${oi}" required> ${opt}</label>`;
-            });
-        } else if (type === 'esai') {
-            html += `<textarea name="soal_${idx}" rows="3" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc;" required></textarea>`;
-        }
-        html += `</div>`;
-    });
-    html += `<button type="submit" class="btn-submit" style="width:100%; padding:14px;">Kirim Jawaban</button></form></div>`;
-    container.innerHTML = html;
-}
-
-async function jawabKuis(e, kuisId) {
-    e.preventDefault();
-    const kuis = (APP_DATA.kuisList || []).find(k => k.id == kuisId);
-    if (!kuis) return;
-    const daftarSoal = parseSoalSafely(kuis.soal);
-    let correct=0, totalPg=0;
-    daftarSoal.forEach((q, idx) => {
-        const type = q.type || 'pilihan_ganda';
-        if (type === 'pilihan_ganda') {
-            totalPg++;
-            const selected = document.querySelector(`input[name="soal_${idx}"]:checked`);
-            if (selected && parseInt(selected.value) === parseInt(q.correct)) correct++;
+            const materiFile = document.getElementById('materiFile').files[0];
+            const lkpdFile = document.getElementById('lkpdFile').files[0];
+            const judul = document.getElementById('judul').value;
+            const kelas = document.getElementById('kelas').value;
+
+            // Upload Materi Ajar
+            const materiUrl = await uploadFile(materiFile, 'materi_ajar');
+            
+            // Upload LKPD
+            const lkpdUrl = await uploadFile(lkpdFile, 'lkpd');
+
+            // (CATATAN: Jika Anda punya tabel database untuk menyimpan data ini)
+            // const { error: dbError } = await supabase
+            //     .from('pertemuan')
+            //     .insert([{ kelas: kelas, judul: judul, materi_url: materiUrl, lkpd_url: lkpdUrl }]);
+            //
+            // if (dbError) throw new Error(dbError.message);
+
+            statusEl.style.color = "green";
+            statusEl.textContent = `Berhasil! URL Materi: ${materiUrl} | URL LKPD: ${lkpdUrl}`;
+            alert("Pertemuan berhasil diterbitkan!");
+            location.reload();
+
+        } catch (error) {
+            console.error(error);
+            statusEl.style.color = "red";
+            statusEl.textContent = `Gagal: ${error.message}`;
         }
     });
-    const score = totalPg > 0 ? Math.round((correct/totalPg)*100) : 100;
-    const attempt = {
-        id: Date.now(),
-        kelas: currentUser.kelas,
-        studentName: currentUser.name,
-        quizId: kuis.id,
-        quizTitle: kuis.judul,
-        score: score,
-        totalCorrect: correct,
-        totalWrong: totalPg - correct,
-        submittedAt: new Date().toLocaleString('id-ID')
-    };
-    APP_DATA.kuisScores.push(attempt);
-    saveDB();
-    if (_supabase) {
-        _supabase.from('quiz_attempts').insert([{
-            id: attempt.id, kelas: attempt.kelas, student_name: attempt.studentName,
-            quiz_id: attempt.quizId, quiz_title: attempt.quizTitle, score: attempt.score,
-            total_correct: attempt.totalCorrect, total_wrong: attempt.totalWrong,
-            submitted_at: attempt.submittedAt
-        }]).then();
-    }
-    document.getElementById('containerSoalSiswa').innerHTML = `
-        <div class="card" style="border-left:6px solid #10B981;">
-            <h3 style="color:#059669;">🎉 Selesai!</h3>
-            <p style="font-size:20px; font-weight:700;">Skor: ${score}</p>
-            <p>✅ Benar: ${correct} | ❌ Salah: ${totalPg - correct}</p>
-        </div>
-    `;
-    loadRiwayatKuisSiswa();
-    loadRekapPortofolioSiswa();
-    showToast('Hasil asesmen tersimpan.');
-}
-
-function loadRiwayatKuisSiswa() {
-    if (!currentUser) return;
-    const sName = currentUser.name, kelas = currentUser.kelas;
-    const data = (APP_DATA.kuisScores || []).filter(q => q.studentName === sName && q.kelas === kelas);
-    const container = document.getElementById('containerRiwayatKuisSiswa');
-    if (data.length === 0) return container.innerHTML = '<p style="color:#64748B;">Belum ada riwayat.</p>';
-    let html = `<div class="table-responsive"><table><thead><tr><th>Asesmen</th><th>Skor</th><th>Benar</th><th>Salah</th><th>Waktu</th></tr></thead><tbody>`;
-    data.forEach(q => {
-        html += `<tr><td><strong>${q.quizTitle}</strong></td><td><span class="badge badge-purple">${q.score}</span></td><td style="color:#059669;">${q.totalCorrect}</td><td style="color:#DC2626;">${q.totalWrong}</td><td>${q.submittedAt||'-'}</td></tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html;
-}
-
-// ============================= INISIALISASI =============================
-(async function() {
-    await loadAllDataFromSupabase();
-    document.getElementById('loginModal').style.display = 'flex';
-    initAbsensiHeaders();
-    ['g_portofolioKelas','g_daftarKelas','g_kelasPertemuan','g_kuisKelas','g_siswaKelas','g_absensiKelas','filterRefleksiKelas'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.innerHTML = `<option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option>`;
-        }
-    });
-    if (document.getElementById('g_portofolioKelas')) document.getElementById('g_portofolioKelas').value = 'X Keramik A';
-    if (document.getElementById('g_absensiKelas')) document.getElementById('g_absensiKelas').value = 'X Keramik A';
-})();
 </script>
+
 </body>
 </html>
