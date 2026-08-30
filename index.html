@@ -723,8 +723,8 @@
     <div class="modal-overlay" id="loginModal">
         <div class="login-card">
             <div class="school-logo">🏫 SMK NEGERI 5 YOGYAKARTA</div>
-            <div class="school-sub">Mata Pelajaran: Informatika</div>
-            <h2>Learning Management System</h2>
+            <div class="school-sub">Keahlian: Informatika · X Keramik A</div>
+            <h2>Sistem LMS Informatika</h2>
             <p class="subtitle">Kelas X Keramik A — Bu Ema Humaera</p>
             <div class="login-tab">
                 <button class="active" id="tabSiswaBtn" onclick="switchLogin('siswa')">Akses Murid</button>
@@ -908,7 +908,7 @@
                         </tr>
                     </thead>
                     <tbody id="tabelPortofolioGuru">
-                        <tr><td colspan="7" style="text-align:center;">Memuat data portofolio murid...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">Memuat data portofolio murid...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1221,7 +1221,7 @@
         }
 
         // ============================================================
-        //  LOAD SUPABASE DATA (DIPERBAIKI AGAR FILE TIDAK HILANG)
+        //  LOAD SUPABASE DATA - DIPERBAIKI
         // ============================================================
         async function loadAllDataFromSupabase() {
             if (!_supabase) {
@@ -1229,7 +1229,7 @@
                 isDataLoadedFromSupabase = true;
                 return;
             }
-            
+
             const fetchWithTimeout = (promise, ms = 12000) => {
                 return Promise.race([
                     promise,
@@ -1238,16 +1238,18 @@
             };
 
             try {
+                console.log("🔄 Memuat data dari Supabase...");
+
                 const [stRes, pRes, subRes, absRes, kuisRes, qaRes] = await Promise.allSettled([
                     fetchWithTimeout(_supabase.from('students').select('*').order('id', { ascending: true })),
                     fetchWithTimeout(_supabase.from('pertemuan').select('*').order('id', { ascending: true })),
-                    fetchWithTimeout(_supabase.from('submissions').select('*')),
+                    fetchWithTimeout(_supabase.from('submissions').select('*').order('id', { ascending: false })),
                     fetchWithTimeout(_supabase.from('absensi').select('*')),
                     fetchWithTimeout(_supabase.from('kuis').select('*').order('created_at', { ascending: false })),
                     fetchWithTimeout(_supabase.from('quiz_attempts').select('*'))
                 ]);
 
-                // ----- Siswa -----
+                // ----- SISWA -----
                 if (stRes.status === 'fulfilled' && stRes.value.data && stRes.value.data.length > 0) {
                     const fetchedNames = stRes.value.data.map(s => s.nama_siswa || s.nama).filter(Boolean);
                     if (fetchedNames.length > 0) {
@@ -1258,7 +1260,7 @@
                     APP_DATA.students = [...listMuridTetap];
                 }
 
-                // ----- Pertemuan (MERGE, tidak menimpa file lokal) -----
+                // ----- PERTEMUAN (MERGE) -----
                 if (pRes.status === 'fulfilled' && pRes.value.data && pRes.value.data.length > 0) {
                     const localMap = new Map();
                     (APP_DATA.pertemuan || []).forEach(p => localMap.set(p.id, p));
@@ -1285,7 +1287,6 @@
                             existing.materiText = p.materi_text || p.materiText || existing.materiText;
                             existing.lkpdText = p.lkpd_text || p.lkpdText || existing.lkpdText;
                             existing.lkpdLink = p.lkpd_link || p.lkpdLink || existing.lkpdLink;
-                            // Jangan timpa file jika lokal sudah punya
                             if (!existing.materiFile && parsedMateriFile) existing.materiFile = parsedMateriFile;
                             if (!existing.lkpdFile && parsedLkpdFile) existing.lkpdFile = parsedLkpdFile;
                         } else {
@@ -1303,23 +1304,57 @@
                     APP_DATA.pertemuan = Array.from(localMap.values());
                 }
 
-                // ----- Submissions -----
+                // ============================================================
+                //  ⭐ PERBAIKIAN UTAMA: SUBMISSIONS
+                // ============================================================
                 if (subRes.status === 'fulfilled' && subRes.value.data) {
-                    APP_DATA.submissions = subRes.value.data.map(s => ({
-                        id: s.id,
-                        pertemuan_id: s.pertemuan_id || s.pertemuanId,
-                        pertemuanId: s.pertemuan_id || s.pertemuanId,
-                        nama_siswa: normalizeName(s.nama_siswa || s.namaSiswa),
-                        namaSiswa: normalizeName(s.nama_siswa || s.namaSiswa),
-                        jawaban: s.jawaban || s.Jawaban,
-                        Jawaban: s.jawaban || s.Jawaban,
-                        nilai: s.nilai !== undefined ? s.nilai : 0,
-                        catatan: s.catatan || '',
-                        submitted_at: s.submitted_at || s.submittedAt || ''
-                    }));
+                    console.log(`📥 Memuat ${subRes.value.data.length} submission dari Supabase`);
+                    
+                    // Reset submissions lokal, akan diisi ulang dari Supabase
+                    APP_DATA.submissions = [];
+                    
+                    subRes.value.data.forEach(s => {
+                        // Normalisasi nama kolom - handle berbagai kemungkinan
+                        const namaSiswa = s.nama_siswa || s.namaSiswa || s.student_name || '';
+                        const jawaban = s.jawaban || s.Jawaban || s.answer || '';
+                        const pertemuanId = s.pertemuan_id || s.pertemuanId || s.meeting_id || '';
+                        const nilai = s.nilai !== undefined ? s.nilai : (s.score || 0);
+                        const catatan = s.catatan || s.note || '';
+                        const submittedAt = s.submitted_at || s.submittedAt || s.created_at || new Date().toISOString();
+
+                        // Parse jawaban jika berupa string JSON
+                        let parsedJawaban = jawaban;
+                        if (typeof jawaban === 'string') {
+                            try {
+                                const parsed = JSON.parse(jawaban);
+                                if (parsed && typeof parsed === 'object') {
+                                    parsedJawaban = parsed;
+                                }
+                            } catch (_) {
+                                // Bukan JSON, tetap gunakan string asli
+                            }
+                        }
+
+                        APP_DATA.submissions.push({
+                            id: s.id,
+                            pertemuan_id: pertemuanId,
+                            pertemuanId: pertemuanId,
+                            nama_siswa: normalizeName(namaSiswa),
+                            namaSiswa: normalizeName(namaSiswa),
+                            jawaban: parsedJawaban,
+                            Jawaban: parsedJawaban,
+                            nilai: parseInt(nilai) || 0,
+                            catatan: catatan || '',
+                            submitted_at: submittedAt
+                        });
+                    });
+
+                    console.log(`✅ ${APP_DATA.submissions.length} submission berhasil dimuat`);
+                } else {
+                    console.warn("⚠️ Gagal memuat submissions:", subRes);
                 }
 
-                // ----- Absensi -----
+                // ----- ABSENSI -----
                 if (absRes.status === 'fulfilled' && absRes.value.data) {
                     if (!APP_DATA.absensi) APP_DATA.absensi = {};
                     absRes.value.data.forEach(item => {
@@ -1333,7 +1368,7 @@
                     });
                 }
 
-                // ----- Kuis -----
+                // ----- KUIS -----
                 if (kuisRes.status === 'fulfilled' && kuisRes.value.data && kuisRes.value.data.length > 0) {
                     APP_DATA.kuisList = kuisRes.value.data.map(k => {
                         const parsed = parseDescWithGameUrl(k.desc || k.deskripsi || '');
@@ -1349,7 +1384,7 @@
                     });
                 }
 
-                // ----- Skor Kuis -----
+                // ----- SKOR KUIS -----
                 if (qaRes.status === 'fulfilled' && qaRes.value.data) {
                     APP_DATA.kuisScores = qaRes.value.data.map(q => ({
                         id: q.id,
@@ -1365,9 +1400,20 @@
 
                 saveDB();
                 isDataLoadedFromSupabase = true;
-                console.log("Supabase Data berhasil dimuat & di‐merge!");
+                console.log("✅ Semua data Supabase berhasil dimuat & di-merge!");
+
+                // 🔄 Refresh tampilan jika sudah login
+                if (currentUser) {
+                    if (currentUser.role === 'siswa') {
+                        loadRekapPortofolioSiswa();
+                    } else {
+                        renderPortofolioTable();
+                        renderDaftarPertemuanGuru();
+                    }
+                }
+
             } catch (err) {
-                console.warn("Gagal terhubung ke Supabase, menggunakan lokal:", err);
+                console.warn("❌ Gagal terhubung ke Supabase, menggunakan lokal:", err);
                 if (!APP_DATA.students || APP_DATA.students.length === 0) {
                     APP_DATA.students = [...listMuridTetap];
                     saveDB();
@@ -1375,6 +1421,16 @@
                 isDataLoadedFromSupabase = true;
             }
         }
+
+        // ============================================================
+        //  TAMBAHKAN FUNGSI REFRESH DATA (untuk debugging)
+        // ============================================================
+        async function refreshDataFromSupabase() {
+            showToast("🔄 Memuat ulang data dari Supabase...");
+            await loadAllDataFromSupabase();
+            showToast("✅ Data berhasil dimuat ulang!");
+        }
+        window.refreshDataFromSupabase = refreshDataFromSupabase;
 
         // ============================================================
         //  AUTENTIKASI & LOGIN
@@ -1466,16 +1522,27 @@
             document.getElementById('loginModal').style.display = 'flex';
             document.getElementById('inputNamaSiswaLogin').value = '';
             document.getElementById('inputPinGuru').value = '';
+            // Reset tampilan
+            document.querySelectorAll('.section').forEach(s => {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
         }
         window.logout = logout;
 
         // ============================================================
-        //  INSET APPLIKASI & NAVIGASI
+        //  INIT APPLIKASI
         // ============================================================
         async function initApp() {
             document.getElementById('loginModal').style.display = 'none';
             const nav = document.getElementById('navbarMenu');
             const badge = document.getElementById('userBadge');
+            
+            // Pastikan data terbaru
+            if (!isDataLoadedFromSupabase) {
+                await loadAllDataFromSupabase();
+            }
+
             if (currentUser.role === 'siswa') {
                 badge.innerHTML = `<span>👤</span> ${currentUser.name}`;
                 nav.innerHTML = `
@@ -1489,6 +1556,7 @@
                 showSection('s_beranda');
                 populatePertemuanSiswaSelects();
                 loadRekapPortofolioSiswa();
+                loadRiwayatKuisSiswa();
             } else {
                 badge.innerHTML = `<span>👩‍🏫</span> Guru: Bu Ema Humaera`;
                 nav.innerHTML = `
@@ -1506,6 +1574,7 @@
                 initAbsensiHeaders();
                 renderAbsensiMatrix();
                 renderRekapAbsensiGuru();
+                renderPortofolioTable();
                 switchKuisKategoriGuru('Asesmen Diagnostik', document.querySelector('#g_kuis .login-tab button'));
             }
         }
@@ -1583,28 +1652,35 @@
         window.simpanPertemuanBaru = simpanPertemuanBaru;
 
         // ============================================================
-        //  FUNGSI UNTUK MENAMPILKAN FILE MATERI (HANYA NAMA FILE DI TABEL GURU)
+        //  FUNGSI UNTUK MENAMPILKAN FILE MATERI
         // ============================================================
         function generateMaterialPreviewHtml(p) {
             let html = `<div class="preview-container">`;
             if (p.materiText && p.materiText.trim() !== '') {
                 html += `<p style="margin-bottom:8px;">${p.materiText}</p>`;
             }
-            // Tampilkan hanya nama file (bukan pratinjau)
             const fileData = p.materiFile;
             if (fileData) {
-                let fileName = 'Bahan_Ajar';
-                if (typeof fileData === 'object' && fileData !== null && fileData.name) {
-                    fileName = fileData.name;
+                let base64Data = null, fileName = 'Bahan_Ajar', fileType = '';
+                if (typeof fileData === 'object' && fileData !== null && fileData.data) {
+                    base64Data = fileData.data;
+                    fileName = fileData.name || 'Bahan_Ajar';
+                    fileType = fileData.type || '';
                 } else if (typeof fileData === 'string' && fileData.startsWith('data:')) {
-                    // Ambil dari base64 jika tidak ada nama
-                    const match = fileData.match(/^data:([^;]+);/);
-                    if (match) {
-                        const ext = match[1].split('/')[1] || 'file';
-                        fileName = `Lampiran.${ext}`;
+                    base64Data = fileData;
+                    const match = fileData.match(/^data:(image\/[a-z]+|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document);base64,/);
+                    if (match) fileType = match[1];
+                    else fileType = 'application/octet-stream';
+                }
+                if (base64Data) {
+                    if (fileType.startsWith('image/')) {
+                        html += `<img src="${base64Data}" class="img-preview" style="max-height:150px; width:auto; margin-top:8px;" alt="Materi">`;
+                    } else if (fileType === 'application/pdf') {
+                        html += `<a href="${base64Data}" download="${fileName}" class="file-link" style="font-size:11px; padding:6px 12px;">📄 ${fileName}</a>`;
+                    } else if (base64Data) {
+                        html += `<a href="${base64Data}" download="${fileName}" class="file-link" style="font-size:11px; padding:6px 12px;">⬇️ File: ${fileName}</a>`;
                     }
                 }
-                html += `<div style="margin-top:6px;"><span style="font-weight:600; color:var(--primary-purple);">📎 ${fileName}</span></div>`;
             }
             if (!p.materiText && !p.materiFile) {
                 html += `<span style="color:#999; font-style:italic;">Tidak ada materi/teks kosong</span>`;
@@ -1679,7 +1755,7 @@
         }
 
         // ============================================================
-        //  FUNGSI GENERATE MATERI UNTUK SISWA (TAMPILKAN FILE LENGKAP)
+        //  FUNGSI GENERATE MATERI UNTUK SISWA
         // ============================================================
         function generateMaterialHTML(p) {
             let html = `<div class="card"><h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:12px;">${p.judul}</h3>`;
@@ -1690,7 +1766,6 @@
                 hasContent = true;
             }
 
-            // TAMPILKAN FILE MATERI (lengkap dengan pratinjau)
             const fileData = p.materiFile;
             if (fileData) {
                 let base64Data = null;
@@ -1838,6 +1913,7 @@
             saveDB();
 
             if (_supabase) {
+                // Coba insert dengan kolom jawaban (lowercase)
                 let { data, error } = await _supabase.from('submissions').insert([{
                     id: payload.id,
                     pertemuan_id: idPertemuan,
@@ -1848,6 +1924,7 @@
                     submitted_at: payload.submitted_at
                 }]);
 
+                // Jika gagal, coba dengan kolom Jawaban (capital)
                 if (error) {
                     const { error: err2 } = await _supabase.from('submissions').insert([{
                         id: payload.id,
@@ -1863,13 +1940,16 @@
             }
 
             showToast(hasLkpdLink ? "Bukti LKPD berhasil dikirim!" : "Jawaban berhasil terkirim!");
+            
+            // Refresh data dari Supabase agar sinkron
+            await loadAllDataFromSupabase();
             loadRekapPortofolioSiswa();
             loadTugasSiswa();
         }
         window.submitTugasBiasa = submitTugasBiasa;
 
         // ============================================================
-        //  PENILAIAN & PORTOFOLIO GURU + TOMBOL HAPUS
+        //  PENILAIAN & PORTOFOLIO GURU
         // ============================================================
         function renderJawabanSiswa(jawabanRaw) {
             if (!jawabanRaw) return "<i>Belum ada jawaban</i>";
@@ -1878,24 +1958,30 @@
                 if (typeof parsed === 'string') {
                     try { parsed = JSON.parse(parsed); } catch (_) {}
                 }
-                if (parsed.type === 'link' || parsed.url) {
-                    return `<a href="${parsed.url}" target="_blank" style="color: #7c3aed; font-weight:600;">🔗 Tautan Tugas</a>`;
-                } else if (parsed.data) {
-                    const fileName = parsed.name || 'tugas';
-                    let downloadLink = parsed.data;
-                    if (!downloadLink.startsWith('data:')) {
-                        try {
-                            const blob = new Blob([downloadLink]);
-                            downloadLink = URL.createObjectURL(blob);
-                        } catch (_) {
-                            return `<span style="color:red;">Format file tidak dikenali</span>`;
+                if (parsed && typeof parsed === 'object') {
+                    if (parsed.type === 'link' || parsed.url) {
+                        return `<a href="${parsed.url}" target="_blank" style="color: #7c3aed; font-weight:600;">🔗 Tautan Tugas</a>`;
+                    } else if (parsed.data) {
+                        const fileName = parsed.name || 'tugas';
+                        let downloadLink = parsed.data;
+                        if (!downloadLink.startsWith('data:')) {
+                            try {
+                                const blob = new Blob([downloadLink]);
+                                downloadLink = URL.createObjectURL(blob);
+                            } catch (_) {
+                                return `<span style="color:red;">Format file tidak dikenali</span>`;
+                            }
                         }
+                        let previewHTML = '';
+                        if (parsed.type && parsed.type.startsWith('image/')) {
+                            previewHTML = `<img src="${downloadLink}" style="max-width:100px; max-height:100px; border-radius:8px; display:block; margin-bottom:8px;" alt="Tugas">`;
+                        }
+                        return `${previewHTML}<a href="${downloadLink}" download="${fileName}" class="file-link download-btn" style="font-size:11px;">⬇️ File (${fileName})</a>`;
                     }
-                    let previewHTML = '';
-                    if (parsed.type && parsed.type.startsWith('image/')) {
-                        previewHTML = `<img src="${downloadLink}" style="max-width:100px; max-height:100px; border-radius:8px; display:block; margin-bottom:8px;" alt="Tugas">`;
-                    }
-                    return `${previewHTML}<a href="${downloadLink}" download="${fileName}" class="file-link download-btn" style="font-size:11px;">⬇️ File (${fileName})</a>`;
+                }
+                // Jika berupa string biasa
+                if (typeof jawabanRaw === 'string' && jawabanRaw.length < 200) {
+                    return `<span style="color:var(--text-dark);">${jawabanRaw}</span>`;
                 }
             } catch (_) { return `<span style="color:red;">Format file tidak dikenali</span>`; }
             return jawabanRaw;
@@ -1907,21 +1993,30 @@
             const tbody = document.getElementById('tabelPortofolioGuru');
             if (!tbody) return;
             tbody.innerHTML = '';
-            let filteredSubs = APP_DATA.submissions || [];
+            
+            // Pastikan submissions terisi
+            if (!APP_DATA.submissions || APP_DATA.submissions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Belum ada tugas yang dikumpulkan.</td></tr>`;
+                return;
+            }
+
+            let filteredSubs = APP_DATA.submissions;
             if (filterId !== "ALL") {
                 filteredSubs = filteredSubs.filter(s => (s.pertemuanId == filterId || s.pertemuan_id == filterId));
             }
+
             if (filteredSubs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada tugas yang dikumpulkan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Tidak ada tugas untuk pertemuan yang dipilih.</td></tr>`;
                 return;
             }
+
             filteredSubs.forEach(s => {
                 const pId = s.pertemuanId || s.pertemuan_id;
                 const namaSiswa = s.namaSiswa || s.nama_siswa;
                 const p = (APP_DATA.pertemuan || []).find(x => x.id == pId);
                 tbody.innerHTML += `
                     <tr>
-                        <td style="vertical-align: top;"><strong>${namaSiswa}</strong></td>
+                        <td style="vertical-align: top;"><strong>${namaSiswa || 'Tidak diketahui'}</strong></td>
                         <td style="vertical-align: top;">${p ? p.judul : 'Pertemuan ' + pId}</td>
                         <td style="vertical-align: top;">${renderJawabanSiswa(s.jawaban || s.Jawaban)}</td>
                         <td style="vertical-align: top;"><input type="number" id="nilai_${s.id}" value="${s.nilai || 0}" style="width:70px; padding:6px; border-radius:8px; border:1px solid #ccc;"></td>
@@ -1950,9 +2045,6 @@
         }
         window.simpanNilai = simpanNilai;
 
-        // ============================================================
-        //  FUNGSI HAPUS SUBMISSION (UNTUK SISWA & GURU)
-        // ============================================================
         async function hapusSubmission(submissionId, from) {
             if (!confirm('Yakin ingin menghapus submission ini?')) return;
 
@@ -1978,7 +2070,7 @@
         window.hapusSubmission = hapusSubmission;
 
         // ============================================================
-        //  PORTOFOLIO SISWA (DENGAN TOMBOL HAPUS)
+        //  PORTOFOLIO SISWA
         // ============================================================
         function loadRekapPortofolioSiswa() {
             if (!currentUser) return;
@@ -2602,10 +2694,12 @@
         }
 
         // ============================================================
-        //  INITIAL ON LOAD
+        //  INITIAL ON LOAD - PASTIKAN DATA DIAMBIL
         // ============================================================
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllDataFromSupabase();
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Load data dari Supabase terlebih dahulu
+            await loadAllDataFromSupabase();
+            console.log("✅ LMS Siap - Data telah dimuat dari Supabase");
         });
     </script>
 </body>
