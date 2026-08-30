@@ -10,7 +10,14 @@
     <style>
         /* ===== STYLE ===== */
         * { box-sizing: border-box; margin: 0; }
-        body { font-family: 'Inter', 'Poppins', sans-serif; background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 35%, #F8FAFC 100%); min-height: 100vh; color: #1E1B4B; line-height: 1.6; font-size: 16px; }
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 35%, #F8FAFC 100%);
+            min-height: 100vh;
+            color: #1E1B4B;
+            line-height: 1.6;
+            font-size: 16px;
+        }
         :root { --purple: #7C3AED; --purple-dark: #4C1D95; --yellow: #D97706; --success: #10B981; --danger: #EF4444; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(30,27,75,0.55); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: rgba(255,255,255,0.95); padding: 40px; border-radius: 28px; max-width: 460px; width: 90%; box-shadow: 0 25px 50px rgba(124,58,237,0.2); }
@@ -162,8 +169,8 @@
 
 <script>
 // ============================= SUPABASE =============================
-// PERBAIKAN 1: URL harus benar. Ganti jika ada huruf 'd' ekstra di akhir.
-const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakj.supabase.co';
+// 🔥 PERBAIKI URL dan KEY sesuai dashboard Anda
+const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
 const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const _supabase = supabaseClient;
@@ -266,33 +273,25 @@ function hideProgress(elementId) {
 }
 
 // ============================= UPLOAD FILE KE SUPABASE STORAGE =============================
-// PERBAIKAN 2: Fungsi ini sudah diperbaiki agar tidak error 'null' dan otomatis membuat bucket
 async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateri') {
     if (!_supabase) throw new Error('Supabase tidak terhubung.');
     if (!file) return null;
 
     updateProgress(progressId, 5, '🔍 Memeriksa bucket...');
 
+    // Cek bucket
     try {
-        const { data: buckets, error: listError } = await _supabase.storage.listBuckets();
-        
-        let bucketExists = false;
-        if (!listError && buckets && Array.isArray(buckets)) {
-            bucketExists = buckets.some(b => b.name === BUCKET_NAME);
-        }
-
+        const { data: buckets } = await _supabase.storage.listBuckets();
+        const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
         if (!bucketExists) {
-            console.warn(`Bucket "${BUCKET_NAME}" tidak ditemukan. Mencoba membuat otomatis...`);
-            const { error: createError } = await _supabase.storage.createBucket(BUCKET_NAME, { public: true });
-            if (createError) {
-                throw new Error('Gagal membuat bucket otomatis: ' + createError.message);
-            }
+            throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
         }
     } catch (e) {
         throw new Error('Gagal mengecek bucket: ' + e.message);
     }
 
     let fileToUpload = file;
+    // Kompres gambar jika > 500KB
     if (file.type.startsWith('image/') && file.size > 500 * 1024) {
         updateProgress(progressId, 15, '🖼️ Mengompres gambar...');
         try {
