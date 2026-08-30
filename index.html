@@ -152,7 +152,7 @@
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
             </div>
-            <!-- PROGRESS BAR DENGAN ID YANG KONSISTEN -->
+            <!-- PROGRESS BAR -->
             <div id="progressMateriContainer" class="progress-container">
                 <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
                 <div class="progress-text"><span id="progressMateriStatus" class="progress-status">⏳ Menyiapkan...</span><span id="progressMateriPersen">0%</span></div>
@@ -317,6 +317,17 @@ async function uploadFileToSupabase(file, folder = 'general', progressId = 'prog
     }, 300);
 
     try {
+        // Cek apakah bucket ada (opsional, untuk debugging)
+        const { data: buckets, error: bucketsError } = await _supabase.storage.listBuckets();
+        if (bucketsError) {
+            console.warn('Gagal list buckets:', bucketsError);
+        } else {
+            const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
+            if (!bucketExists) {
+                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
+            }
+        }
+
         // Upload file ke Supabase Storage
         const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
             cacheControl: '3600',
