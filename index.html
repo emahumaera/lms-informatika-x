@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== STYLE ===== */
         * { box-sizing: border-box; margin: 0; }
         body {
             font-family: 'Inter', 'Poppins', sans-serif;
@@ -73,13 +72,8 @@
         .sticky-col-cell { position:sticky; left:0; background:#fff !important; z-index:5; min-width:200px; font-weight:600; padding-left:12px !important; }
         tr:nth-child(even) .sticky-col-cell { background:#F9F5FF !important; }
         @media print { body * { visibility:hidden; } #printableArea, #printableArea * { visibility:visible; } #printableArea { position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff !important; } .no-print { display:none !important; } }
-        /* Progress Bar */
-        .progress-container { display:none; margin:15px 0; padding:10px; background:#f8fafc; border-radius:12px; border:1px solid rgba(168,85,247,0.2); }
-        .progress-container.show { display:block; }
-        .progress-bar-track { background:#e5e7eb; border-radius:8px; height:12px; overflow:hidden; position:relative; }
-        .progress-bar-fill { height:100%; background:linear-gradient(135deg, #7C3AED, #9333EA); border-radius:8px; width:0%; transition:width 0.3s ease; }
-        .progress-text { display:flex; justify-content:space-between; font-size:13px; color:#64748B; margin-top:4px; }
-        .progress-status { font-weight:500; color:var(--purple); }
+        /* Progress Bar (opsional, tidak digunakan lagi) */
+        .progress-container { display:none; }
     </style>
 </head>
 <body>
@@ -149,12 +143,8 @@
             <div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div>
             <div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;">
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
-            </div>
-            <div id="progressMateriContainer" class="progress-container">
-                <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
-                <div class="progress-text"><span id="progressMateriStatus" class="progress-status">⏳ Menyiapkan...</span><span id="progressMateriPersen">0%</span></div>
+                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Link Materi (opsional)</label><input type="url" id="g_materiLink" placeholder="https://..."></div>
+                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."></div>
             </div>
             <button type="submit" id="btnTerbitkanMateri" class="btn-submit" style="width:100%;">Terbitkan</button>
         </form>
@@ -173,9 +163,8 @@ const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
 const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const _supabase = supabaseClient;
-const BUCKET_NAME = 'lms-files';
 
-// ============================= DATA AWAL =============================
+// ============================= DATA AWAL (localStorage fallback) =============================
 const defaultStudents = [
     { nama: "ABHIYASA PUTRA ALDARYFANI", kelas: "X Keramik A", password: "" },
     { nama: "ANANDA VITTO ADITYA PUTRA", kelas: "X Keramik A", password: "" },
@@ -199,7 +188,7 @@ const defaultStudents = [
     { nama: "NAYLA MAHARDIKA PRASASTI", kelas: "X Keramik A", password: "" },
     { nama: "NUR EVAN SATRIA PRATAMA", kelas: "X Keramik A", password: "" },
     { nama: "NURUL USWAHTUN HASANAH", kelas: "X Keramik A", password: "" },
-    { nome: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
+    { nama: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
     { nama: "QIENKIN AURELIN AMANDA", kelas: "X Keramik A", password: "" },
     { nama: "RADITYA LISTIAN PRASETYO", kelas: "X Keramik A", password: "" },
     { nama: "RAFA PRATAMA SAPUTRA", kelas: "X Keramik A", password: "" },
@@ -253,159 +242,6 @@ function parseSoalSafely(data) {
     return Array.isArray(parsed) ? parsed : [];
 }
 
-// ============================= PROGRESS HELPER =============================
-function updateProgress(progressId, percent, status) {
-    const container = document.getElementById(progressId);
-    if (!container) return;
-    const fill = container.querySelector('.progress-bar-fill');
-    const statusEl = container.querySelector('.progress-status');
-    const persenEl = container.querySelector('.progress-text span:last-child');
-    if (fill) fill.style.width = Math.min(100, percent) + '%';
-    if (statusEl) statusEl.textContent = status || '⏳ Memproses...';
-    if (persenEl) persenEl.textContent = Math.min(100, percent) + '%';
-    container.classList.add('show');
-}
-
-function hideProgress(progressId) {
-    const container = document.getElementById(progressId);
-    if (container) container.classList.remove('show');
-}
-
-// ============================= UPLOAD FILE KE SUPABASE STORAGE (DIPERBAIKI) =============================
-async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateriContainer') {
-    if (!_supabase) throw new Error('Supabase tidak terhubung. Periksa koneksi internet atau konfigurasi.');
-    if (!file) return null;
-
-    // Validasi ukuran file (maks 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        throw new Error('Ukuran file terlalu besar (maks 10MB).');
-    }
-
-    updateProgress(progressId, 5, '🔍 Mempersiapkan file...');
-
-    let fileToUpload = file;
-    // Kompres gambar jika > 500KB
-    if (file.type.startsWith('image/') && file.size > 500 * 1024) {
-        updateProgress(progressId, 10, '🖼️ Mengompres gambar...');
-        try {
-            fileToUpload = await compressImage(file, 500);
-        } catch (e) {
-            console.warn('Kompresi gagal, lanjut dengan original:', e);
-            fileToUpload = file;
-        }
-    }
-
-    updateProgress(progressId, 20, '📤 Menyiapkan upload ke Storage...');
-
-    // Buat nama file unik
-    const ext = file.name.split('.').pop() || 'file';
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-    const filePath = `${folder}/${fileName}`;
-
-    // Simulasi progress upload dengan interval
-    let progressInterval = setInterval(() => {
-        const fill = document.querySelector(`#${progressId} .progress-bar-fill`);
-        if (fill) {
-            const current = parseFloat(fill.style.width) || 20;
-            if (current < 85) {
-                fill.style.width = Math.min(85, current + 3) + '%';
-            }
-            const persenEl = document.querySelector(`#${progressId} .progress-text span:last-child`);
-            if (persenEl) persenEl.textContent = Math.min(85, current + 3) + '%';
-        }
-    }, 300);
-
-    try {
-        // Cek apakah bucket ada (opsional, untuk debugging)
-        const { data: buckets, error: bucketsError } = await _supabase.storage.listBuckets();
-        if (bucketsError) {
-            console.warn('Gagal list buckets:', bucketsError);
-        } else {
-            const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
-            if (!bucketExists) {
-                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase dan atur CORS.`);
-            }
-        }
-
-        // Upload file ke Supabase Storage
-        const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
-            cacheControl: '3600',
-            upsert: false
-        });
-
-        clearInterval(progressInterval);
-
-        if (error) {
-            console.error('Upload error detail:', error);
-            if (error.message && error.message.includes('bucket not found')) {
-                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Pastikan bucket sudah dibuat di dashboard Supabase.`);
-            }
-            throw new Error('Gagal upload ke Storage: ' + error.message);
-        }
-
-        updateProgress(progressId, 90, '📦 Mendapatkan URL...');
-
-        const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-        if (!urlData || !urlData.publicUrl) {
-            throw new Error('Gagal mendapatkan URL file.');
-        }
-
-        updateProgress(progressId, 100, '✅ File berhasil diunggah!');
-        return urlData.publicUrl;
-
-    } catch (err) {
-        clearInterval(progressInterval);
-        throw err;
-    }
-}
-
-function compressImage(file, maxKB) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                const MAX_SIZE = 800;
-                if (w > MAX_SIZE || h > MAX_SIZE) {
-                    const ratio = Math.min(MAX_SIZE/w, MAX_SIZE/h);
-                    w = Math.round(w * ratio);
-                    h = Math.round(h * ratio);
-                }
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                let quality = 0.85;
-                let dataUrl = canvas.toDataURL('image/jpeg', quality);
-                let sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
-                while (sizeKB > maxKB && quality > 0.2) {
-                    quality -= 0.1;
-                    dataUrl = canvas.toDataURL('image/jpeg', quality);
-                    sizeKB = Math.round((dataUrl.length * 3/4) / 1024);
-                }
-                const blob = dataURLToBlob(dataUrl);
-                resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
-            };
-            img.onerror = reject;
-            img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function dataURLToBlob(dataUrl) {
-    const parts = dataUrl.split(',');
-    const mime = parts[0].match(/:(.*?);/)[1];
-    const bstr = atob(parts[1]);
-    const n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-    return new Blob([u8arr], { type: mime });
-}
-
 // ============================= LOAD SUPABASE =============================
 async function loadAllDataFromSupabase() {
     if (!_supabase) {
@@ -429,8 +265,8 @@ async function loadAllDataFromSupabase() {
         if (pRes.data && pRes.data.length) {
             APP_DATA.pertemuan = pRes.data.map(p => ({
                 id: p.id, kelas: p.kelas, judul: p.judul,
-                materiText: p.materi_text || '', materiFile: p.materi_file ? JSON.parse(p.materi_file) : null,
-                lkpdText: p.lkpd_text || '', lkpdLink: p.lkpd_link || '', lkpdFile: p.lkpd_file ? JSON.parse(p.lkpd_file) : null
+                materiText: p.materi_text || '', materiLink: p.materi_link || '',
+                lkpdText: p.lkpd_text || '', lkpdLink: p.lkpd_link || ''
             }));
         }
         if (subRes.data) {
@@ -537,6 +373,7 @@ async function initApp() {
         populatePertemuanSiswaSelects();
         loadRekapPortofolioSiswa();
         loadRiwayatRefleksiSiswa();
+        loadRiwayatKuisSiswa();
     } else {
         badge.innerHTML = `👩‍🏫 Guru: Bu Ema Humaera`;
         nav.innerHTML = `
@@ -595,62 +432,30 @@ function ubahSandi() {
     document.getElementById('confirmPass').value = '';
 }
 
-// ============================= PERTEMUAN (DIPERBAIKI) =============================
+// ============================= PERTEMUAN (tanpa upload file) =============================
 async function simpanPertemuanBaru(e) {
     e.preventDefault();
     const btn = document.getElementById('btnTerbitkanMateri');
     btn.disabled = true;
     btn.innerText = '⏳ Memproses...';
 
-    const progressId = 'progressMateriContainer';
-    updateProgress(progressId, 0, '🚀 Memulai...');
-
     try {
         const kelas = document.getElementById('g_kelasPertemuan').value;
         const judul = document.getElementById('g_judulPertemuan').value;
         const materiText = document.getElementById('g_materiText').value;
+        const materiLink = document.getElementById('g_materiLink').value;
         const lkpdText = document.getElementById('g_lkpdText').value;
         const lkpdLink = document.getElementById('g_lkpdLink').value;
-
-        const materiFileInput = document.getElementById('g_materiFile');
-        const lkpdFileInput = document.getElementById('g_lkpdFile');
-
-        let materiFileUrl = null, lkpdFileUrl = null;
-
-        // Upload file materi (jika ada)
-        if (materiFileInput.files.length > 0) {
-            updateProgress(progressId, 8, '📤 Mengunggah materi...');
-            try {
-                materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi', progressId);
-            } catch (uploadErr) {
-                showToast('Gagal upload materi: ' + uploadErr.message, true);
-                throw uploadErr;
-            }
-        }
-
-        // Upload file LKPD (jika ada)
-        if (lkpdFileInput.files.length > 0) {
-            updateProgress(progressId, 50, '📤 Mengunggah LKPD...');
-            try {
-                lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd', progressId);
-            } catch (uploadErr) {
-                showToast('Gagal upload LKPD: ' + uploadErr.message, true);
-                throw uploadErr;
-            }
-        }
 
         const newP = {
             id: Date.now(),
             kelas: kelas,
             judul: judul,
             materiText: materiText,
-            materiFile: materiFileUrl ? { url: materiFileUrl, name: materiFileInput.files[0].name } : null,
+            materiLink: materiLink,
             lkpdText: lkpdText,
-            lkpdLink: lkpdLink,
-            lkpdFile: lkpdFileUrl ? { url: lkpdFileUrl, name: lkpdFileInput.files[0].name } : null
+            lkpdLink: lkpdLink
         };
-
-        updateProgress(progressId, 85, '💾 Menyimpan ke database...');
 
         // Simpan ke localStorage
         APP_DATA.pertemuan.push(newP);
@@ -663,35 +468,26 @@ async function simpanPertemuanBaru(e) {
                 kelas: newP.kelas,
                 judul: newP.judul,
                 materi_text: newP.materiText,
-                materi_file: newP.materiFile ? JSON.stringify(newP.materiFile) : null,
+                materi_link: newP.materiLink,
                 lkpd_text: newP.lkpdText,
                 lkpd_link: newP.lkpdLink,
-                lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null,
                 created_at: new Date().toISOString()
             }]);
             if (error) {
-                console.error('Supabase insert error:', error);
-                // Rollback lokal jika Supabase gagal
                 APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== newP.id);
                 saveDB();
                 throw new Error('Gagal simpan ke Supabase: ' + error.message);
             }
         }
 
-        updateProgress(progressId, 100, '✅ Selesai!');
         showToast('✅ Pertemuan berhasil diterbitkan!');
         e.target.reset();
         renderDaftarPertemuanGuru();
         populatePertemuanSiswaSelects();
         populateFilterPertemuan();
 
-        setTimeout(() => hideProgress(progressId), 3000);
-
     } catch (err) {
-        hideProgress(progressId);
-        if (!err.message.includes('Gagal upload')) {
-            showToast('❌ Gagal: ' + err.message, true);
-        }
+        showToast('❌ Gagal: ' + err.message, true);
         console.error(err);
     }
 
@@ -708,7 +504,7 @@ function renderDaftarPertemuanGuru() {
     let opt = '<option value="">-- Pilih --</option>';
     list.forEach(p => {
         opt += `<option value="${p.id}">${p.judul}</option>`;
-        html += `<tr><td><strong>${p.judul}</strong></td><td>${p.materiText || '-'} ${p.materiFile ? `<a href="${p.materiFile.url}" target="_blank" class="file-link">📎</a>` : ''}</td><td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link">🔗</a>` : '-'} ${p.lkpdFile ? `<a href="${p.lkpdFile.url}" target="_blank" class="file-link">📎</a>` : ''}</td><td><button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button></td></tr>`;
+        html += `<tr><td><strong>${p.judul}</strong></td><td>${p.materiText || '-'} ${p.materiLink ? `<a href="${p.materiLink}" target="_blank" class="file-link">🔗</a>` : ''}</td><td>${p.lkpdLink ? `<a href="${p.lkpdLink}" target="_blank" class="file-link">🔗</a>` : '-'}</td><td><button class="btn-danger" onclick="hapusPertemuan(${p.id})">Hapus</button></td></tr>`;
     });
     html += `</tbody></table></div>`;
     container.innerHTML = html || '<p>Belum ada pertemuan untuk kelas ini.</p>';
@@ -736,15 +532,7 @@ function renderGuruMaterialPreview() {
 function generateMaterialHTML(p) {
     let html = `<div class="card"><h3 style="color:var(--purple);">${p.judul}</h3>`;
     if (p.materiText) html += `<p>${p.materiText}</p>`;
-    if (p.materiFile) {
-        const url = p.materiFile.url;
-        const name = p.materiFile.name || 'file';
-        if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            html += `<img src="${url}" class="img-preview" alt="materi">`;
-        } else {
-            html += `<a href="${url}" target="_blank" class="file-link">📎 ${name}</a>`;
-        }
-    }
+    if (p.materiLink) html += `<a href="${p.materiLink}" target="_blank" class="btn-external" style="margin-top:8px;">🔗 Buka Materi</a>`;
     html += `</div>`;
     return html;
 }
@@ -778,7 +566,7 @@ function loadTugasSiswa() {
     if (p.lkpdLink) {
         html += `
             <div style="background:#f0f7ff; border-left:5px solid #0284C7; padding:12px 18px; border-radius:12px; margin:10px 0;">
-                <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, screenshot/download, lalu unggah bukti.</p>
+                <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, lalu kirim jawaban/refleksi di bawah.</p>
             </div>
             <a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD</a>
             <div class="lkpd-iframe-wrapper" style="margin-top:12px;"><iframe src="${p.lkpdLink}" title="LKPD"></iframe></div>
@@ -790,10 +578,9 @@ function loadTugasSiswa() {
     }
     html += `
         <hr style="margin:20px 0;">
-        <h4 style="font-weight:600;">📤 Unggah Bukti</h4>
+        <h4 style="font-weight:600;">📤 Kirim Jawaban / Refleksi Tugas</h4>
         <form onsubmit="submitTugasBiasa(event, ${p.id})">
-            <div class="form-group"><label>File (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
-            <div class="form-group"><label>Catatan</label><textarea id="catatanTugasSiswa" rows="2"></textarea></div>
+            <div class="form-group"><label>Jawaban / Catatan</label><textarea id="jawabanTugasSiswa" rows="3" required></textarea></div>
             <button type="submit" class="btn-submit">Kirim</button>
         </form>
     </div>`;
@@ -802,28 +589,20 @@ function loadTugasSiswa() {
 
 async function submitTugasBiasa(e, pertemuanId) {
     e.preventDefault();
-    const fileInput = document.getElementById('fileTugasSiswa');
-    const file = fileInput.files[0];
-    if (!file) return showToast('Pilih file!', true);
+    const jawaban = document.getElementById('jawabanTugasSiswa').value;
+    if (!jawaban.trim()) return showToast('Tulis jawaban terlebih dahulu!', true);
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
-    btn.innerText = 'Mengunggah...';
-    const progressId = 'progressMateriContainer';
-    updateProgress(progressId, 0, '⏳ Mengunggah tugas...');
+    btn.innerText = 'Mengirim...';
     try {
-        let fileUrl = null;
-        if (file) {
-            fileUrl = await uploadFileToSupabase(file, 'tugas', progressId);
-        }
-        const catatan = document.getElementById('catatanTugasSiswa').value || '';
         const payload = {
             id: Date.now(),
             pertemuan_id: pertemuanId,
             kelas: currentUser.kelas,
             nama_siswa: currentUser.name,
-            jawaban: fileUrl ? JSON.stringify({ url: fileUrl, name: file.name }) : null,
+            jawaban: jawaban,
             nilai: 0,
-            catatan: catatan,
+            catatan: '',
             submitted_at: new Date().toLocaleString('id-ID')
         };
         APP_DATA.submissions.push(payload);
@@ -840,13 +619,11 @@ async function submitTugasBiasa(e, pertemuanId) {
                 throw new Error('Gagal simpan tugas: ' + error.message);
             }
         }
-        hideProgress(progressId);
-        showToast('Tugas terkirim!');
+        showToast('Jawaban terkirim!');
         loadTugasSiswa();
         loadRekapPortofolioSiswa();
     } catch (err) {
-        hideProgress(progressId);
-        showToast('Gagal upload: ' + err.message, true);
+        showToast('Gagal kirim: ' + err.message, true);
     }
     btn.disabled = false;
     btn.innerText = 'Kirim';
@@ -855,12 +632,6 @@ async function submitTugasBiasa(e, pertemuanId) {
 // ============================= PORTOFOLIO GURU =============================
 function renderJawabanSiswa(raw) {
     if (!raw) return '<i>Belum ada</i>';
-    try {
-        const parsed = JSON.parse(raw);
-        if (parsed.url) {
-            return `<a href="${parsed.url}" target="_blank" class="file-link">📎 ${parsed.name || 'file'}</a>`;
-        }
-    } catch(e) {}
     return raw;
 }
 
@@ -1305,7 +1076,7 @@ async function hapusKuis(id) {
     showToast('Asesmen dihapus.');
 }
 
-// ============================= SISWA: KUIS (DIPERBAIKI) =============================
+// ============================= SISWA: KUIS =============================
 function switchKuisKategoriSiswa(kategori, btn) {
     document.querySelectorAll('#s_kuis .login-tab button').forEach(t => t.classList.remove('active'));
     if (btn) btn.classList.add('active');
@@ -1349,12 +1120,16 @@ async function jawabKuis(e, kuisId) {
     if (!kuis) return;
     const daftarSoal = parseSoalSafely(kuis.soal);
     let correct=0, totalPg=0;
+    let jawabanEsai = [];
     daftarSoal.forEach((q, idx) => {
         const type = q.type || 'pilihan_ganda';
         if (type === 'pilihan_ganda') {
             totalPg++;
             const selected = document.querySelector(`input[name="soal_${idx}"]:checked`);
             if (selected && parseInt(selected.value) === parseInt(q.correct)) correct++;
+        } else if (type === 'esai') {
+            const text = document.querySelector(`textarea[name="soal_${idx}"]`)?.value || '';
+            jawabanEsai.push({ soal: q.q, jawaban: text });
         }
     });
     const score = totalPg > 0 ? Math.round((correct/totalPg)*100) : 100;
@@ -1367,11 +1142,11 @@ async function jawabKuis(e, kuisId) {
         score: score,
         totalCorrect: correct,
         totalWrong: totalPg - correct,
-        submittedAt: new Date().toLocaleString('id-ID')
+        submittedAt: new Date().toLocaleString('id-ID'),
+        jawabanEsai: jawabanEsai
     };
     APP_DATA.kuisScores.push(attempt);
     saveDB();
-    // Simpan ke Supabase
     if (_supabase) {
         const { error } = await _supabase.from('quiz_attempts').insert([{
             id: attempt.id,
@@ -1382,7 +1157,8 @@ async function jawabKuis(e, kuisId) {
             score: attempt.score,
             total_correct: attempt.totalCorrect,
             total_wrong: attempt.totalWrong,
-            submitted_at: attempt.submittedAt
+            submitted_at: attempt.submittedAt,
+            jawaban_esai: JSON.stringify(attempt.jawabanEsai)
         }]);
         if (error) {
             console.error('Gagal menyimpan jawaban ke Supabase:', error);
@@ -1398,6 +1174,7 @@ async function jawabKuis(e, kuisId) {
             <h3 style="color:#059669;">🎉 Selesai!</h3>
             <p style="font-size:20px; font-weight:700;">Skor: ${score}</p>
             <p>✅ Benar: ${correct} | ❌ Salah: ${totalPg - correct}</p>
+            ${jawabanEsai.length ? '<p><strong>Jawaban Esai:</strong> '+jawabanEsai.map(j=>`<br>• ${j.soal} – ${j.jawaban}`).join('')+'</p>' : ''}
         </div>
     `;
     loadRiwayatKuisSiswa();
