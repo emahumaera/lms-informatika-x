@@ -142,7 +142,7 @@
     <section id="s_refleksi" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Refleksi &amp; Saran</h2><div class="card"><form onsubmit="kirimRefleksi(event)"><div class="form-group"><label>Jenis</label><select id="refleksiTipe" required><option value="Refleksi">Refleksi</option><option value="Rangkuman">Rangkuman</option><option value="Saran">Saran Pembelajaran</option><option value="unek-unek">Sekadar unek‑unek</option></select></div><div class="form-group"><label>Isi</label><textarea id="refleksiIsi" rows="5" required></textarea></div><button type="submit" class="btn-submit">Kirim</button></form></div><div class="card"><h3>Riwayat Refleksi Saya</h3><div id="riwayatRefleksiSiswa"></div></div></section>
 
     <!-- ========== GURU ========== -->
-    <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
+    <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable(); populateFilterPertemuan();"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
     <section id="g_daftar_pertemuan" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Modul Materi</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_daftarKelas" onchange="renderDaftarPertemuanGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelDaftarPertemuanGuru"></div></div><div class="card"><h3>👁️ Pratinjau Materi</h3><div class="form-group"><label>Pilih Pertemuan</label><select id="selectGuruPreviewPertemuan" onchange="renderGuruMaterialPreview()"></select></div><div id="guruMaterialPreviewContainer"></div></div></section>
     <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card">
         <form onsubmit="simpanPertemuanBaru(event)">
@@ -152,7 +152,8 @@
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
             </div>
-            <div id="progressMateri" class="progress-container">
+            <!-- PROGRESS BAR DENGAN ID YANG KONSISTEN -->
+            <div id="progressMateriContainer" class="progress-container">
                 <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
                 <div class="progress-text"><span id="progressMateriStatus" class="progress-status">⏳ Menyiapkan...</span><span id="progressMateriPersen">0%</span></div>
             </div>
@@ -169,7 +170,6 @@
 
 <script>
 // ============================= SUPABASE =============================
-// 🔥 PERBAIKI URL dan KEY sesuai dashboard Anda
 const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
 const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
@@ -255,8 +255,8 @@ function parseSoalSafely(data) {
 }
 
 // ============================= PROGRESS HELPER =============================
-function updateProgress(elementId, percent, status) {
-    const container = document.getElementById(elementId);
+function updateProgress(progressId, percent, status) {
+    const container = document.getElementById(progressId);
     if (!container) return;
     const fill = container.querySelector('.progress-bar-fill');
     const statusEl = container.querySelector('.progress-status');
@@ -267,73 +267,88 @@ function updateProgress(elementId, percent, status) {
     container.classList.add('show');
 }
 
-function hideProgress(elementId) {
-    const container = document.getElementById(elementId);
+function hideProgress(progressId) {
+    const container = document.getElementById(progressId);
     if (container) container.classList.remove('show');
 }
 
-// ============================= UPLOAD FILE KE SUPABASE STORAGE =============================
-async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateri') {
-    if (!_supabase) throw new Error('Supabase tidak terhubung.');
+// ============================= UPLOAD FILE KE SUPABASE STORAGE (DIPERBAIKI) =============================
+async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateriContainer') {
+    if (!_supabase) throw new Error('Supabase tidak terhubung. Periksa koneksi internet.');
     if (!file) return null;
 
-    updateProgress(progressId, 5, '🔍 Memeriksa bucket...');
-
-    // Cek bucket
-    try {
-        const { data: buckets } = await _supabase.storage.listBuckets();
-        const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
-        if (!bucketExists) {
-            throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
-        }
-    } catch (e) {
-        throw new Error('Gagal mengecek bucket: ' + e.message);
+    // Validasi ukuran file (maks 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        throw new Error('Ukuran file terlalu besar (maks 10MB).');
     }
+
+    updateProgress(progressId, 5, '🔍 Mempersiapkan file...');
 
     let fileToUpload = file;
     // Kompres gambar jika > 500KB
     if (file.type.startsWith('image/') && file.size > 500 * 1024) {
-        updateProgress(progressId, 15, '🖼️ Mengompres gambar...');
+        updateProgress(progressId, 10, '🖼️ Mengompres gambar...');
         try {
             fileToUpload = await compressImage(file, 500);
         } catch (e) {
-            console.warn('Kompresi gagal, upload original:', e);
+            console.warn('Kompresi gagal, lanjut dengan original:', e);
             fileToUpload = file;
         }
     }
 
-    updateProgress(progressId, 30, '📤 Mengunggah ke Storage...');
+    updateProgress(progressId, 25, '📤 Menyiapkan upload ke Storage...');
 
-    const ext = file.name.split('.').pop();
+    // Buat nama file unik
+    const ext = file.name.split('.').pop() || 'file';
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const filePath = `${folder}/${fileName}`;
 
+    // Simulasi progress upload dengan interval (karena Supabase tidak menyediakan progress)
     let progressInterval = setInterval(() => {
-        const currentFill = document.querySelector(`#${progressId} .progress-bar-fill`);
-        if (currentFill) {
-            const current = parseFloat(currentFill.style.width) || 30;
+        const fill = document.querySelector(`#${progressId} .progress-bar-fill`);
+        if (fill) {
+            const current = parseFloat(fill.style.width) || 25;
             if (current < 85) {
-                currentFill.style.width = Math.min(85, current + 5) + '%';
+                fill.style.width = Math.min(85, current + 3) + '%';
             }
+            const persenEl = document.querySelector(`#${progressId} .progress-text span:last-child`);
+            if (persenEl) persenEl.textContent = Math.min(85, current + 3) + '%';
         }
-    }, 500);
+    }, 300);
 
-    const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
-        cacheControl: '3600',
-        upsert: false
-    });
+    try {
+        // Upload file ke Supabase Storage
+        const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
+            cacheControl: '3600',
+            upsert: false
+        });
 
-    clearInterval(progressInterval);
+        clearInterval(progressInterval);
 
-    if (error) {
-        console.error('Upload error detail:', error);
-        throw new Error('Gagal upload ke Storage: ' + error.message);
+        if (error) {
+            console.error('Upload error detail:', error);
+            // Jika error karena bucket tidak ditemukan, beri pesan yang jelas
+            if (error.message && error.message.includes('bucket not found')) {
+                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Pastikan bucket sudah dibuat di dashboard Supabase.`);
+            }
+            throw new Error('Gagal upload ke Storage: ' + error.message);
+        }
+
+        updateProgress(progressId, 90, '📦 Mendapatkan URL...');
+
+        // Ambil public URL
+        const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+        if (!urlData || !urlData.publicUrl) {
+            throw new Error('Gagal mendapatkan URL file.');
+        }
+
+        updateProgress(progressId, 100, '✅ File berhasil diunggah!');
+        return urlData.publicUrl;
+
+    } catch (err) {
+        clearInterval(progressInterval);
+        throw err;
     }
-
-    updateProgress(progressId, 90, '📦 Mendapatkan URL...');
-    const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-    updateProgress(progressId, 95, '✅ File berhasil diunggah!');
-    return urlData.publicUrl;
 }
 
 function compressImage(file, maxKB) {
@@ -385,7 +400,10 @@ function dataURLToBlob(dataUrl) {
 
 // ============================= LOAD SUPABASE =============================
 async function loadAllDataFromSupabase() {
-    if (!_supabase) return;
+    if (!_supabase) {
+        isDataLoaded = true;
+        return;
+    }
     try {
         const [stRes, pRes, subRes, absRes, kuisRes, qaRes, refRes] = await Promise.all([
             _supabase.from('students').select('*'),
@@ -569,14 +587,14 @@ function ubahSandi() {
     document.getElementById('confirmPass').value = '';
 }
 
-// ============================= PERTEMUAN =============================
+// ============================= PERTEMUAN (DIPERBAIKI) =============================
 async function simpanPertemuanBaru(e) {
     e.preventDefault();
     const btn = document.getElementById('btnTerbitkanMateri');
     btn.disabled = true;
     btn.innerText = '⏳ Memproses...';
 
-    const progressId = 'progressMateri';
+    const progressId = 'progressMateriContainer';
     updateProgress(progressId, 0, '🚀 Memulai...');
 
     try {
@@ -591,16 +609,26 @@ async function simpanPertemuanBaru(e) {
 
         let materiFileUrl = null, lkpdFileUrl = null;
 
-        // Upload file materi
+        // Upload file materi (jika ada)
         if (materiFileInput.files.length > 0) {
-            updateProgress(progressId, 10, '📤 Mengunggah materi...');
-            materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi', progressId);
+            updateProgress(progressId, 8, '📤 Mengunggah materi...');
+            try {
+                materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi', progressId);
+            } catch (uploadErr) {
+                showToast('Gagal upload materi: ' + uploadErr.message, true);
+                throw uploadErr;
+            }
         }
 
-        // Upload file LKPD
+        // Upload file LKPD (jika ada)
         if (lkpdFileInput.files.length > 0) {
             updateProgress(progressId, 50, '📤 Mengunggah LKPD...');
-            lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd', progressId);
+            try {
+                lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd', progressId);
+            } catch (uploadErr) {
+                showToast('Gagal upload LKPD: ' + uploadErr.message, true);
+                throw uploadErr;
+            }
         }
 
         const newP = {
@@ -634,6 +662,7 @@ async function simpanPertemuanBaru(e) {
                 created_at: new Date().toISOString()
             }]);
             if (error) {
+                console.error('Supabase insert error:', error);
                 // Rollback lokal jika Supabase gagal
                 APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== newP.id);
                 saveDB();
@@ -652,7 +681,10 @@ async function simpanPertemuanBaru(e) {
 
     } catch (err) {
         hideProgress(progressId);
-        showToast('❌ Gagal: ' + err.message, true);
+        // Jangan tampilkan error ganda jika sudah ditampilkan di dalam try
+        if (!err.message.includes('Gagal upload')) {
+            showToast('❌ Gagal: ' + err.message, true);
+        }
         console.error(err);
     }
 
@@ -769,10 +801,12 @@ async function submitTugasBiasa(e, pertemuanId) {
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     btn.innerText = 'Mengunggah...';
+    const progressId = 'progressMateriContainer'; // gunakan progress yang sama
+    updateProgress(progressId, 0, '⏳ Mengunggah tugas...');
     try {
         let fileUrl = null;
         if (file) {
-            fileUrl = await uploadFileToSupabase(file, 'tugas', 'progressMateri');
+            fileUrl = await uploadFileToSupabase(file, 'tugas', progressId);
         }
         const catatan = document.getElementById('catatanTugasSiswa').value || '';
         const payload = {
@@ -799,10 +833,12 @@ async function submitTugasBiasa(e, pertemuanId) {
                 throw new Error('Gagal simpan tugas: ' + error.message);
             }
         }
+        hideProgress(progressId);
         showToast('Tugas terkirim!');
         loadTugasSiswa();
         loadRekapPortofolioSiswa();
     } catch (err) {
+        hideProgress(progressId);
         showToast('Gagal upload: ' + err.message, true);
     }
     btn.disabled = false;
