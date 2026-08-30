@@ -8,9 +8,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ===== STYLE ===== */
         * { box-sizing: border-box; margin: 0; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 35%, #F8FAFC 100%); min-height: 100vh; color: #1E1B4B; line-height: 1.6; font-size: 16px; }
-        :root { --purple: #7C3AED; --yellow: #D97706; }
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 35%, #F8FAFC 100%);
+            min-height: 100vh;
+            color: #1E1B4B;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        :root { --purple: #7C3AED; --purple-dark: #4C1D95; --yellow: #D97706; --success: #10B981; --danger: #EF4444; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(30,27,75,0.55); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: rgba(255,255,255,0.95); padding: 40px; border-radius: 28px; max-width: 460px; width: 90%; box-shadow: 0 25px 50px rgba(124,58,237,0.2); }
         .login-tab { display: flex; border-bottom: 2px solid rgba(168,85,247,0.15); margin-bottom: 20px; }
@@ -18,7 +26,7 @@
         .login-tab button.active { color: var(--purple); border-bottom: 4px solid var(--purple); }
         header { background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(168,85,247,0.15); position: sticky; top:0; z-index:100; }
         .logo { font-weight:700; font-size:20px; color:var(--purple); }
-        .logo span { color:#4C1D95; }
+        .logo span { color:var(--purple-dark); }
         .user-badge { background: rgba(168,85,247,0.1); color:var(--purple); padding:6px 16px; border-radius:30px; font-weight:600; font-size:13px; border:1px solid rgba(168,85,247,0.3); }
         nav { display: flex; gap: 6px; flex-wrap: wrap; align-items:center; }
         nav button { background: transparent; border: none; font-family: inherit; font-size:13px; font-weight:500; padding:6px 14px; border-radius:12px; cursor:pointer; transition:0.3s; white-space:nowrap; color: #1E1B4B; }
@@ -65,9 +73,10 @@
         .sticky-col-cell { position:sticky; left:0; background:#fff !important; z-index:5; min-width:200px; font-weight:600; padding-left:12px !important; }
         tr:nth-child(even) .sticky-col-cell { background:#F9F5FF !important; }
         @media print { body * { visibility:hidden; } #printableArea, #printableArea * { visibility:visible; } #printableArea { position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff !important; } .no-print { display:none !important; } }
+        /* Progress Bar */
         .progress-container { display:none; margin:15px 0; padding:10px; background:#f8fafc; border-radius:12px; border:1px solid rgba(168,85,247,0.2); }
         .progress-container.show { display:block; }
-        .progress-bar-track { background:#e5e7eb; border-radius:8px; height:12px; overflow:hidden; }
+        .progress-bar-track { background:#e5e7eb; border-radius:8px; height:12px; overflow:hidden; position:relative; }
         .progress-bar-fill { height:100%; background:linear-gradient(135deg, #7C3AED, #9333EA); border-radius:8px; width:0%; transition:width 0.3s ease; }
         .progress-text { display:flex; justify-content:space-between; font-size:13px; color:#64748B; margin-top:4px; }
         .progress-status { font-weight:500; color:var(--purple); }
@@ -118,20 +127,21 @@
 
 <!-- MAIN -->
 <main>
-    <!-- SISWA -->
+    <!-- ========== SISWA ========== -->
     <section id="s_beranda" class="section active">
         <div class="hero"><h1>Selamat Datang di Pembelajaran Informatika!</h1><h2>Kelas X Keramik A &amp; X DKV B</h2></div>
         <div class="card"><h3 style="color:var(--purple);">📌 Kesepakatan Kelas</h3><p>1. Hadir tepat waktu dan tertib.<br>2. Menghargai guru dan teman.<br>3. Aktif belajar dan jujur.<br>4. Jaga kebersihan dan fasilitas.<br>5. HP dalam mode senyap.<br>6. Patuhi aturan keselamatan praktik.</p></div>
         <div class="card"><h3 style="color:var(--purple);">📌 Konsekuensi</h3><p>1. Terlambat: ambil surat keterlambatan di BK.<br>2. Main HP/game: HP disita &amp; menulis permohonan maaf 50 kali.</p></div>
         <div class="card"><h3 style="color:var(--purple);">📌 Cara Penggunaan LMS</h3><p>Navigasi menu di atas. Materi, Tugas LKPD, Asesmen, Portofolio, Refleksi, dan Ubah Sandi.</p></div>
     </section>
+
     <section id="s_materi" class="section"><h2 style="color:var(--purple); font-weight:700;">📚 Materi Pembelajaran</h2><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanMateri" onchange="loadMateriSiswa()"></select></div><div id="contentMateriSiswa"></div></section>
     <section id="s_tugas" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Tugas LKPD</h2><div class="card"><p>Pilih pertemuan, kerjakan LKPD, unggah bukti.</p><div class="form-group"><label>Pilih Pertemuan</label><select id="selectPertemuanTugas" onchange="loadTugasSiswa()"></select></div></div><div id="contentTugasSiswa"></div></section>
     <section id="s_kuis" class="section"><h2 style="color:var(--purple); font-weight:700;">🧠 Asesmen &amp; Kuis</h2><div class="card"><div class="login-tab" style="margin-bottom:16px; overflow-x:auto; display:flex; gap:4px;"><button class="active" onclick="switchKuisKategoriSiswa('Asesmen Diagnostik', this)">Diagnostik</button><button onclick="switchKuisKategoriSiswa('Pretest', this)">Pretest</button><button onclick="switchKuisKategoriSiswa('Postest', this)">Postest</button><button onclick="switchKuisKategoriSiswa('Kuis', this)">Kuis</button></div><div class="form-group"><label>Pilih Asesmen</label><select id="selectKuisSiswa" onchange="tampilkanKuisDanSoalSiswa(this.value)"></select></div></div><div id="containerSoalSiswa"></div><div class="card"><h3 style="color:var(--purple);">📜 Riwayat Asesmen</h3><div id="containerRiwayatKuisSiswa"></div></div></section>
     <section id="s_portofolio" class="section"><div id="printableArea"><h2 style="color:var(--purple); font-weight:700;">🏆 Portofolio Saya</h2><div class="card"><h3>📊 Rekapitulasi Kehadiran</h3><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:12px; text-align:center;"><div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#059669;" id="portHadir">0</span><p style="margin:0; font-weight:600;">Hadir</p></div><div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#D97706;" id="portSakit">0</span><p style="margin:0; font-weight:600;">Sakit</p></div><div style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#0284C7;" id="portIzin">0</span><p style="margin:0; font-weight:600;">Izin</p></div><div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:12px; border-radius:14px;"><span style="font-size:24px; font-weight:800; color:#DC2626;" id="portAlfa">0</span><p style="margin:0; font-weight:600;">Alfa</p></div></div></div><div class="card"><h3>📝 Rekap Tugas LKPD</h3><div id="rekapPortofolioSiswa"></div></div><div class="card"><h3>🧠 Rekap Hasil Asesmen</h3><div id="containerPortofolioKuis"></div></div></div><button onclick="window.print()" class="btn-submit no-print" style="background:linear-gradient(135deg,#10B981,#059669);">📥 Unduh Portofolio (PDF)</button></section>
     <section id="s_refleksi" class="section"><h2 style="color:var(--purple); font-weight:700;">📝 Refleksi &amp; Saran</h2><div class="card"><form onsubmit="kirimRefleksi(event)"><div class="form-group"><label>Jenis</label><select id="refleksiTipe" required><option value="Refleksi">Refleksi</option><option value="Rangkuman">Rangkuman</option><option value="Saran">Saran Pembelajaran</option><option value="unek-unek">Sekadar unek‑unek</option></select></div><div class="form-group"><label>Isi</label><textarea id="refleksiIsi" rows="5" required></textarea></div><button type="submit" class="btn-submit">Kirim</button></form></div><div class="card"><h3>Riwayat Refleksi Saya</h3><div id="riwayatRefleksiSiswa"></div></div></section>
 
-    <!-- GURU -->
+    <!-- ========== GURU ========== -->
     <section id="g_portofolio" class="section"><h2 style="color:var(--purple); font-weight:700;">📂 Portofolio Murid</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_portofolioKelas" onchange="renderPortofolioTable()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div class="form-group"><label>Filter Pertemuan</label><select id="selectFilterPertemuan" onchange="renderPortofolioTable()"><option value="ALL">-- Semua --</option></select></div></div><div class="table-responsive"><table><thead><tr><th>Nama</th><th>Pertemuan</th><th>Unggahan</th><th>Nilai</th><th>Catatan Guru</th><th>Aksi</th></tr></thead><tbody id="tabelPortofolioGuru"></tbody></table></div></section>
     <section id="g_daftar_pertemuan" class="section"><h2 style="color:var(--purple); font-weight:700;">📋 Modul Materi</h2><div class="card"><div class="form-group"><label>Kelas</label><select id="g_daftarKelas" onchange="renderDaftarPertemuanGuru()"><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div><div id="tabelDaftarPertemuanGuru"></div></div><div class="card"><h3>👁️ Pratinjau Materi</h3><div class="form-group"><label>Pilih Pertemuan</label><select id="selectGuruPreviewPertemuan" onchange="renderGuruMaterialPreview()"></select></div><div id="guruMaterialPreviewContainer"></div></div></section>
     <section id="g_kelola" class="section"><h2 style="color:var(--purple); font-weight:700;">✨ Buat Pertemuan Baru</h2><div class="card">
@@ -139,8 +149,8 @@
             <div class="form-group"><label>Kelas</label><select id="g_kelasPertemuan" required><option value="X Keramik A">X Keramik A</option><option value="X DKV B">X DKV B</option></select></div>
             <div class="form-group"><label>Judul</label><input type="text" id="g_judulPertemuan" required placeholder="Contoh: Pertemuan 1 - Algoritma"></div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;">
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
-                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD</label><input type="file" id="g_lkpdFile"></div>
+                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
+                <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
             </div>
             <div id="progressMateri" class="progress-container">
                 <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
@@ -159,19 +169,54 @@
 
 <script>
 // ============================= SUPABASE =============================
+// 🔥 PERBAIKI URL dan KEY sesuai dashboard Anda
 const SUPABASE_URL = 'https://gbfcgapcfpihhghdhakjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_czXnEOXu4dDc34CbUrhBtw_o7KetzcD';
-// GANTI DENGAN SERVICE ROLE KEY (untuk testing agar tidak terhalang RLS)
-// Jangan gunakan di production tanpa perlindungan!
-const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZmNnYXBjZnBpaGhoZ2RoYWtqZCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3NDA2NTc2MDAsImV4cCI6MjA1NjIzMzYwMH0.tPjH4oXyVqR0gLtLAjZ9B2mzQcVxBnD3yM5fHnJwKpQ';
-// Gunakan service role key untuk bypass RLS
-const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) : null;
+const supabaseClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const _supabase = supabaseClient;
 const BUCKET_NAME = 'lms-files';
 
-// ============================= DATA SEMENTARA (CACHE) =============================
-let APP_DATA = {
-    students: [],
+// ============================= DATA AWAL =============================
+const defaultStudents = [
+    { nama: "ABHIYASA PUTRA ALDARYFANI", kelas: "X Keramik A", password: "" },
+    { nama: "ANANDA VITTO ADITYA PUTRA", kelas: "X Keramik A", password: "" },
+    { nama: "ARYA DWI PANDU WICAKSONO", kelas: "X Keramik A", password: "" },
+    { nama: "AURELIO BARCA ADIWANGSA", kelas: "X Keramik A", password: "" },
+    { nama: "DAVID ALLEN ANUGERAH", kelas: "X Keramik A", password: "" },
+    { nama: "LUTFAN MACHUS NUGROHO", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMAD TEGUH FEBRIYANSYAH", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD ABDUL DAWWAS", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD ABIEL PUTRA WIBOWO", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD ALDAFA SAPUTRA", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD ANGGAS FAHRI IRAWAN", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD BISMA BRILLIAN SAPTOTO", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD CEVIN PUTRA MEDA", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD DAFA FEBRIAN WAHNURI", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD FAHRI NUR AZZAM", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD HUDA PUTRA MUDANTO", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD JUNIOR FARHAN WAHYUDI", kelas: "X Keramik A", password: "" },
+    { nama: "MUHAMMAD ZAKI PERMANA", kelas: "X Keramik A", password: "" },
+    { nama: "NATANELIA AZZARIA ALYUSUF", kelas: "X Keramik A", password: "" },
+    { nama: "NAYLA MAHARDIKA PRASASTI", kelas: "X Keramik A", password: "" },
+    { nama: "NUR EVAN SATRIA PRATAMA", kelas: "X Keramik A", password: "" },
+    { nama: "NURUL USWAHTUN HASANAH", kelas: "X Keramik A", password: "" },
+    { nama: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
+    { nama: "QIENKIN AURELIN AMANDA", kelas: "X Keramik A", password: "" },
+    { nama: "RADITYA LISTIAN PRASETYO", kelas: "X Keramik A", password: "" },
+    { nama: "RAFA PRATAMA SAPUTRA", kelas: "X Keramik A", password: "" },
+    { nama: "RAY MAHENDRA PUTRA", kelas: "X Keramik A", password: "" },
+    { nama: "RETNO NAWANG SARI", kelas: "X Keramik A", password: "" },
+    { nama: "RIRIN LESTARI", kelas: "X Keramik A", password: "" },
+    { nama: "RISANG RAMADHAN", kelas: "X Keramik A", password: "" },
+    { nama: "SRI LESTARI", kelas: "X Keramik A", password: "" },
+    { nama: "TEGAR PUTRA PRASTIKA", kelas: "X Keramik A", password: "" },
+    { nama: "WIJDAN PRIYA PRATAMA", kelas: "X Keramik A", password: "" },
+    { nama: "YORDAN HAFIS YUDISTIRA", kelas: "X Keramik A", password: "" },
+    { nama: "ZAMIR ALFAD GTHA", kelas: "X Keramik A", password: "" },
+];
+
+let APP_DATA = JSON.parse(localStorage.getItem('LMS_EMA_V11')) || {
+    students: [...defaultStudents],
     pertemuan: [],
     submissions: [],
     absensi: { "X Keramik A": {}, "X DKV B": {} },
@@ -180,11 +225,16 @@ let APP_DATA = {
     kuisScores: [],
     reflections: []
 };
+if (!APP_DATA.students || APP_DATA.students.length === 0) APP_DATA.students = [...defaultStudents];
+if (!APP_DATA.absensi["X DKV B"]) APP_DATA.absensi["X DKV B"] = {};
+if (!APP_DATA.absensiDates["X DKV B"]) APP_DATA.absensiDates["X DKV B"] = {};
+
 let currentUser = null;
 let soalKuisTemp = [];
+let isDataLoaded = false;
 
-// ============================= HELPER =============================
 function normalizeName(s) { return (s || '').toString().trim().toUpperCase(); }
+function saveDB() { localStorage.setItem('LMS_EMA_V11', JSON.stringify(APP_DATA)); }
 
 function showToast(msg, err = false) {
     const c = document.getElementById('toast-container');
@@ -222,46 +272,67 @@ function hideProgress(elementId) {
     if (container) container.classList.remove('show');
 }
 
-// ============================= UPLOAD FILE =============================
-async function uploadFileToSupabase(file, folder = 'general') {
+// ============================= UPLOAD FILE KE SUPABASE STORAGE =============================
+async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateri') {
     if (!_supabase) throw new Error('Supabase tidak terhubung.');
     if (!file) return null;
 
+    updateProgress(progressId, 5, '🔍 Memeriksa bucket...');
+
     // Cek bucket
     try {
-        const { data: buckets, error: bucketError } = await _supabase.storage.listBuckets();
-        if (bucketError) throw new Error('Gagal list bucket: ' + bucketError.message);
+        const { data: buckets } = await _supabase.storage.listBuckets();
         const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
         if (!bucketExists) {
-            throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket terlebih dahulu.`);
+            throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
         }
     } catch (e) {
         throw new Error('Gagal mengecek bucket: ' + e.message);
     }
 
-    // Kompres gambar jika > 500KB
     let fileToUpload = file;
+    // Kompres gambar jika > 500KB
     if (file.type.startsWith('image/') && file.size > 500 * 1024) {
+        updateProgress(progressId, 15, '🖼️ Mengompres gambar...');
         try {
             fileToUpload = await compressImage(file, 500);
         } catch (e) {
             console.warn('Kompresi gagal, upload original:', e);
+            fileToUpload = file;
         }
     }
+
+    updateProgress(progressId, 30, '📤 Mengunggah ke Storage...');
 
     const ext = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const filePath = `${folder}/${fileName}`;
 
+    let progressInterval = setInterval(() => {
+        const currentFill = document.querySelector(`#${progressId} .progress-bar-fill`);
+        if (currentFill) {
+            const current = parseFloat(currentFill.style.width) || 30;
+            if (current < 85) {
+                currentFill.style.width = Math.min(85, current + 5) + '%';
+            }
+        }
+    }, 500);
+
     const { data, error } = await _supabase.storage.from(BUCKET_NAME).upload(filePath, fileToUpload, {
         cacheControl: '3600',
         upsert: false
     });
+
+    clearInterval(progressInterval);
+
     if (error) {
         console.error('Upload error detail:', error);
         throw new Error('Gagal upload ke Storage: ' + error.message);
     }
+
+    updateProgress(progressId, 90, '📦 Mendapatkan URL...');
     const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+    updateProgress(progressId, 95, '✅ File berhasil diunggah!');
     return urlData.publicUrl;
 }
 
@@ -312,8 +383,8 @@ function dataURLToBlob(dataUrl) {
     return new Blob([u8arr], { type: mime });
 }
 
-// ============================= LOAD ALL DATA DARI SUPABASE =============================
-async function loadAllData() {
+// ============================= LOAD SUPABASE =============================
+async function loadAllDataFromSupabase() {
     if (!_supabase) return;
     try {
         const [stRes, pRes, subRes, absRes, kuisRes, qaRes, refRes] = await Promise.all([
@@ -321,12 +392,15 @@ async function loadAllData() {
             _supabase.from('pertemuan').select('*'),
             _supabase.from('submissions').select('*'),
             _supabase.from('absensi').select('*'),
-            _supabase.from('kuis').select('*').order('created_at', { ascending: false }),
+            _supabase.from('kuis').select('*'),
             _supabase.from('quiz_attempts').select('*'),
             _supabase.from('reflections').select('*')
         ]);
-        if (stRes.data) APP_DATA.students = stRes.data.map(s => ({ nama: s.nama_siswa, kelas: s.kelas, password: s.password || '' }));
-        if (pRes.data) {
+        if (stRes.data && stRes.data.length) {
+            const merged = [...APP_DATA.students, ...stRes.data.map(s => ({ nama: s.nama_siswa, kelas: s.kelas, password: s.password || '' }))];
+            APP_DATA.students = Array.from(new Map(merged.map(s => [s.nama + '|' + s.kelas, s])).values());
+        }
+        if (pRes.data && pRes.data.length) {
             APP_DATA.pertemuan = pRes.data.map(p => ({
                 id: p.id, kelas: p.kelas, judul: p.judul,
                 materiText: p.materi_text || '', materiFile: p.materi_file ? JSON.parse(p.materi_file) : null,
@@ -365,9 +439,11 @@ async function loadAllData() {
                 id: r.id, kelas: r.kelas, siswa: r.siswa, tipe: r.tipe, isi: r.isi, created_at: r.created_at
             }));
         }
+        saveDB();
+        isDataLoaded = true;
     } catch (e) {
-        console.error('Gagal load data dari Supabase:', e);
-        showToast('Gagal load data dari Supabase: ' + e.message, true);
+        console.warn('Supabase offline, pakai cache:', e);
+        isDataLoaded = true;
     }
 }
 
@@ -390,7 +466,7 @@ async function loginSiswa(e) {
     const nama = normalizeName(document.getElementById('inputNamaSiswaLogin').value);
     const kelas = document.getElementById('inputKelasSiswa').value;
     const pass = document.getElementById('inputPasswordSiswa').value;
-    await loadAllData();
+    if (!isDataLoaded) await loadAllDataFromSupabase();
     const found = APP_DATA.students.find(s => s.nama === nama && s.kelas === kelas);
     if (!found) return showToast('Nama atau kelas tidak terdaftar!', true);
     if (found.password && found.password !== pass) return showToast('Password salah!', true);
@@ -402,7 +478,7 @@ async function loginGuru(e) {
     e.preventDefault();
     const pin = document.getElementById('inputPinGuru').value;
     if (pin !== 'guru123') return showToast('PIN salah!', true);
-    await loadAllData();
+    if (!isDataLoaded) await loadAllDataFromSupabase();
     currentUser = { role: 'guru', name: 'Bu Ema Humaera' };
     await initApp();
 }
@@ -472,7 +548,7 @@ function showSection(id, btn) {
 }
 
 // ============================= UBAH SANDI =============================
-async function ubahSandi() {
+function ubahSandi() {
     const old = document.getElementById('oldPass').value;
     const newp = document.getElementById('newPass').value;
     const confirm = document.getElementById('confirmPass').value;
@@ -482,9 +558,10 @@ async function ubahSandi() {
     if (!student) return showToast('Data tidak ditemukan!', true);
     if (student.password && student.password !== old) return showToast('Password lama salah!', true);
     student.password = newp;
-    // Update di Supabase
-    const { error } = await _supabase.from('students').update({ password: newp }).eq('nama_siswa', student.nama).eq('kelas', student.kelas);
-    if (error) return showToast('Gagal update password: ' + error.message, true);
+    saveDB();
+    if (_supabase) {
+        _supabase.from('students').update({ password: newp }).eq('nama_siswa', student.nama).eq('kelas', student.kelas).then();
+    }
     showToast('Password berhasil diubah!');
     document.getElementById('modalUbahSandi').style.display = 'none';
     document.getElementById('oldPass').value = '';
@@ -514,47 +591,55 @@ async function simpanPertemuanBaru(e) {
 
         let materiFileUrl = null, lkpdFileUrl = null;
 
+        // Upload file materi
         if (materiFileInput.files.length > 0) {
             updateProgress(progressId, 10, '📤 Mengunggah materi...');
-            materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi');
+            materiFileUrl = await uploadFileToSupabase(materiFileInput.files[0], 'materi', progressId);
         }
 
+        // Upload file LKPD
         if (lkpdFileInput.files.length > 0) {
             updateProgress(progressId, 50, '📤 Mengunggah LKPD...');
-            lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd');
+            lkpdFileUrl = await uploadFileToSupabase(lkpdFileInput.files[0], 'lkpd', progressId);
         }
-
-        updateProgress(progressId, 85, '💾 Menyimpan ke database...');
 
         const newP = {
             id: Date.now(),
-            kelas,
-            judul,
-            materiText,
+            kelas: kelas,
+            judul: judul,
+            materiText: materiText,
             materiFile: materiFileUrl ? { url: materiFileUrl, name: materiFileInput.files[0].name } : null,
-            lkpdText,
-            lkpdLink,
+            lkpdText: lkpdText,
+            lkpdLink: lkpdLink,
             lkpdFile: lkpdFileUrl ? { url: lkpdFileUrl, name: lkpdFileInput.files[0].name } : null
         };
 
-        const { error } = await _supabase.from('pertemuan').insert([{
-            id: newP.id,
-            kelas: newP.kelas,
-            judul: newP.judul,
-            materi_text: newP.materiText,
-            materi_file: newP.materiFile ? JSON.stringify(newP.materiFile) : null,
-            lkpd_text: newP.lkpdText,
-            lkpd_link: newP.lkpdLink,
-            lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null,
-            created_at: new Date().toISOString()
-        }]);
+        updateProgress(progressId, 85, '💾 Menyimpan ke database...');
 
-        if (error) {
-            throw new Error('Gagal simpan ke database: ' + error.message + ' (Kode: ' + error.code + ')');
+        // Simpan ke localStorage
+        APP_DATA.pertemuan.push(newP);
+        saveDB();
+
+        // Simpan ke Supabase
+        if (_supabase) {
+            const { error } = await _supabase.from('pertemuan').insert([{
+                id: newP.id,
+                kelas: newP.kelas,
+                judul: newP.judul,
+                materi_text: newP.materiText,
+                materi_file: newP.materiFile ? JSON.stringify(newP.materiFile) : null,
+                lkpd_text: newP.lkpdText,
+                lkpd_link: newP.lkpdLink,
+                lkpd_file: newP.lkpdFile ? JSON.stringify(newP.lkpdFile) : null,
+                created_at: new Date().toISOString()
+            }]);
+            if (error) {
+                // Rollback lokal jika Supabase gagal
+                APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== newP.id);
+                saveDB();
+                throw new Error('Gagal simpan ke Supabase: ' + error.message);
+            }
         }
-
-        // Refresh data lokal
-        await loadAllData();
 
         updateProgress(progressId, 100, '✅ Selesai!');
         showToast('✅ Pertemuan berhasil diterbitkan!');
@@ -593,9 +678,9 @@ function renderDaftarPertemuanGuru() {
 
 async function hapusPertemuan(id) {
     if (!confirm('Yakin hapus?')) return;
-    const { error } = await _supabase.from('pertemuan').delete().eq('id', id);
-    if (error) return showToast('Gagal hapus: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.pertemuan = APP_DATA.pertemuan.filter(p => p.id !== id);
+    saveDB();
+    if (_supabase) _supabase.from('pertemuan').delete().eq('id', id).then();
     renderDaftarPertemuanGuru();
     showToast('Pertemuan dihapus.');
 }
@@ -653,7 +738,7 @@ function loadTugasSiswa() {
     let html = `<div class="card"><h3 style="color:var(--purple);">${p.judul}</h3>`;
     if (p.lkpdLink) {
         html += `
-            <div class="instruction-box" style="background:#f0f7ff; border-left:5px solid #0284C7; padding:12px 18px; border-radius:12px; margin:10px 0;">
+            <div style="background:#f0f7ff; border-left:5px solid #0284C7; padding:12px 18px; border-radius:12px; margin:10px 0;">
                 <p><strong>📌 Cara:</strong> Buka LKPD, kerjakan, screenshot/download, lalu unggah bukti.</p>
             </div>
             <a href="${p.lkpdLink}" target="_blank" class="btn-external">🔗 Buka LKPD</a>
@@ -668,7 +753,7 @@ function loadTugasSiswa() {
         <hr style="margin:20px 0;">
         <h4 style="font-weight:600;">📤 Unggah Bukti</h4>
         <form onsubmit="submitTugasBiasa(event, ${p.id})">
-            <div class="form-group"><label>File</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
+            <div class="form-group"><label>File (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="fileTugasSiswa" accept=".pdf,.png,.jpg,.jpeg" required></div>
             <div class="form-group"><label>Catatan</label><textarea id="catatanTugasSiswa" rows="2"></textarea></div>
             <button type="submit" class="btn-submit">Kirim</button>
         </form>
@@ -687,7 +772,7 @@ async function submitTugasBiasa(e, pertemuanId) {
     try {
         let fileUrl = null;
         if (file) {
-            fileUrl = await uploadFileToSupabase(file, 'tugas');
+            fileUrl = await uploadFileToSupabase(file, 'tugas', 'progressMateri');
         }
         const catatan = document.getElementById('catatanTugasSiswa').value || '';
         const payload = {
@@ -698,15 +783,22 @@ async function submitTugasBiasa(e, pertemuanId) {
             jawaban: fileUrl ? JSON.stringify({ url: fileUrl, name: file.name }) : null,
             nilai: 0,
             catatan: catatan,
-            submitted_at: new Date().toISOString()
+            submitted_at: new Date().toLocaleString('id-ID')
         };
-        const { error } = await _supabase.from('submissions').insert([{
-            id: payload.id, pertemuan_id: payload.pertemuan_id, kelas: payload.kelas,
-            nama_siswa: payload.nama_siswa, jawaban: payload.jawaban,
-            nilai: payload.nilai, catatan: payload.catatan, submitted_at: payload.submitted_at
-        }]);
-        if (error) throw new Error('Gagal simpan tugas: ' + error.message);
-        await loadAllData();
+        APP_DATA.submissions.push(payload);
+        saveDB();
+        if (_supabase) {
+            const { error } = await _supabase.from('submissions').insert([{
+                id: payload.id, pertemuan_id: payload.pertemuan_id, kelas: payload.kelas,
+                nama_siswa: payload.nama_siswa, jawaban: payload.jawaban,
+                nilai: payload.nilai, catatan: payload.catatan, submitted_at: payload.submitted_at
+            }]);
+            if (error) {
+                APP_DATA.submissions = APP_DATA.submissions.filter(s => s.id !== payload.id);
+                saveDB();
+                throw new Error('Gagal simpan tugas: ' + error.message);
+            }
+        }
         showToast('Tugas terkirim!');
         loadTugasSiswa();
         loadRekapPortofolioSiswa();
@@ -763,9 +855,10 @@ function renderPortofolioTable() {
 async function simpanNilai(subId) {
     const nilai = parseInt(document.getElementById(`nilai_${subId}`).value) || 0;
     const catatan = document.getElementById(`catatan_${subId}`).value;
-    const { error } = await _supabase.from('submissions').update({ nilai, catatan }).eq('id', subId);
-    if (error) return showToast('Gagal simpan nilai: ' + error.message, true);
-    await loadAllData();
+    const sub = APP_DATA.submissions.find(s => s.id == subId);
+    if (sub) { sub.nilai = nilai; sub.catatan = catatan; }
+    saveDB();
+    if (_supabase) _supabase.from('submissions').update({ nilai, catatan }).eq('id', subId).then();
     showToast('Nilai disimpan.');
 }
 
@@ -827,12 +920,15 @@ async function kirimRefleksi(e) {
         isi: isi,
         created_at: new Date().toISOString()
     };
-    const { error } = await _supabase.from('reflections').insert([{
-        id: newRef.id, kelas: newRef.kelas, siswa: newRef.siswa,
-        tipe: newRef.tipe, isi: newRef.isi, created_at: newRef.created_at
-    }]);
-    if (error) return showToast('Gagal kirim refleksi: ' + error.message, true);
-    await loadAllData();
+    if (!APP_DATA.reflections) APP_DATA.reflections = [];
+    APP_DATA.reflections.push(newRef);
+    saveDB();
+    if (_supabase) {
+        _supabase.from('reflections').insert([{
+            id: newRef.id, kelas: newRef.kelas, siswa: newRef.siswa,
+            tipe: newRef.tipe, isi: newRef.isi, created_at: newRef.created_at
+        }]).then();
+    }
     showToast('Refleksi terkirim!');
     document.getElementById('refleksiIsi').value = '';
     loadRiwayatRefleksiSiswa();
@@ -879,9 +975,11 @@ async function tambahSiswa(e) {
     const kelas = document.getElementById('g_siswaKelas').value;
     if (!nama) return showToast('Nama kosong!', true);
     if (APP_DATA.students.find(s => s.nama === nama && s.kelas === kelas)) return showToast('Sudah terdaftar!', true);
-    const { error } = await _supabase.from('students').insert([{ nama_siswa: nama, kelas: kelas, password: '' }]);
-    if (error) return showToast('Gagal tambah murid: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.students.push({ nama, kelas, password: '' });
+    saveDB();
+    if (_supabase) {
+        _supabase.from('students').insert([{ nama_siswa: nama, kelas: kelas, password: '' }]).then();
+    }
     document.getElementById('g_namaSiswaBaru').value = '';
     renderDaftarSiswaTable();
     renderAbsensiMatrix();
@@ -892,9 +990,9 @@ async function tambahSiswa(e) {
 async function hapusSiswa(namaEnc, kelas) {
     const nama = decodeURIComponent(namaEnc);
     if (!confirm(`Hapus ${nama}?`)) return;
-    const { error } = await _supabase.from('students').delete().eq('nama_siswa', nama).eq('kelas', kelas);
-    if (error) return showToast('Gagal hapus: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.students = APP_DATA.students.filter(s => !(s.nama === nama && s.kelas === kelas));
+    saveDB();
+    if (_supabase) _supabase.from('students').delete().eq('nama_siswa', nama).eq('kelas', kelas).then();
     renderDaftarSiswaTable();
     renderAbsensiMatrix();
     renderRekapAbsensiGuru();
@@ -965,11 +1063,15 @@ async function toggleAbsensi(namaEnc, col, kelas) {
     const current = (APP_DATA.absensi[kelas]?.[nama]?.[col]) || "-";
     const nextIdx = (states.indexOf(current) + 1) % states.length;
     const newStatus = states[nextIdx];
-    const { error } = await _supabase.from('absensi').upsert({
-        nama_siswa: nama, pertemuan_id: col, status_kehadiran: newStatus, kelas: kelas
-    });
-    if (error) return showToast('Gagal update absensi: ' + error.message, true);
-    await loadAllData();
+    if (!APP_DATA.absensi[kelas]) APP_DATA.absensi[kelas] = {};
+    if (!APP_DATA.absensi[kelas][nama]) APP_DATA.absensi[kelas][nama] = {};
+    APP_DATA.absensi[kelas][nama][col] = newStatus;
+    saveDB();
+    if (_supabase) {
+        _supabase.from('absensi').upsert({
+            nama_siswa: nama, pertemuan_id: col, status_kehadiran: newStatus, kelas: kelas
+        }).then();
+    }
     renderAbsensiMatrix();
     renderRekapAbsensiGuru();
 }
@@ -980,9 +1082,7 @@ function simpanTanggalAbsensi() {
     const date = document.getElementById('absensiTanggalInput').value;
     if (!APP_DATA.absensiDates[kelas]) APP_DATA.absensiDates[kelas] = {};
     APP_DATA.absensiDates[kelas][col] = date;
-    // Simpan ke Supabase (tidak ada tabel khusus, kita simpan di localStorage untuk sementara)
-    // Karena ini data tanggal, kita simpan di localStorage agar tidak hilang
-    localStorage.setItem('absensiDates', JSON.stringify(APP_DATA.absensiDates));
+    saveDB();
     document.getElementById(`tgl_th_${col}`).innerText = date;
     showToast('Tanggal tersimpan.');
 }
@@ -1093,13 +1193,20 @@ async function simpanKuisBaru(e) {
     const judul = document.getElementById('g_kuisJudul').value;
     const desc = document.getElementById('g_kuisDesc').value;
     const newKuis = { id: Date.now(), kelas, kategori, judul, desc, soal: [...soalKuisTemp], created_at: new Date().toISOString() };
-    const { error } = await _supabase.from('kuis').insert([{
-        id: newKuis.id, kelas: newKuis.kelas, kategori: newKuis.kategori,
-        judul: newKuis.judul, desc: newKuis.desc, soal: JSON.stringify(newKuis.soal),
-        created_at: newKuis.created_at
-    }]);
-    if (error) return showToast('Gagal simpan kuis: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.kuisList.push(newKuis);
+    saveDB();
+    if (_supabase) {
+        const { error } = await _supabase.from('kuis').insert([{
+            id: newKuis.id, kelas: newKuis.kelas, kategori: newKuis.kategori,
+            judul: newKuis.judul, desc: newKuis.desc, soal: JSON.stringify(newKuis.soal),
+            created_at: newKuis.created_at
+        }]);
+        if (error) {
+            APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== newKuis.id);
+            saveDB();
+            throw new Error('Gagal simpan kuis: ' + error.message);
+        }
+    }
     soalKuisTemp = [];
     document.getElementById('containerSoalGuru').innerHTML = '';
     document.getElementById('g_kuisJudul').value = '';
@@ -1109,7 +1216,7 @@ async function simpanKuisBaru(e) {
 }
 
 function renderDaftarKuisGuru() {
-    const kategori = document.querySelector('#g_kuis .login-tab .active')?.innerText || 'Asesmen Diagnostik';
+    const kategori = document.querySelector('#g_kuis .login-tab .active')?.innerText || 'Diagnostik';
     const kelas = document.getElementById('g_kuisKelas')?.value || 'X Keramik A';
     switchKuisKategoriGuru(kategori, document.querySelector('#g_kuis .login-tab .active'));
 }
@@ -1148,9 +1255,9 @@ function lihatHasilKuisGuru(kuisId) {
 
 async function hapusKuis(id) {
     if (!confirm('Hapus asesmen ini?')) return;
-    const { error } = await _supabase.from('kuis').delete().eq('id', id);
-    if (error) return showToast('Gagal hapus: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id !== id);
+    saveDB();
+    if (_supabase) _supabase.from('kuis').delete().eq('id', id).then();
     renderDaftarKuisGuru();
     showToast('Asesmen dihapus.');
 }
@@ -1217,16 +1324,18 @@ async function jawabKuis(e, kuisId) {
         score: score,
         totalCorrect: correct,
         totalWrong: totalPg - correct,
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toLocaleString('id-ID')
     };
-    const { error } = await _supabase.from('quiz_attempts').insert([{
-        id: attempt.id, kelas: attempt.kelas, student_name: attempt.studentName,
-        quiz_id: attempt.quizId, quiz_title: attempt.quizTitle, score: attempt.score,
-        total_correct: attempt.totalCorrect, total_wrong: attempt.totalWrong,
-        submitted_at: attempt.submittedAt
-    }]);
-    if (error) return showToast('Gagal simpan hasil: ' + error.message, true);
-    await loadAllData();
+    APP_DATA.kuisScores.push(attempt);
+    saveDB();
+    if (_supabase) {
+        _supabase.from('quiz_attempts').insert([{
+            id: attempt.id, kelas: attempt.kelas, student_name: attempt.studentName,
+            quiz_id: attempt.quizId, quiz_title: attempt.quizTitle, score: attempt.score,
+            total_correct: attempt.totalCorrect, total_wrong: attempt.totalWrong,
+            submitted_at: attempt.submittedAt
+        }]).then();
+    }
     document.getElementById('containerSoalSiswa').innerHTML = `
         <div class="card" style="border-left:6px solid #10B981;">
             <h3 style="color:#059669;">🎉 Selesai!</h3>
@@ -1255,14 +1364,9 @@ function loadRiwayatKuisSiswa() {
 
 // ============================= INISIALISASI =============================
 (async function() {
-    await loadAllData();
+    await loadAllDataFromSupabase();
     document.getElementById('loginModal').style.display = 'flex';
     initAbsensiHeaders();
-    // Muat absensiDates dari localStorage (untuk sementara)
-    const savedDates = localStorage.getItem('absensiDates');
-    if (savedDates) {
-        try { APP_DATA.absensiDates = JSON.parse(savedDates); } catch(e) {}
-    }
     ['g_portofolioKelas','g_daftarKelas','g_kelasPertemuan','g_kuisKelas','g_siswaKelas','g_absensiKelas','filterRefleksiKelas'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
