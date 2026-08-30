@@ -152,7 +152,6 @@
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">Materi Ajar</h4><textarea id="g_materiText" rows="3" placeholder="Penjelasan materi..."></textarea><label style="font-size:12px;">Lampiran (gambar otomatis dikompres jika > 500KB)</label><input type="file" id="g_materiFile" accept=".pdf,.ppt,.pptx,image/*,.doc,.docx"></div>
                 <div class="card" style="margin:0;"><h4 style="color:var(--purple);">LKPD</h4><textarea id="g_lkpdText" rows="2" placeholder="Instruksi LKPD..."></textarea><label style="font-size:12px;">URL LKPD Online</label><input type="url" id="g_lkpdLink" placeholder="https://..."><label style="font-size:12px;">File LKPD (gambar otomatis dikompres)</label><input type="file" id="g_lkpdFile"></div>
             </div>
-            <!-- PROGRESS BAR -->
             <div id="progressMateriContainer" class="progress-container">
                 <div class="progress-bar-track"><div id="progressMateriFill" class="progress-bar-fill" style="width:0%;"></div></div>
                 <div class="progress-text"><span id="progressMateriStatus" class="progress-status">⏳ Menyiapkan...</span><span id="progressMateriPersen">0%</span></div>
@@ -200,7 +199,7 @@ const defaultStudents = [
     { nama: "NAYLA MAHARDIKA PRASASTI", kelas: "X Keramik A", password: "" },
     { nama: "NUR EVAN SATRIA PRATAMA", kelas: "X Keramik A", password: "" },
     { nama: "NURUL USWAHTUN HASANAH", kelas: "X Keramik A", password: "" },
-    { nama: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
+    { nome: "PANDU RYAN PAMUNGKAS", kelas: "X Keramik A", password: "" },
     { nama: "QIENKIN AURELIN AMANDA", kelas: "X Keramik A", password: "" },
     { nama: "RADITYA LISTIAN PRASETYO", kelas: "X Keramik A", password: "" },
     { nama: "RAFA PRATAMA SAPUTRA", kelas: "X Keramik A", password: "" },
@@ -274,7 +273,7 @@ function hideProgress(progressId) {
 
 // ============================= UPLOAD FILE KE SUPABASE STORAGE (DIPERBAIKI) =============================
 async function uploadFileToSupabase(file, folder = 'general', progressId = 'progressMateriContainer') {
-    if (!_supabase) throw new Error('Supabase tidak terhubung. Periksa koneksi internet.');
+    if (!_supabase) throw new Error('Supabase tidak terhubung. Periksa koneksi internet atau konfigurasi.');
     if (!file) return null;
 
     // Validasi ukuran file (maks 10MB)
@@ -296,18 +295,18 @@ async function uploadFileToSupabase(file, folder = 'general', progressId = 'prog
         }
     }
 
-    updateProgress(progressId, 25, '📤 Menyiapkan upload ke Storage...');
+    updateProgress(progressId, 20, '📤 Menyiapkan upload ke Storage...');
 
     // Buat nama file unik
     const ext = file.name.split('.').pop() || 'file';
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const filePath = `${folder}/${fileName}`;
 
-    // Simulasi progress upload dengan interval (karena Supabase tidak menyediakan progress)
+    // Simulasi progress upload dengan interval
     let progressInterval = setInterval(() => {
         const fill = document.querySelector(`#${progressId} .progress-bar-fill`);
         if (fill) {
-            const current = parseFloat(fill.style.width) || 25;
+            const current = parseFloat(fill.style.width) || 20;
             if (current < 85) {
                 fill.style.width = Math.min(85, current + 3) + '%';
             }
@@ -324,7 +323,7 @@ async function uploadFileToSupabase(file, folder = 'general', progressId = 'prog
         } else {
             const bucketExists = buckets.some(b => b.name === BUCKET_NAME);
             if (!bucketExists) {
-                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase.`);
+                throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Buat bucket di dashboard Supabase dan atur CORS.`);
             }
         }
 
@@ -338,7 +337,6 @@ async function uploadFileToSupabase(file, folder = 'general', progressId = 'prog
 
         if (error) {
             console.error('Upload error detail:', error);
-            // Jika error karena bucket tidak ditemukan, beri pesan yang jelas
             if (error.message && error.message.includes('bucket not found')) {
                 throw new Error(`Bucket "${BUCKET_NAME}" tidak ditemukan. Pastikan bucket sudah dibuat di dashboard Supabase.`);
             }
@@ -347,7 +345,6 @@ async function uploadFileToSupabase(file, folder = 'general', progressId = 'prog
 
         updateProgress(progressId, 90, '📦 Mendapatkan URL...');
 
-        // Ambil public URL
         const { data: urlData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
         if (!urlData || !urlData.publicUrl) {
             throw new Error('Gagal mendapatkan URL file.');
@@ -692,7 +689,6 @@ async function simpanPertemuanBaru(e) {
 
     } catch (err) {
         hideProgress(progressId);
-        // Jangan tampilkan error ganda jika sudah ditampilkan di dalam try
         if (!err.message.includes('Gagal upload')) {
             showToast('❌ Gagal: ' + err.message, true);
         }
@@ -812,7 +808,7 @@ async function submitTugasBiasa(e, pertemuanId) {
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     btn.innerText = 'Mengunggah...';
-    const progressId = 'progressMateriContainer'; // gunakan progress yang sama
+    const progressId = 'progressMateriContainer';
     updateProgress(progressId, 0, '⏳ Mengunggah tugas...');
     try {
         let fileUrl = null;
@@ -1309,7 +1305,7 @@ async function hapusKuis(id) {
     showToast('Asesmen dihapus.');
 }
 
-// ============================= SISWA: KUIS =============================
+// ============================= SISWA: KUIS (DIPERBAIKI) =============================
 function switchKuisKategoriSiswa(kategori, btn) {
     document.querySelectorAll('#s_kuis .login-tab button').forEach(t => t.classList.remove('active'));
     if (btn) btn.classList.add('active');
@@ -1375,13 +1371,27 @@ async function jawabKuis(e, kuisId) {
     };
     APP_DATA.kuisScores.push(attempt);
     saveDB();
+    // Simpan ke Supabase
     if (_supabase) {
-        _supabase.from('quiz_attempts').insert([{
-            id: attempt.id, kelas: attempt.kelas, student_name: attempt.studentName,
-            quiz_id: attempt.quizId, quiz_title: attempt.quizTitle, score: attempt.score,
-            total_correct: attempt.totalCorrect, total_wrong: attempt.totalWrong,
+        const { error } = await _supabase.from('quiz_attempts').insert([{
+            id: attempt.id,
+            kelas: attempt.kelas,
+            student_name: attempt.studentName,
+            quiz_id: attempt.quizId,
+            quiz_title: attempt.quizTitle,
+            score: attempt.score,
+            total_correct: attempt.totalCorrect,
+            total_wrong: attempt.totalWrong,
             submitted_at: attempt.submittedAt
-        }]).then();
+        }]);
+        if (error) {
+            console.error('Gagal menyimpan jawaban ke Supabase:', error);
+            showToast('Jawaban tersimpan lokal, namun gagal sinkron ke server: ' + error.message, true);
+        } else {
+            showToast('Jawaban berhasil disimpan!');
+        }
+    } else {
+        showToast('Jawaban tersimpan di lokal (offline)');
     }
     document.getElementById('containerSoalSiswa').innerHTML = `
         <div class="card" style="border-left:6px solid #10B981;">
@@ -1392,7 +1402,6 @@ async function jawabKuis(e, kuisId) {
     `;
     loadRiwayatKuisSiswa();
     loadRekapPortofolioSiswa();
-    showToast('Hasil asesmen tersimpan.');
 }
 
 function loadRiwayatKuisSiswa() {
