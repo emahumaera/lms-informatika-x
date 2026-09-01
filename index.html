@@ -1468,13 +1468,23 @@
                 }));
             }
 
-            // ----- Refleksi -----
+            // ----- Refleksi (Pertanyaan & Jawaban) -----
             if (refTanyaRes.status === 'fulfilled' && refTanyaRes.value.data) {
-                APP_DATA.refleksi.pertanyaan = refTanyaRes.value.data;
+                APP_DATA.refleksi.pertanyaan = refTanyaRes.value.data.map(q => ({
+                    ...q,
+                    created_at: q.created_at ? new Date(q.created_at).toLocaleString('id-ID') : new Date().toLocaleString('id-ID')
+                }));
             }
             if (refJawabRes.status === 'fulfilled' && refJawabRes.value.data) {
-                APP_DATA.refleksi.jawaban = refJawabRes.value.data;
+                APP_DATA.refleksi.jawaban = refJawabRes.value.data.map(j => ({
+                    ...j,
+                    created_at: j.created_at ? new Date(j.created_at).toLocaleString('id-ID') : new Date().toLocaleString('id-ID')
+                }));
             }
+            // Pastikan struktur refleksi selalu ada
+            if (!APP_DATA.refleksi) APP_DATA.refleksi = { pertanyaan: [], jawaban: [] };
+            if (!APP_DATA.refleksi.pertanyaan) APP_DATA.refleksi.pertanyaan = [];
+            if (!APP_DATA.refleksi.jawaban) APP_DATA.refleksi.jawaban = [];
 
             saveDB();
             isDataLoadedFromSupabase = true;
@@ -2150,68 +2160,336 @@
 
         const containerKuis = document.getElementById('containerPortofolioKuis');
         if (containerKuis) {
-            const myKuis = (APP_DATA.kuisScores || []).filter(q => normalizeName(q.studentName) === sName);
-            if (myKuis.length === 0) {
-                containerKuis.innerHTML = '<p style="color:var(--text-light);">Anda belum mengerjakan asesmen/kuis apapun.</p>';
+            const myScores = (APP_DATA.kuisScores || []).filter(qs => normalizeName(qs.studentName || qs.student_name) ===
+                sName);
+            if (myScores.length === 0) {
+                containerKuis.innerHTML = '<p style="color:var(--text-light);">Belum ada asesmen yang telah Anda kerjakan.</p>';
             } else {
-                let html =
-                    `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Benar</th><th>Salah</th><th>Skor Akhir</th><th>Waktu</th></tr></thead><tbody>`;
-                myKuis.forEach(q => {
-                    html += `<tr>
-                        <td><strong>${q.quizTitle}</strong></td>
-                        <td style="text-align:center;"><span class="badge badge-done">${q.totalCorrect}</span></td>
-                        <td style="text-align:center;"><span class="badge" style="background:#FEE2E2; color:#DC2626;">${q.totalWrong}</span></td>
-                        <td style="text-align:center; font-weight:bold;">${q.score}</td>
-                        <td>${q.submittedAt}</td>
+                let htmlK =
+                    `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Skor Akhir</th><th>Jumlah Benar</th><th>Jumlah Salah</th><th>Waktu Pengerjaan</th></tr></thead><tbody>`;
+                myScores.forEach(qs => {
+                    htmlK += `<tr>
+                        <td><strong>${qs.quizTitle || qs.quiz_title}</strong></td>
+                        <td><span class="badge badge-purple" style="font-size:14px; font-weight:bold;">${qs.score}</span></td>
+                        <td style="color:#059669; font-weight:bold;">${qs.totalCorrect !== undefined ? qs.totalCorrect : qs.total_correct}</td>
+                        <td style="color:#DC2626; font-weight:bold;">${qs.totalWrong !== undefined ? qs.totalWrong : qs.total_wrong}</td>
+                        <td>${qs.submittedAt || qs.submitted_at}</td>
                     </tr>`;
                 });
-                html += `</tbody></table></div>`;
-                containerKuis.innerHTML = html;
+                htmlK += `</tbody></table></div>`;
+                containerKuis.innerHTML = htmlK;
             }
         }
     }
     window.loadRekapPortofolioSiswa = loadRekapPortofolioSiswa;
 
-    function downloadPortofolioPDF() {
-        window.print();
-    }
+    function downloadPortofolioPDF() { window.print(); }
     window.downloadPortofolioPDF = downloadPortofolioPDF;
 
-    // ============================================================
-    //  MANAJEMEN KUIS / ASESMEN
-    // ============================================================
+    function renderDaftarSiswaTable() {
+        const tbody = document.getElementById('tabelDaftarSiswa');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        let studentsList = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
+        APP_DATA.students = Array.from(new Set(studentsList.map(normalizeName)));
+        APP_DATA.students.slice().sort().forEach((s, i) => {
+            tbody.innerHTML +=
+                `<tr><td>${i + 1}</td><td><strong>${s}</strong></td><td><span class="badge badge-done">Terdaftar</span></td><td><button class="btn-danger" onclick="hapusSiswa('${encodeURIComponent(s)}')">Hapus</button></td></tr>`;
+        });
+    }
+    window.renderDaftarSiswaTable = renderDaftarSiswaTable;
+
+    async function tambahSiswa(e) {
+        e.preventDefault();
+        const input = document.getElementById('g_namaSiswaBaru');
+        const nama = normalizeName(input.value);
+        if (!nama || APP_DATA.students.includes(nama)) return showToast('Nama invalid atau sudah terdaftar!', true);
+        APP_DATA.students.push(nama);
+        saveDB();
+        if (_supabase) {
+            const { error } = await _supabase.from('students').insert([{ nama_siswa: nama }]);
+            handleSupabaseError(error, "Tambah Siswa");
+        }
+        input.value = '';
+        renderDaftarSiswaTable();
+        renderAbsensiMatrix();
+        renderRekapAbsensiGuru();
+        showToast('Murid berhasil ditambahkan!');
+    }
+    window.tambahSiswa = tambahSiswa;
+
+    async function hapusSiswa(namaEnc) {
+        const nama = decodeURIComponent(namaEnc);
+        if (confirm(`Hapus murid ${nama}?`)) {
+            APP_DATA.students = APP_DATA.students.filter(s => normalizeName(s) !== normalizeName(nama));
+            saveDB();
+            if (_supabase) {
+                const { error } = await _supabase.from('students').delete().eq('nama_siswa', nama);
+                handleSupabaseError(error, "Hapus Siswa");
+            }
+            renderDaftarSiswaTable();
+            renderAbsensiMatrix();
+            renderRekapAbsensiGuru();
+        }
+    }
+    window.hapusSiswa = hapusSiswa;
+
+    function renderRekapAbsensiGuru() {
+        const tbody = document.getElementById('tabelRekapAbsensiGuruBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        let studentsList = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
+        studentsList.slice().sort().forEach((namaRaw, idx) => {
+            const nama = normalizeName(namaRaw);
+            let hadir = 0, sakit = 0, izin = 0, alfa = 0;
+            if (APP_DATA.absensi && APP_DATA.absensi[nama]) {
+                Object.values(APP_DATA.absensi[nama]).forEach(st => {
+                    if (st === 'H') hadir++;
+                    else if (st === 'S') sakit++;
+                    else if (st === 'I') izin++;
+                    else if (st === 'A') alfa++;
+                });
+            }
+            const pct = Math.round((hadir / 30) * 100);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${nama}</strong></td>
+                    <td style="text-align:center; font-weight:bold; color:#059669;">${hadir}</td>
+                    <td style="text-align:center; font-weight:bold; color:#D97706;">${sakit}</td>
+                    <td style="text-align:center; font-weight:bold; color:#0284C7;">${izin}</td>
+                    <td style="text-align:center; font-weight:bold; color:#DC2626;">${alfa}</td>
+                    <td style="text-align:center; font-weight:bold; color:var(--primary-purple);">${pct}%</td>
+                </tr>
+            `;
+        });
+    }
+    window.renderRekapAbsensiGuru = renderRekapAbsensiGuru;
+
+    function initAbsensiHeaders() {
+        const optColSelect = document.getElementById('absensiKolomPilih');
+        const rowCols = document.getElementById('rowHeaderMeetingCols');
+        const rowDates = document.getElementById('rowHeaderMeetingDates');
+        if (!optColSelect || !rowCols || !rowDates) return;
+        let opt = "", cols = "", dates = "";
+        for (let i = 1; i <= 30; i++) {
+            const dateVal = (APP_DATA.absensiDates && APP_DATA.absensiDates[i]) ? APP_DATA.absensiDates[i] : '-';
+            opt += `<option value="${i}">Pertemuan ${i}</option>`;
+            cols += `<th style="border:1px solid rgba(168,85,247,0.2); padding:6px 4px; min-width:38px; width:38px;">${i}</th>`;
+            dates +=
+                `<th id="tgl_th_${i}" style="border:1px solid rgba(168,85,247,0.2); font-size:9px; color:#64748B; padding:4px 2px; min-width:38px; width:38px;">${dateVal}</th>`;
+        }
+        optColSelect.innerHTML = opt;
+        rowCols.innerHTML = cols;
+        rowDates.innerHTML = dates;
+    }
+
+    function renderAbsensiMatrix() {
+        const tbody = document.getElementById('tabelMatriksAbsensiBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        let studentsList = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
+        APP_DATA.students = Array.from(new Set(studentsList.map(normalizeName)));
+        APP_DATA.students.slice().sort().forEach(nama => {
+            if (!APP_DATA.absensi) APP_DATA.absensi = {};
+            if (!APP_DATA.absensi[nama]) APP_DATA.absensi[nama] = {};
+            let rowHTML = `<tr><td class="sticky-col-cell">${nama}</td>`;
+            let h = 0;
+            for (let col = 1; col <= 30; col++) {
+                const status = APP_DATA.absensi[nama][col] || '-';
+                if (status === 'H') h++;
+                rowHTML += `<td class="absensi-cell" onclick="toggleAbsensi('${encodeURIComponent(nama)}', ${col})">${status}</td>`;
+            }
+            rowHTML +=
+                `<td style="font-weight:600; color:var(--primary-purple); text-align:center;">${Math.round((h / 30) * 100)}%</td></tr>`;
+            tbody.innerHTML += rowHTML;
+        });
+    }
+    window.renderAbsensiMatrix = renderAbsensiMatrix;
+
+    async function toggleAbsensi(namaEnc, col) {
+        const nama = decodeURIComponent(namaEnc);
+        const states = ["-", "H", "S", "I", "A"];
+        const current = (APP_DATA.absensi[nama] && APP_DATA.absensi[nama][col]) || "-";
+        const nextIdx = (states.indexOf(current) + 1) % states.length;
+        const newStatus = states[nextIdx];
+        if (!APP_DATA.absensi) APP_DATA.absensi = {};
+        if (!APP_DATA.absensi[nama]) APP_DATA.absensi[nama] = {};
+        APP_DATA.absensi[nama][col] = newStatus;
+        saveDB();
+        renderAbsensiMatrix();
+        renderRekapAbsensiGuru();
+
+        if (_supabase) {
+            const { error } = await _supabase.from('absensi').upsert({
+                nama_siswa: nama,
+                pertemuan_id: col.toString(),
+                status_kehadiran: newStatus
+            }, { onConflict: 'nama_siswa,pertemuan_id' });
+
+            if (error) {
+                await _supabase.from('absensi').delete().eq('nama_siswa', nama).eq('pertemuan_id', col.toString());
+                const { error: errInsert } = await _supabase.from('absensi').insert([{
+                    nama_siswa: nama,
+                    pertemuan_id: col.toString(),
+                    status_kehadiran: newStatus
+                }]);
+                handleSupabaseError(errInsert, "Update Absensi");
+            }
+        }
+    }
+    window.toggleAbsensi = toggleAbsensi;
+
+    function simpanTanggalAbsensi() {
+        const col = document.getElementById('absensiKolomPilih').value;
+        const date = document.getElementById('absensiTanggalInput').value;
+        const th = document.getElementById(`tgl_th_${col}`);
+        if (th) th.innerText = date;
+        if (!APP_DATA.absensiDates) APP_DATA.absensiDates = {};
+        APP_DATA.absensiDates[col] = date;
+        saveDB();
+        showToast("Tanggal berhasil disimpan!");
+    }
+    window.simpanTanggalAbsensi = simpanTanggalAbsensi;
+
+    function getAttendanceDataForExport() {
+        const students = (APP_DATA.students && APP_DATA.students.length > 0) ? APP_DATA.students : [...listMuridTetap];
+        const rows = [];
+        const header = ['Nama Murid'];
+        for (let col = 1; col <= 30; col++) {
+            const date = (APP_DATA.absensiDates && APP_DATA.absensiDates[col]) ? APP_DATA.absensiDates[col] : '';
+            header.push(`P${col}${date ? ' ('+date+')' : ''}`);
+        }
+        header.push('Hadir', 'Sakit', 'Izin', 'Alfa', '% Kehadiran');
+        rows.push(header);
+
+        students.slice().sort().forEach(nama => {
+            const row = [nama];
+            let h = 0, s = 0, i = 0, a = 0;
+            for (let col = 1; col <= 30; col++) {
+                const status = (APP_DATA.absensi && APP_DATA.absensi[nama] && APP_DATA.absensi[nama][col]) ? APP_DATA
+                    .absensi[nama][col] : '-';
+                row.push(status);
+                if (status === 'H') h++;
+                else if (status === 'S') s++;
+                else if (status === 'I') i++;
+                else if (status === 'A') a++;
+            }
+            row.push(h, s, i, a, Math.round((h / 30) * 100) + '%');
+            rows.push(row);
+        });
+        return rows;
+    }
+
+    function downloadRekapAbsensiCSV() {
+        const data = getAttendanceDataForExport();
+        let csv = '';
+        data.forEach(row => {
+            csv += row.map(v => `"${v}"`).join(',') + '\n';
+        });
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Rekap_Absensi_Kelas_X_Keramik_A_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('CSV Rekap Absensi berhasil diunduh!');
+    }
+    window.downloadRekapAbsensiCSV = downloadRekapAbsensiCSV;
+
+    function downloadRekapAbsensiPDF() {
+        const data = getAttendanceDataForExport();
+        let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Rekap Absensi Kelas X Keramik A</title>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 10px; padding: 10px; }
+                h2 { text-align: center; margin-bottom: 5px; color: #4C1D95; }
+                h3 { text-align: center; margin-top: 0; font-weight: normal; color: #64748B; margin-bottom: 15px; }
+                table { width: 100%; border-collapse: collapse; font-size: 9px; }
+                th, td { border: 1px solid #ccc; padding: 4px 2px; text-align: center; }
+                th { background-color: #7C3AED; color: white; font-weight: bold; }
+                td:first-child { text-align: left; font-weight: bold; padding-left: 5px; }
+                tr:nth-child(even) { background-color: #f9f5ff; }
+            </style>
+        </head>
+        <body>
+            <h2>REKAPITULASI ABSENSI SISWA</h2>
+            <h3>Kelas X Keramik A — Bu Ema Humaera</h3>
+            <table>
+                <thead>
+                    <tr>`;
+        data[0].forEach(colHeader => {
+            html += `<th>${colHeader}</th>`;
+        });
+        html += `</tr>
+                </thead>
+                <tbody>`;
+        for (let i = 1; i < data.length; i++) {
+            html += `<tr>`;
+            data[i].forEach(cell => {
+                html += `<td>${cell}</td>`;
+            });
+            html += `</tr>`;
+        }
+        html += `</tbody>
+            </table>
+        </body>
+        </html>`;
+
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        } else {
+            showToast("Gagal membuka jendela cetak. Periksa pembatas pop-up browser.", true);
+        }
+    }
+    window.downloadRekapAbsensiPDF = downloadRekapAbsensiPDF;
+
+    let currentKategoriGuru = 'Asesmen Diagnostik';
+    let currentKategoriSiswa = 'Asesmen Diagnostik';
+
     function tambahFormSoal() {
         const container = document.getElementById('containerSoalGuru');
-        const num = container.children.length + 1;
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.style.marginBottom = '15px';
-        div.style.padding = '15px';
-        div.style.border = '1px solid rgba(168,85,247,0.3)';
-        div.innerHTML = `
+        if (!container) return;
+        const index = container.children.length + 1;
+        const soalCard = document.createElement('div');
+        soalCard.className = 'card';
+        soalCard.style.marginBottom = '15px';
+        soalCard.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h4 style="font-weight:600; color:var(--secondary-purple); margin:0;">Soal No. ${num}</h4>
-                <button type="button" class="btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()">Hapus Soal</button>
+                <h4 style="font-weight:700; color:var(--primary-purple);">Soal Nomor ${index}</h4>
+                <button type="button" class="btn-danger" style="padding:4px 10px; font-size:12px;" onclick="this.parentElement.parentElement.remove()">Hapus</button>
             </div>
             <div class="form-group">
-                <label>Pertanyaan:</label>
-                <textarea class="soal-tanya" rows="2" required></textarea>
+                <label>Pertanyaan / Soal:</label>
+                <textarea class="soal-tanya" rows="2" placeholder="Tuliskan pertanyaan soal..." required></textarea>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="form-group"><label>Opsi A:</label><input type="text" class="soal-opsi-a" required></div>
-                <div class="form-group"><label>Opsi B:</label><input type="text" class="soal-opsi-b" required></div>
-                <div class="form-group"><label>Opsi C:</label><input type="text" class="soal-opsi-c" required></div>
-                <div class="form-group"><label>Opsi D:</label><input type="text" class="soal-opsi-d" required></div>
+                <div class="form-group"><label>Pilihan A:</label><input type="text" class="soal-optA" required /></div>
+                <div class="form-group"><label>Pilihan B:</label><input type="text" class="soal-optB" required /></div>
+                <div class="form-group"><label>Pilihan C:</label><input type="text" class="soal-optC" required /></div>
+                <div class="form-group"><label>Pilihan D:</label><input type="text" class="soal-optD" required /></div>
             </div>
-            <div class="form-group" style="margin-top:10px; margin-bottom:0;">
-                <label>Jawaban Benar:</label>
-                <select class="soal-jawaban" required>
-                    <option value="A">A</option><option value="B">B</option>
-                    <option value="C">C</option><option value="D">D</option>
+            <div class="form-group">
+                <label>Kunci Jawaban Benar:</label>
+                <select class="soal-kunci">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
                 </select>
             </div>
         `;
-        container.appendChild(div);
+        container.appendChild(soalCard);
     }
     window.tambahFormSoal = tambahFormSoal;
 
@@ -2220,58 +2498,58 @@
         const kategori = document.getElementById('g_kuisKategori').value;
         const judul = document.getElementById('g_kuisJudul').value;
         const desc = document.getElementById('g_kuisDesc').value;
-        const gameUrl = document.getElementById('g_kuisGameUrl').value;
-        const soalNodes = document.getElementById('containerSoalGuru').children;
-        const soalArray = [];
-        for (let i = 0; i < soalNodes.length; i++) {
-            const node = soalNodes[i];
-            soalArray.push({
-                tanya: node.querySelector('.soal-tanya').value,
-                a: node.querySelector('.soal-opsi-a').value,
-                b: node.querySelector('.soal-opsi-b').value,
-                c: node.querySelector('.soal-opsi-c').value,
-                d: node.querySelector('.soal-opsi-d').value,
-                jawaban: node.querySelector('.soal-jawaban').value
-            });
-        }
-        
-        const payloadDesc = JSON.stringify({ desc: desc, game_url: gameUrl });
+        const game_url = document.getElementById('g_kuisGameUrl').value;
+
+        const container = document.getElementById('containerSoalGuru');
+        const soalCards = container.querySelectorAll('.card');
+        const daftarSoal = [];
+
+        soalCards.forEach((card, idx) => {
+            const tanya = card.querySelector('.soal-tanya').value;
+            const optA = card.querySelector('.soal-optA').value;
+            const optB = card.querySelector('.soal-optB').value;
+            const optC = card.querySelector('.soal-optC').value;
+            const optD = card.querySelector('.soal-optD').value;
+            const kunci = card.querySelector('.soal-kunci').value;
+            daftarSoal.push({ id: idx + 1, tanya, options: { A: optA, B: optB, C: optC, D: optD }, kunci });
+        });
+
         const newKuis = {
             id: Math.floor(Date.now() / 1000),
             kategori,
             judul,
             desc,
-            game_url: gameUrl,
-            soal: soalArray,
-            created_at: new Date().toLocaleString('id-ID')
+            game_url,
+            soal: daftarSoal,
+            created_at: new Date().toISOString()
         };
-        
+
         if (!APP_DATA.kuisList) APP_DATA.kuisList = [];
         APP_DATA.kuisList.push(newKuis);
         saveDB();
 
         if (_supabase) {
+            const descPayload = JSON.stringify({ desc: newKuis.desc, game_url: newKuis.game_url });
             const { error } = await _supabase.from('kuis').insert([{
                 id: newKuis.id,
-                kategori,
-                judul,
-                deskripsi: payloadDesc,
-                soal: JSON.stringify(soalArray),
+                kategori: newKuis.kategori,
+                judul: newKuis.judul,
+                desc: descPayload,
+                soal: JSON.stringify(newKuis.soal),
                 created_at: newKuis.created_at
             }]);
-            handleSupabaseError(error, "Simpan Kuis");
+            handleSupabaseError(error, "Simpan Asesmen");
         }
-        
+
         showToast("Asesmen berhasil diterbitkan!");
         e.target.reset();
-        document.getElementById('containerSoalGuru').innerHTML = '';
+        container.innerHTML = '';
         renderDaftarKuisGuru();
     }
     window.simpanKuisBaru = simpanKuisBaru;
 
-    let activeKategoriGuru = 'Asesmen Diagnostik';
-    function switchKuisKategoriGuru(kategori, btn) {
-        activeKategoriGuru = kategori;
+    function switchKuisKategoriGuru(kat, btn) {
+        currentKategoriGuru = kat;
         const tabs = btn.parentElement.querySelectorAll('button');
         tabs.forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
@@ -2282,109 +2560,53 @@
     function renderDaftarKuisGuru() {
         const container = document.getElementById('tabelDaftarKuisGuru');
         if (!container) return;
-        const list = (APP_DATA.kuisList || []).filter(k => k.kategori === activeKategoriGuru);
+        const list = (APP_DATA.kuisList || []).filter(k => k.kategori === currentKategoriGuru);
         if (list.length === 0) {
-            container.innerHTML = `<p style="color:var(--text-light);">Belum ada asesmen di kategori ini.</p>`;
+            container.innerHTML = `<p style="color:var(--text-light);">Belum ada asesmen pada kategori ${currentKategoriGuru}.</p>`;
             return;
         }
         let html =
-            `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Deskripsi</th><th>Jumlah Soal</th><th>Tautan Game</th><th>Aksi</th></tr></thead><tbody>`;
+            `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Jumlah Soal</th><th>Link Game</th><th>Aksi</th></tr></thead><tbody>`;
         list.forEach(k => {
             html += `<tr>
-                <td><strong>${k.judul}</strong></td>
-                <td>${k.desc || '-'}</td>
-                <td style="text-align:center;">${k.soal.length}</td>
-                <td>${k.game_url ? `<a href="${k.game_url}" target="_blank" style="color:var(--primary-purple); text-decoration:underline;">Buka Tautan</a>` : '-'}</td>
-                <td>
-                    <button class="btn-success btn-sm" onclick="lihatHasilKuis(${k.id})">Lihat Hasil</button>
-                    <button class="btn-danger btn-sm" onclick="hapusKuis(${k.id})">Hapus</button>
-                </td>
+                <td><strong>${k.judul}</strong><br><small style="color:var(--text-light);">${k.desc || ''}</small></td>
+                <td>${k.soal ? k.soal.length : 0} Soal</td>
+                <td>${k.game_url ? `<a href="${k.game_url}" target="_blank" class="btn-game" style="font-size:11px; padding:4px 10px;">🎮 Game Link</a>` : '-'}</td>
+                <td><button class="btn-danger" onclick="hapusKuis(${k.id})">Hapus</button></td>
             </tr>`;
         });
         html += `</tbody></table></div>`;
         container.innerHTML = html;
-        document.getElementById('containerHasilKuisGuru').style.display = 'none';
     }
     window.renderDaftarKuisGuru = renderDaftarKuisGuru;
 
     async function hapusKuis(id) {
-        if (!confirm('Yakin ingin menghapus kuis ini? Semua data nilai murid pada kuis ini akan hilang.')) return;
-        APP_DATA.kuisList = APP_DATA.kuisList.filter(k => k.id != id);
-        APP_DATA.kuisScores = (APP_DATA.kuisScores || []).filter(q => q.quizId != id);
-        saveDB();
-
-        if (_supabase) {
-            const { error: err1 } = await _supabase.from('kuis').delete().eq('id', id);
-            const { error: err2 } = await _supabase.from('quiz_attempts').delete().eq('quiz_id', id);
-            handleSupabaseError(err1, "Hapus Kuis");
-            handleSupabaseError(err2, "Hapus Attempts Kuis");
+        if (confirm("Yakin menghapus asesmen ini?")) {
+            APP_DATA.kuisList = (APP_DATA.kuisList || []).filter(k => k.id !== id);
+            saveDB();
+            if (_supabase) {
+                const { error } = await _supabase.from('kuis').delete().eq('id', id);
+                handleSupabaseError(error, "Hapus Kuis");
+            }
+            renderDaftarKuisGuru();
+            showToast("Asesmen berhasil dihapus!");
         }
-
-        showToast("Kuis berhasil dihapus!");
-        renderDaftarKuisGuru();
     }
     window.hapusKuis = hapusKuis;
 
-    function lihatHasilKuis(kuisId) {
-        const container = document.getElementById('containerHasilKuisGuru');
-        const kuis = APP_DATA.kuisList.find(k => k.id == kuisId);
-        if (!kuis) return;
-        const attempts = (APP_DATA.kuisScores || []).filter(q => q.quizId == kuisId);
-        
-        let html = `<div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="color:var(--primary-purple); font-weight:700; margin:0;">🏆 Hasil: ${kuis.judul}</h3>
-                <button class="btn-danger btn-sm" onclick="document.getElementById('containerHasilKuisGuru').style.display='none'">Tutup</button>
-            </div>`;
-        
-        if (attempts.length === 0) {
-            html += `<p style="color:var(--text-light);">Belum ada murid yang mengerjakan.</p></div>`;
-        } else {
-            html += `<div class="table-responsive"><table><thead><tr><th>Nama Murid</th><th>Benar</th><th>Salah</th><th>Skor Akhir</th><th>Waktu Pengerjaan</th><th>Aksi</th></tr></thead><tbody>`;
-            attempts.sort((a,b) => b.score - a.score).forEach(a => {
-                html += `<tr>
-                    <td><strong>${a.studentName}</strong></td>
-                    <td style="text-align:center;"><span class="badge badge-done">${a.totalCorrect}</span></td>
-                    <td style="text-align:center;"><span class="badge" style="background:#FEE2E2; color:#DC2626;">${a.totalWrong}</span></td>
-                    <td style="text-align:center; font-weight:bold;">${a.score}</td>
-                    <td>${a.submittedAt}</td>
-                    <td><button class="btn-danger btn-sm" onclick="hapusAttemptKuis(${a.id}, ${kuisId})">Hapus</button></td>
-                </tr>`;
-            });
-            html += `</tbody></table></div></div>`;
-        }
-        container.innerHTML = html;
-        container.style.display = 'block';
-    }
-    window.lihatHasilKuis = lihatHasilKuis;
-
-    async function hapusAttemptKuis(attemptId, kuisId) {
-         if (!confirm('Yakin ingin menghapus nilai murid ini?')) return;
-         APP_DATA.kuisScores = APP_DATA.kuisScores.filter(a => a.id != attemptId);
-         saveDB();
-         if (_supabase) {
-             const { error } = await _supabase.from('quiz_attempts').delete().eq('id', attemptId);
-             handleSupabaseError(error, "Hapus Nilai Kuis");
-         }
-         showToast("Nilai berhasil dihapus!");
-         lihatHasilKuis(kuisId);
-    }
-    window.hapusAttemptKuis = hapusAttemptKuis;
-
-    let activeKategoriSiswa = 'Asesmen Diagnostik';
-    function switchKuisKategoriSiswa(kategori, btn) {
-        activeKategoriSiswa = kategori;
+    function switchKuisKategoriSiswa(kat, btn) {
+        currentKategoriSiswa = kat;
         const tabs = btn.parentElement.querySelectorAll('button');
         tabs.forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
-        
+
         const select = document.getElementById('selectKuisSiswa');
         if (!select) return;
-        const list = (APP_DATA.kuisList || []).filter(k => k.kategori === activeKategoriSiswa);
-        let html = '<option value="">-- Pilih --</option>';
-        list.forEach(k => html += `<option value="${k.id}">${k.judul}</option>`);
-        select.innerHTML = html;
-        
+        select.innerHTML = '<option value="">-- Pilih Asesmen --</option>';
+        const list = (APP_DATA.kuisList || []).filter(k => k.kategori === kat);
+        list.forEach(k => {
+            select.innerHTML += `<option value="${k.id}">${k.judul}</option>`;
+        });
         document.getElementById('containerSoalSiswa').innerHTML = '';
     }
     window.switchKuisKategoriSiswa = switchKuisKategoriSiswa;
@@ -2392,661 +2614,91 @@
     function tampilkanKuisDanSoalSiswa(kuisId) {
         const container = document.getElementById('containerSoalSiswa');
         if (!kuisId) { container.innerHTML = ''; return; }
-        const kuis = APP_DATA.kuisList.find(k => k.id == kuisId);
-        if (!kuis) { container.innerHTML = 'Kuis tidak ditemukan.'; return; }
-        
-        const sName = normalizeName(currentUser.name);
-        const alreadyDone = (APP_DATA.kuisScores || []).find(q => q.quizId == kuisId && q.studentName === sName);
-        if (alreadyDone) {
-            container.innerHTML = `<div class="card" style="text-align:center;">
-                <h3 style="color:#059669; font-weight:700; margin-bottom:10px;">✅ Anda sudah mengerjakan asesmen ini.</h3>
-                <p>Skor Anda: <strong style="font-size:24px;">${alreadyDone.score}</strong></p>
-                <p style="color:var(--text-light); font-size:13px;">Waktu kumpul: ${alreadyDone.submittedAt}</p>
-            </div>`;
-            return;
+        const k = (APP_DATA.kuisList || []).find(x => x.id == kuisId);
+        if (!k) { container.innerHTML = ''; return; }
+
+        let html = `<div class="card"><h3 style="color:var(--primary-purple); font-weight:700;">${k.judul}</h3>`;
+        if (k.desc) html += `<p style="margin-bottom:15px; color:var(--text-light);">${k.desc}</p>`;
+        if (k.game_url) {
+            html +=
+                `<div style="margin-bottom:20px;"><a href="${k.game_url}" target="_blank" class="btn-game">🎮 Gabung Game Evaluasi Online (${k.judul})</a></div>`;
         }
 
-        let html = `<div class="card">
-            <h3 style="color:var(--primary-purple); font-weight:700; margin-bottom:10px;">📝 ${kuis.judul}</h3>
-            ${kuis.desc ? `<p style="margin-bottom:15px; color:var(--text-dark);">${kuis.desc}</p>` : ''}`;
-        
-        if (kuis.game_url) {
-            html += `<div style="margin:20px 0; padding:15px; background:rgba(245,158,11,0.1); border-radius:12px; border:1px dashed #F59E0B; text-align:center;">
-                <p style="margin-bottom:10px; font-weight:600; color:#B45309;">🎮 Asesmen ini juga tersedia dalam bentuk game interaktif!</p>
-                <a href="${kuis.game_url}" target="_blank" class="btn-game">🚀 Mainkan Game Sekarang</a>
-            </div>`;
-        }
-
-        if (kuis.soal && kuis.soal.length > 0) {
-            html += `<form id="formKuisSiswa" onsubmit="submitKuisSiswa(event, ${kuis.id})">`;
-            kuis.soal.forEach((s, idx) => {
-                html += `<div class="card" style="margin-bottom:15px; box-shadow:none; border:1px solid rgba(168,85,247,0.2);">
-                    <p style="font-weight:600; margin-bottom:10px;">${idx+1}. ${s.tanya}</p>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="soal_${idx}" value="A" required> A. ${s.a}
-                        </label>
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="soal_${idx}" value="B" required> B. ${s.b}
-                        </label>
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="soal_${idx}" value="C" required> C. ${s.c}
-                        </label>
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="soal_${idx}" value="D" required> D. ${s.d}
-                        </label>
+        if (k.soal && k.soal.length > 0) {
+            html += `<form onsubmit="submitJawabanKuisSiswa(event, ${k.id})">`;
+            k.soal.forEach((s, idx) => {
+                html += `
+                    <div style="background:#fff; border-radius:12px; padding:15px; margin-bottom:15px; border:1px solid rgba(168,85,247,0.2);">
+                        <p style="font-weight:600; margin-bottom:10px;">${idx + 1}. ${s.tanya}</p>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            ${Object.keys(s.options).map(optKey => `
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px;">
+                                    <input type="radio" name="soal_${idx}" value="${optKey}" required />
+                                    <span><b>${optKey}.</b> ${s.options[optKey]}</span>
+                                </label>
+                            `).join('')}
+                        </div>
                     </div>
-                </div>`;
+                `;
             });
-            html += `<button type="submit" class="btn-submit">Kirim Jawaban Asesmen</button></form>`;
+            html += `<button type="submit" class="btn-submit">🚀 Kirim Jawaban Asesmen</button></form>`;
         } else {
-            html += `<p style="color:var(--text-light); font-style:italic;">Asesmen ini tidak memiliki soal pilihan ganda di sistem.</p>`;
+            html +=
+                `<p style="color:var(--text-light);">Tidak ada soal tertulis pada asesmen ini (silakan gunakan link game di atas jika ada).</p>`;
         }
         html += `</div>`;
         container.innerHTML = html;
     }
     window.tampilkanKuisDanSoalSiswa = tampilkanKuisDanSoalSiswa;
 
-    async function submitKuisSiswa(e, kuisId) {
+    // ----- FUNGSI YANG DIPERBAIKI (TIDAK LAGI TERPOTONG) -----
+    async function submitJawabanKuisSiswa(e, kuisId) {
         e.preventDefault();
-        const kuis = APP_DATA.kuisList.find(k => k.id == kuisId);
-        if (!kuis) return;
-        
-        const form = e.target;
+        const k = (APP_DATA.kuisList || []).find(x => x.id == kuisId);
+        if (!k || !k.soal) return;
+
         let benar = 0;
-        kuis.soal.forEach((s, idx) => {
-            const val = form.elements[`soal_${idx}`].value;
-            if (val === s.jawaban) benar++;
+        let salah = 0;
+
+        k.soal.forEach((s, idx) => {
+            const selected = document.querySelector(`input[name="soal_${idx}"]:checked`);
+            if (selected && selected.value === s.kunci) {
+                benar++;
+            } else {
+                salah++;
+            }
         });
-        
-        const salah = kuis.soal.length - benar;
-        const score = Math.round((benar / kuis.soal.length) * 100);
-        const studentName = normalizeName(currentUser.name);
-        
-        const attempt = {
+
+        const score = Math.round((benar / k.soal.length) * 100);
+        const namaSiswa = currentUser ? normalizeName(currentUser.name) : 'SISWA';
+
+        const attemptData = {
             id: Math.floor(Date.now() / 1000),
-            studentName,
-            quizId: kuis.id,
-            quizTitle: kuis.judul,
+            studentName: namaSiswa,
+            quizId: k.id,
+            quizTitle: k.judul,
             score,
             totalCorrect: benar,
             totalWrong: salah,
             submittedAt: new Date().toLocaleString('id-ID')
         };
-        
+
         if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
-        APP_DATA.kuisScores.push(attempt);
+        APP_DATA.kuisScores.push(attemptData);
         saveDB();
 
         if (_supabase) {
             const { error } = await _supabase.from('quiz_attempts').insert([{
-                id: attempt.id,
-                student_name: attempt.studentName,
-                quiz_id: attempt.quizId,
-                quiz_title: attempt.quizTitle,
-                score: attempt.score,
-                total_correct: attempt.totalCorrect,
-                total_wrong: attempt.totalWrong,
-                submitted_at: attempt.submittedAt
+                id: attemptData.id,
+                student_name: namaSiswa,
+                quiz_id: k.id,
+                quiz_title: k.judul,
+                score,
+                total_correct: benar,
+                total_wrong: salah,
+                submitted_at: attemptData.submittedAt
             }]);
-            handleSupabaseError(error, "Simpan Nilai Kuis");
-        }
-        
-        showToast("Asesmen berhasil dikumpulkan!");
-        tampilkanKuisDanSoalSiswa(kuisId);
-        loadRiwayatKuisSiswa();
-        loadRekapPortofolioSiswa();
-    }
-    window.submitKuisSiswa = submitKuisSiswa;
-
-    function loadRiwayatKuisSiswa() {
-        const container = document.getElementById('containerRiwayatKuisSiswa');
-        if (!container || !currentUser) return;
-        
-        const sName = normalizeName(currentUser.name);
-        const myAttempts = (APP_DATA.kuisScores || []).filter(q => q.studentName === sName);
-        
-        if (myAttempts.length === 0) {
-            container.innerHTML = '<p style="color:var(--text-light);">Belum ada riwayat asesmen.</p>';
-            return;
-        }
-        
-        let html = `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Benar</th><th>Salah</th><th>Skor Akhir</th><th>Waktu</th></tr></thead><tbody>`;
-        myAttempts.forEach(a => {
-            html += `<tr>
-                <td><strong>${a.quizTitle}</strong></td>
-                <td style="text-align:center;"><span class="badge badge-done">${a.totalCorrect}</span></td>
-                <td style="text-align:center;"><span class="badge" style="background:#FEE2E2; color:#DC2626;">${a.totalWrong}</span></td>
-                <td style="text-align:center; font-weight:bold;">${a.score}</td>
-                <td>${a.submittedAt}</td>
-            </tr>`;
-        });
-        html += `</tbody></table></div>`;
-        container.innerHTML = html;
-        
-        const tabBtn = document.querySelector('#s_kuis .login-tab button:first-child');
-        if (tabBtn) switchKuisKategoriSiswa('Asesmen Diagnostik', tabBtn);
-    }
-
-    // ============================================================
-    //  MANAJEMEN MURID
-    // ============================================================
-    async function tambahSiswa(e) {
-        e.preventDefault();
-        const input = document.getElementById('g_namaSiswaBaru');
-        const nama = normalizeName(input.value);
-        if (APP_DATA.students.map(normalizeName).includes(nama)) {
-            showToast("Nama murid sudah ada!", true);
-            return;
-        }
-        APP_DATA.students.push(nama);
-        APP_DATA.students.sort();
-        saveDB();
-
-        if (_supabase) {
-            const { error } = await _supabase.from('students').insert([{ nama_siswa: nama }]);
-            handleSupabaseError(error, "Tambah Siswa");
-        }
-        showToast("Murid berhasil ditambahkan!");
-        input.value = '';
-        renderDaftarSiswaTable();
-        renderAbsensiMatrix();
-    }
-    window.tambahSiswa = tambahSiswa;
-
-    function renderDaftarSiswaTable() {
-        const tbody = document.getElementById('tabelDaftarSiswa');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        APP_DATA.students.forEach((s, idx) => {
-            tbody.innerHTML += `<tr>
-                <td style="text-align:center;">${idx + 1}</td>
-                <td><strong>${s}</strong></td>
-                <td style="text-align:center;"><span class="badge badge-done">Diizinkan</span></td>
-                <td style="text-align:center;">
-                    <button class="btn-danger btn-sm" onclick="hapusSiswa('${s}')">Hapus Akses</button>
-                </td>
-            </tr>`;
-        });
-    }
-
-    async function hapusSiswa(nama) {
-        if (!confirm(`Yakin ingin menghapus akses ${nama}?`)) return;
-        APP_DATA.students = APP_DATA.students.filter(s => s !== nama);
-        saveDB();
-
-        if (_supabase) {
-            const { error } = await _supabase.from('students').delete().eq('nama_siswa', nama);
-            handleSupabaseError(error, "Hapus Siswa");
-        }
-        showToast("Murid dihapus!");
-        renderDaftarSiswaTable();
-        renderAbsensiMatrix();
-    }
-    window.hapusSiswa = hapusSiswa;
-
-    // ============================================================
-    //  MANAJEMEN ABSENSI (30 PERTEMUAN MATRIKS)
-    // ============================================================
-    function initAbsensiHeaders() {
-        if (!APP_DATA.absensiDates) APP_DATA.absensiDates = {};
-        const selKolom = document.getElementById('absensiKolomPilih');
-        let selHtml = '<option value="">-- Pilih Pertemuan --</option>';
-        for (let i = 1; i <= 30; i++) { selHtml += `<option value="${i}">Pertemuan ${i}</option>`; }
-        if (selKolom) selKolom.innerHTML = selHtml;
-
-        const trCols = document.getElementById('rowHeaderMeetingCols');
-        const trDates = document.getElementById('rowHeaderMeetingDates');
-        if (trCols) {
-            let htmlCols = '';
-            for (let i = 1; i <= 30; i++) { htmlCols += `<th style="width:38px; min-width:38px;">P${i}</th>`; }
-            trCols.innerHTML = htmlCols;
-        }
-        if (trDates) {
-            let htmlDates = '';
-            for (let i = 1; i <= 30; i++) {
-                const dt = APP_DATA.absensiDates[i] || '-';
-                let shortDt = dt;
-                if (dt !== '-') {
-                    const d = new Date(dt);
-                    if (!isNaN(d.getTime())) {
-                        shortDt = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-                    }
-                }
-                htmlDates += `<th style="width:38px; min-width:38px; font-size:10px; font-weight:normal; color:var(--text-light);" id="colHeaderDate_${i}">${shortDt}</th>`;
-            }
-            trDates.innerHTML = htmlDates;
-        }
-    }
-
-    function renderAbsensiMatrix() {
-        const tbody = document.getElementById('tabelMatriksAbsensiBody');
-        const selKolom = document.getElementById('absensiKolomPilih');
-        const inpDate = document.getElementById('absensiTanggalInput');
-        if (!tbody) return;
-        
-        if (selKolom && selKolom.value) {
-            const dateVal = APP_DATA.absensiDates[selKolom.value];
-            if (inpDate) inpDate.value = dateVal || '';
-        } else {
-            if (inpDate) inpDate.value = '';
+            handleSupabaseError(error, "Simpan Skor Asesmen");
         }
 
-        let html = '';
-        APP_DATA.students.forEach(sName => {
-            const n = normalizeName(sName);
-            let rowHtml = `<tr><td class="sticky-col-cell" title="${n}">${n}</td>`;
-            let totalH = 0;
-            let totalEntry = 0;
-            
-            for (let i = 1; i <= 30; i++) {
-                let status = '-';
-                if (APP_DATA.absensi[n] && APP_DATA.absensi[n][i]) {
-                    status = APP_DATA.absensi[n][i];
-                    totalEntry++;
-                    if (status === 'H') totalH++;
-                }
-                
-                let bgColor = '';
-                let color = '';
-                if (status === 'H') { bgColor = 'rgba(16, 185, 129, 0.15)'; color = '#059669'; }
-                else if (status === 'S') { bgColor = 'rgba(245, 158, 11, 0.15)'; color = '#D97706'; }
-                else if (status === 'I') { bgColor = 'rgba(14, 165, 233, 0.15)'; color = '#0284C7'; }
-                else if (status === 'A') { bgColor = 'rgba(239, 68, 68, 0.15)'; color = '#DC2626'; }
-                
-                rowHtml += `<td class="absensi-cell" style="background-color:${bgColor}; color:${color};" onclick="toggleAbsensi('${n}', ${i})">${status}</td>`;
-            }
-            
-            let percentH = totalEntry > 0 ? Math.round((totalH / totalEntry) * 100) : 0;
-            rowHtml += `<td style="font-weight:bold; color:var(--primary-purple);">${percentH}%</td></tr>`;
-            html += rowHtml;
-        });
-        tbody.innerHTML = html;
-        
-        for (let i = 1; i <= 30; i++) {
-            const dtEl = document.getElementById(`colHeaderDate_${i}`);
-            if (dtEl) {
-                const dt = APP_DATA.absensiDates[i] || '-';
-                let shortDt = dt;
-                if (dt !== '-') {
-                    const d = new Date(dt);
-                    if (!isNaN(d.getTime())) {
-                        shortDt = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-                    }
-                }
-                dtEl.innerText = shortDt;
-            }
-        }
-    }
-    window.renderAbsensiMatrix = renderAbsensiMatrix;
-
-    async function toggleAbsensi(studentName, pertemunKe) {
-        if (!APP_DATA.absensi) APP_DATA.absensi = {};
-        if (!APP_DATA.absensi[studentName]) APP_DATA.absensi[studentName] = {};
-        
-        let currentStatus = APP_DATA.absensi[studentName][pertemunKe] || '-';
-        let newStatus = 'H';
-        if (currentStatus === '-') newStatus = 'H';
-        else if (currentStatus === 'H') newStatus = 'S';
-        else if (currentStatus === 'S') newStatus = 'I';
-        else if (currentStatus === 'I') newStatus = 'A';
-        else if (currentStatus === 'A') newStatus = '-';
-        
-        if (newStatus === '-') {
-            delete APP_DATA.absensi[studentName][pertemunKe];
-        } else {
-            APP_DATA.absensi[studentName][pertemunKe] = newStatus;
-        }
-        
-        saveDB();
-        renderAbsensiMatrix();
-        renderRekapAbsensiGuru();
-
-        if (_supabase) {
-            try {
-                if (newStatus === '-') {
-                    const { error } = await _supabase.from('absensi')
-                        .delete()
-                        .eq('nama_siswa', studentName)
-                        .eq('pertemuan_id', pertemunKe.toString());
-                    handleSupabaseError(error, "Hapus Absensi");
-                } else {
-                    const { data, error: selectErr } = await _supabase.from('absensi')
-                        .select('id')
-                        .eq('nama_siswa', studentName)
-                        .eq('pertemuan_id', pertemunKe.toString())
-                        .single();
-                        
-                    if (data && !selectErr) {
-                        const { error: updateErr } = await _supabase.from('absensi')
-                            .update({ status_kehadiran: newStatus })
-                            .eq('id', data.id);
-                        handleSupabaseError(updateErr, "Update Absensi");
-                    } else {
-                        const { error: insertErr } = await _supabase.from('absensi').insert([{
-                            id: Math.floor(Date.now() / 1000) + Math.floor(Math.random()*1000),
-                            nama_siswa: studentName,
-                            pertemuan_id: pertemunKe.toString(),
-                            status_kehadiran: newStatus,
-                            tanggal: new Date().toISOString().split('T')[0]
-                        }]);
-                        if (insertErr && !handleSupabaseError(insertErr, "Insert Absensi")) {
-                            const { error: insertErr2 } = await _supabase.from('absensi').insert([{
-                                id: Math.floor(Date.now() / 1000) + Math.floor(Math.random()*1000),
-                                namaSiswa: studentName,
-                                pertemuanId: pertemunKe.toString(),
-                                status: newStatus
-                            }]);
-                            handleSupabaseError(insertErr2, "Insert Absensi (Alt)");
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error("Error toggle absensi:", err);
-            }
-        }
-    }
-    window.toggleAbsensi = toggleAbsensi;
-
-    function simpanTanggalAbsensi() {
-        const sel = document.getElementById('absensiKolomPilih').value;
-        const inp = document.getElementById('absensiTanggalInput').value;
-        if (!sel) return;
-        if (!APP_DATA.absensiDates) APP_DATA.absensiDates = {};
-        
-        if (inp) APP_DATA.absensiDates[sel] = inp;
-        else delete APP_DATA.absensiDates[sel];
-        
-        saveDB();
-        renderAbsensiMatrix();
-        showToast(`Tanggal pertemuan ${sel} disimpan.`);
-    }
-    window.simpanTanggalAbsensi = simpanTanggalAbsensi;
-
-    function renderRekapAbsensiGuru() {
-        const tbody = document.getElementById('tabelRekapAbsensiGuruBody');
-        if (!tbody) return;
-        let html = '';
-        APP_DATA.students.forEach((sName, idx) => {
-            let n = normalizeName(sName);
-            let h=0, s=0, i=0, a=0, total=0;
-            if (APP_DATA.absensi[n]) {
-                Object.values(APP_DATA.absensi[n]).forEach(st => {
-                    if (st === 'H') h++;
-                    else if (st === 'S') s++;
-                    else if (st === 'I') i++;
-                    else if (st === 'A') a++;
-                });
-            }
-            total = h + s + i + a;
-            let percentH = total > 0 ? Math.round((h / total) * 100) : 0;
-            
-            html += `<tr>
-                <td style="text-align:center;">${idx+1}</td>
-                <td><strong>${n}</strong></td>
-                <td style="text-align:center; color:#059669; font-weight:bold;">${h}</td>
-                <td style="text-align:center; color:#D97706; font-weight:bold;">${s}</td>
-                <td style="text-align:center; color:#0284C7; font-weight:bold;">${i}</td>
-                <td style="text-align:center; color:#DC2626; font-weight:bold;">${a}</td>
-                <td style="text-align:center;">
-                    <div style="background:rgba(124,58,237,0.1); border-radius:10px; padding:2px 8px; display:inline-block; font-weight:600; color:var(--primary-purple);">
-                        ${percentH}%
-                    </div>
-                </td>
-            </tr>`;
-        });
-        tbody.innerHTML = html;
-    }
-    window.renderRekapAbsensiGuru = renderRekapAbsensiGuru;
-
-    function downloadRekapAbsensiCSV() {
-        let csv = "No,Nama Lengkap Murid,Hadir (H),Sakit (S),Izin (I),Alfa (A),% Kehadiran\n";
-        APP_DATA.students.forEach((sName, idx) => {
-            let n = normalizeName(sName);
-            let h=0, s=0, i=0, a=0, total=0;
-            if (APP_DATA.absensi[n]) {
-                Object.values(APP_DATA.absensi[n]).forEach(st => {
-                    if (st === 'H') h++; else if (st === 'S') s++; else if (st === 'I') i++; else if (st === 'A') a++;
-                });
-            }
-            total = h + s + i + a;
-            let pct = total > 0 ? Math.round((h/total)*100) : 0;
-            csv += `${idx+1},"${n}",${h},${s},${i},${a},${pct}%\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Rekap_Absensi_X_Keramik_A.csv`;
-        a.click();
-    }
-    window.downloadRekapAbsensiCSV = downloadRekapAbsensiCSV;
-
-    function downloadRekapAbsensiPDF() {
-        window.print();
-    }
-    window.downloadRekapAbsensiPDF = downloadRekapAbsensiPDF;
-
-    // ============================================================
-    //  MANAJEMEN REFLEKSI & DISKUSI
-    // ============================================================
-    function renderRefleksiSiswa() {
-        const selPertemuan = document.getElementById('s_refleksiPilihPertemuan');
-        const container = document.getElementById('wadahRefleksiSiswa');
-        if (!selPertemuan || !container) return;
-        
-        const perId = selPertemuan.value;
-        if (!perId) {
-            container.innerHTML = '<div class="empty-refleksi">Silakan pilih pertemuan terlebih dahulu.</div>';
-            return;
-        }
-
-        let refTanya = APP_DATA.refleksi.pertanyaan.filter(t => t.pertemuan_id == perId);
-        
-        if (refTanya.length === 0) {
-            container.innerHTML = '<div class="empty-refleksi">Belum ada pertanyaan refleksi dari guru untuk pertemuan ini.</div>';
-            return;
-        }
-
-        let html = '';
-        refTanya.forEach(tanya => {
-            let jawabans = APP_DATA.refleksi.jawaban.filter(j => j.pertanyaan_id == tanya.id);
-            
-            html += `<div class="refleksi-thread">
-                <h4>📌 ${tanya.isi}</h4>
-                <div style="margin-left: 10px; border-left: 2px solid rgba(168,85,247,0.2); padding-left: 15px;">`;
-            
-            jawabans.forEach(j => {
-                const sName = currentUser ? normalizeName(currentUser.name) : '';
-                const isMine = j.nama === sName;
-                html += `<div class="refleksi-komentar" style="${isMine ? 'background:#f0f9ff; border-left-color:#0284C7;' : ''}">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="nama">${j.nama}</span>
-                        <span class="waktu">${j.waktu || ''}</span>
-                    </div>
-                    <p class="isi">${j.isi}</p>
-                    ${isMine ? `<div class="aksi"><button class="btn-delete" onclick="hapusJawabanRefleksi('${j.id}', 'siswa')">Hapus Komentar</button></div>` : ''}
-                </div>`;
-            });
-
-            html += `</div>
-                <form class="refleksi-input-area" onsubmit="kirimJawabanRefleksi(event, '${tanya.id}', 'siswa')">
-                    <input type="text" id="jawabRefleksi_${tanya.id}" placeholder="Tulis jawaban atau komentar Anda di sini..." required>
-                    <button type="submit" class="btn-submit">Kirim Komentar</button>
-                </form>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-    window.renderRefleksiSiswa = renderRefleksiSiswa;
-
-    function renderRefleksiGuru() {
-        const selPertemuan = document.getElementById('g_refleksiPilihPertemuan');
-        const container = document.getElementById('wadahRefleksiGuru');
-        if (!selPertemuan || !container) return;
-        
-        const perId = selPertemuan.value;
-        if (!perId) {
-            container.innerHTML = '<div class="empty-refleksi">Pilih pertemuan untuk melihat & kelola pertanyaan refleksi.</div>';
-            return;
-        }
-
-        let refTanya = APP_DATA.refleksi.pertanyaan.filter(t => t.pertemuan_id == perId);
-        
-        if (refTanya.length === 0) {
-            container.innerHTML = '<div class="empty-refleksi">Belum ada pertanyaan refleksi yang Anda buat untuk pertemuan ini.</div>';
-            return;
-        }
-
-        let html = '';
-        refTanya.forEach(tanya => {
-            let jawabans = APP_DATA.refleksi.jawaban.filter(j => j.pertanyaan_id == tanya.id);
-            
-            html += `<div class="refleksi-thread">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                    <h4 style="margin:0; flex:1;">📌 ${tanya.isi}</h4>
-                    <button class="btn-danger btn-sm" style="margin-left:10px;" onclick="hapusPertanyaanRefleksi('${tanya.id}')">Hapus Topik</button>
-                </div>
-                <div style="margin-left: 10px; border-left: 2px solid rgba(168,85,247,0.2); padding-left: 15px;">`;
-            
-            if (jawabans.length === 0) {
-                html += `<p style="font-size:12px; color:var(--text-light); font-style:italic;">Belum ada komentar dari murid.</p>`;
-            }
-
-            jawabans.forEach(j => {
-                const isGuru = j.nama === 'Bu Ema Humaera';
-                html += `<div class="refleksi-komentar" style="${isGuru ? 'background:#fef3c7; border-left-color:#F59E0B;' : ''}">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="nama">${j.nama}</span>
-                        <span class="waktu">${j.waktu || ''}</span>
-                    </div>
-                    <p class="isi">${j.isi}</p>
-                    <div class="aksi">
-                        <button class="btn-delete" onclick="hapusJawabanRefleksi('${j.id}', 'guru')">Hapus Komentar</button>
-                    </div>
-                </div>`;
-            });
-
-            html += `</div>
-                <form class="refleksi-input-area" onsubmit="kirimJawabanRefleksi(event, '${tanya.id}', 'guru')">
-                    <input type="text" id="jawabRefleksiGuru_${tanya.id}" placeholder="Balas komentar sebagai Guru..." required>
-                    <button type="submit" class="btn-submit" style="background:linear-gradient(135deg, #F59E0B, #D97706);">Kirim Balasan</button>
-                </form>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-    window.renderRefleksiGuru = renderRefleksiGuru;
-
-    async function buatPertanyaanRefleksi(e) {
-        e.preventDefault();
-        const perId = document.getElementById('g_refleksiPilihPertemuanBuat').value;
-        const isi = document.getElementById('inputPertanyaanRefleksi').value;
-        
-        if (!perId) { showToast("Pilih pertemuan terlebih dahulu!", true); return; }
-
-        const payload = {
-            id: Math.floor(Date.now() / 1000).toString(),
-            pertemuan_id: perId,
-            isi: isi,
-            created_at: new Date().toLocaleString('id-ID')
-        };
-
-        APP_DATA.refleksi.pertanyaan.unshift(payload);
-        saveDB();
-
-        if (_supabase) {
-            const { error } = await _supabase.from('refleksi_pertanyaan').insert([payload]);
-            handleSupabaseError(error, "Buat Pertanyaan Refleksi");
-        }
-
-        showToast("Pertanyaan refleksi berhasil dibagikan!");
-        e.target.reset();
-        
-        const selGuru = document.getElementById('g_refleksiPilihPertemuan');
-        if (selGuru) {
-            selGuru.value = perId;
-            renderRefleksiGuru();
-        }
-    }
-    window.buatPertanyaanRefleksi = buatPertanyaanRefleksi;
-
-    async function kirimJawabanRefleksi(e, pertanyaanId, role) {
-        e.preventDefault();
-        let inputId = role === 'guru' ? `jawabRefleksiGuru_${pertanyaanId}` : `jawabRefleksi_${pertanyaanId}`;
-        let inputEl = document.getElementById(inputId);
-        let isi = inputEl.value;
-        
-        let nama = role === 'guru' ? 'Bu Ema Humaera' : normalizeName(currentUser.name);
-
-        const payload = {
-            id: Math.floor(Date.now() / 1000).toString() + Math.floor(Math.random()*100),
-            pertanyaan_id: pertanyaanId,
-            nama: nama,
-            isi: isi,
-            waktu: new Date().toLocaleString('id-ID')
-        };
-
-        APP_DATA.refleksi.jawaban.push(payload);
-        saveDB();
-
-        if (_supabase) {
-            // Gunakan tabel khusus refleksi_jawaban untuk memastikan data muncul
-            const { error } = await _supabase.from('refleksi_jawaban').insert([{
-                 id: payload.id,
-                 pertanyaan_id: payload.pertanyaan_id,
-                 nama: payload.nama,
-                 isi: payload.isi,
-                 waktu: payload.waktu,
-                 created_at: new Date().toISOString()
-            }]);
-            handleSupabaseError(error, "Kirim Jawaban Refleksi");
-        }
-
-        showToast("Komentar terkirim!");
-        inputEl.value = '';
-        if (role === 'siswa') renderRefleksiSiswa();
-        else renderRefleksiGuru();
-    }
-    window.kirimJawabanRefleksi = kirimJawabanRefleksi;
-
-    async function hapusPertanyaanRefleksi(id) {
-        if (!confirm("Hapus pertanyaan ini beserta seluruh komentarnya?")) return;
-        
-        APP_DATA.refleksi.pertanyaan = APP_DATA.refleksi.pertanyaan.filter(t => t.id != id);
-        APP_DATA.refleksi.jawaban = APP_DATA.refleksi.jawaban.filter(j => j.pertanyaan_id != id);
-        saveDB();
-
-        if (_supabase) {
-            const { error: err1 } = await _supabase.from('refleksi_pertanyaan').delete().eq('id', id);
-            const { error: err2 } = await _supabase.from('refleksi_jawaban').delete().eq('pertanyaan_id', id);
-            handleSupabaseError(err1, "Hapus Pertanyaan");
-            handleSupabaseError(err2, "Hapus Jawaban Terkait");
-        }
-
-        showToast("Topik refleksi dihapus!");
-        renderRefleksiGuru();
-    }
-    window.hapusPertanyaanRefleksi = hapusPertanyaanRefleksi;
-
-    async function hapusJawabanRefleksi(id, role) {
-        if (!confirm("Hapus komentar ini?")) return;
-
-        APP_DATA.refleksi.jawaban = APP_DATA.refleksi.jawaban.filter(j => j.id != id);
-        saveDB();
-
-        if (_supabase) {
-            const { error } = await _supabase.from('refleksi_jawaban').delete().eq('id', id);
-            handleSupabaseError(error, "Hapus Jawaban");
-        }
-
-        showToast("Komentar dihapus!");
-        if (role === 'siswa') renderRefleksiSiswa();
-        else renderRefleksiGuru();
-    }
-    window.hapusJawabanRefleksi = hapusJawabanRefleksi;
-
-</script>
-</body>
-</html>
-```eof
+        showToast(`Asesmen Selesai
