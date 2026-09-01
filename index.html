@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ===== RESET & VARIABEL ===== */
         * { box-sizing: border-box; margin: 0; }
         :root {
             --primary-purple: #7C3AED;
@@ -2245,7 +2246,7 @@
     window.tampilkanKuisDanSoalSiswa = tampilkanKuisDanSoalSiswa;
 
     // ============================================================
-    //  FUNGSI ASESMEN (SUBMIT JAWABAN) - DIPERBAIKI
+    //  FUNGSI ASESMEN - SUBMIT JAWABAN
     // ============================================================
     async function submitJawabanKuisSiswa(e, kuisId) {
         e.preventDefault();
@@ -2257,7 +2258,6 @@
 
         let benar = 0;
         let salah = 0;
-
         k.soal.forEach((s, idx) => {
             const selected = document.querySelector(`input[name="soal_${idx}"]:checked`);
             if (selected && selected.value === s.kunci) {
@@ -2275,3 +2275,60 @@
             id: Math.floor(Date.now() / 1000),
             studentName: namaSiswa,
             quizId: k.id,
+            quizTitle: k.judul,
+            score,
+            totalCorrect: benar,
+            totalWrong: salah,
+            submittedAt: new Date().toLocaleString('id-ID')
+        };
+
+        if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
+        APP_DATA.kuisScores.push(attemptData);
+        saveDB();
+
+        if (_supabase) {
+            const { error } = await _supabase.from('quiz_attempts').insert([{
+                id: attemptData.id,
+                student_name: namaSiswa,
+                quiz_id: k.id,
+                quiz_title: k.judul,
+                score,
+                total_correct: benar,
+                total_wrong: salah,
+                submitted_at: attemptData.submittedAt
+            }]);
+            handleSupabaseError(error, "Simpan Skor Asesmen");
+        }
+
+        showToast(`Asesmen Selesai! Skor Anda: ${score}`);
+        document.getElementById('containerSoalSiswa').innerHTML = `
+            <div class="card" style="text-align:center;">
+                <h3 style="color:var(--primary-purple); font-size:24px; font-weight:800;">🎉 Skor Akhir: ${score}</h3>
+                <p>Jumlah Benar: <b style="color:#059669;">${benar}</b> | Jumlah Salah: <b style="color:#DC2626;">${salah}</b></p>
+            </div>
+        `;
+        loadRiwayatKuisSiswa();
+    }
+    window.submitJawabanKuisSiswa = submitJawabanKuisSiswa;
+
+    function loadRiwayatKuisSiswa() {
+        const container = document.getElementById('containerRiwayatKuisSiswa');
+        if (!container || !currentUser) return;
+        const sName = normalizeName(currentUser.name);
+        const myScores = (APP_DATA.kuisScores || []).filter(qs => normalizeName(qs.studentName || qs.student_name) === sName);
+        if (myScores.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-light);">Belum ada riwayat asesmen yang dikerjakan.</p>';
+            return;
+        }
+        let html = `<div class="table-responsive"><table><thead><tr><th>Judul Asesmen</th><th>Skor</th><th>Waktu</th></tr></thead><tbody>`;
+        myScores.forEach(qs => {
+            html += `<tr>
+                <td><strong>${qs.quizTitle || qs.quiz_title}</strong></td>
+                <td><span class="badge badge-purple">${qs.score}</span></td>
+                <td>${qs.submittedAt || qs.submitted_at}</td>
+            </tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+    }
+    window.loadRiwayatKuisSiswa = loadRiway
