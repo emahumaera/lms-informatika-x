@@ -934,7 +934,7 @@
         </div>
     </section>
 
-    <!-- ===== SISWA: REFLEKSI (BARU) ===== -->
+    <!-- ===== SISWA: REFLEKSI ===== -->
     <section id="s_refleksi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">💬 Ruang Refleksi &amp; Diskusi Kelas</h2>
         <div class="card">
@@ -1156,7 +1156,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: REFLEKSI (BARU) ===== -->
+    <!-- ===== GURU: REFLEKSI ===== -->
     <section id="g_refleksi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">💬 Kelola Refleksi &amp; Diskusi Kelas</h2>
         <div class="card">
@@ -1623,7 +1623,14 @@
             renderAbsensiMatrix();
             renderRekapAbsensiGuru();
             populateRefleksiPertemuanSelects();
-            switchKuisKategoriGuru('Asesmen Diagnostik', document.querySelector('#g_kuis .login-tab button'));
+            
+            // PERBAIKAN: pilih tombol pertama dengan aman
+            const tabBtn = document.querySelector('#g_kuis .login-tab button:first-child');
+            if (tabBtn) {
+                switchKuisKategoriGuru('Asesmen Diagnostik', tabBtn);
+            } else {
+                renderDaftarKuisGuru();
+            }
         }
     }
 
@@ -2682,4 +2689,36 @@
         const namaSiswa = currentUser ? normalizeName(currentUser.name) : 'SISWA';
 
         const attemptData = {
-            id
+            id: Math.floor(Date.now() / 1000),
+            studentName: namaSiswa,
+            quizId: k.id,
+            quizTitle: k.judul,
+            score,
+            totalCorrect: benar,
+            totalWrong: salah,
+            submittedAt: new Date().toLocaleString('id-ID')
+        };
+
+        if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
+        APP_DATA.kuisScores.push(attemptData);
+        saveDB();
+
+        if (_supabase) {
+            const { error } = await _supabase.from('quiz_attempts').insert([{
+                id: attemptData.id,
+                student_name: namaSiswa,
+                quiz_id: k.id,
+                quiz_title: k.judul,
+                score,
+                total_correct: benar,
+                total_wrong: salah,
+                submitted_at: attemptData.submittedAt
+            }]);
+            handleSupabaseError(error, "Simpan Skor Asesmen");
+        }
+
+        showToast(`Asesmen Selesai! Skor Anda: ${score}`);
+        document.getElementById('containerSoalSiswa').innerHTML = `
+            <div class="card" style="text-align:center;">
+                <h3 style="color:var(--primary-purple); font-size:24px; font-weight:800;">🎉 Skor Akhir: ${score}</h3>
+                <p>Jumlah Benar: <b style
