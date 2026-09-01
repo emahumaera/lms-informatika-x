@@ -8,11 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== RESET & VARIABEL ===== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-        }
+        * { box-sizing: border-box; margin: 0; }
         :root {
             --primary-purple: #7C3AED;
             --secondary-purple: #4C1D95;
@@ -30,16 +26,13 @@
             overflow-x: hidden;
             margin: 0;
         }
-        /* ===== MODAL LOGIN ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(76, 29, 149, 0.8), rgba(124, 58, 237, 0.7));
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(135deg, rgba(76,29,149,0.8), rgba(124,58,237,0.7));
             display: flex;
             justify-content: center;
             align-items: center;
@@ -48,47 +41,24 @@
         .login-card {
             position: relative;
             z-index: 2;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             padding: 40px 32px;
             border-radius: 28px;
             width: 90%;
             max-width: 460px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255,255,255,0.5);
         }
-        .login-card .school-logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1E3A5F;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-        .login-card .school-sub {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4C1D95;
-            margin-bottom: 12px;
-            border-bottom: 2px solid rgba(124, 58, 237, 0.2);
-            padding-bottom: 10px;
-        }
-        .login-card h2 {
-            color: var(--accent-yellow);
-            margin-bottom: 5px;
-            font-weight: 700;
-            font-size: 24px;
-        }
-        .login-card .subtitle {
-            color: var(--text-light);
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
+        .login-card .school-logo { font-size: 22px; font-weight: 800; color: #1E3A5F; letter-spacing: 1px; margin-bottom: 4px; }
+        .login-card .school-sub { font-size: 14px; font-weight: 600; color: #4C1D95; margin-bottom: 12px; border-bottom: 2px solid rgba(124,58,237,0.2); padding-bottom: 10px; }
+        .login-card h2 { color: var(--accent-yellow); margin-bottom: 5px; font-weight: 700; font-size: 24px; }
+        .login-card .subtitle { color: var(--text-light); font-size: 13px; margin-bottom: 20px; }
         .login-tab {
             display: flex;
             margin-bottom: 25px;
-            border-bottom: 2px solid rgba(168, 85, 247, 0.15);
+            border-bottom: 2px solid rgba(168,85,247,0.15);
         }
         .login-tab button {
             flex: 1;
@@ -117,25 +87,21 @@
             font-size: 14px;
             color: var(--text-dark);
         }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 12px 14px;
             background: #FFFFFF;
-            border: 2px solid rgba(168, 85, 247, 0.25);
+            border: 2px solid rgba(168,85,247,0.25);
             border-radius: 14px;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
             color: var(--text-dark);
             transition: 0.3s;
         }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             border-color: #7C3AED;
             outline: none;
-            box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+            box-shadow: 0 0 20px rgba(124,58,237,0.2);
         }
         .btn-submit {
             background: linear-gradient(135deg, #7C3AED, #9333EA);
@@ -146,71 +112,45 @@
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
-            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 4px 20px rgba(124,58,237,0.3);
             transition: 0.3s;
             display: inline-block;
             text-align: center;
             width: 100%;
         }
-        .btn-submit:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        /* ===== HEADER ===== */
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
         header {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(16px);
             padding: 16px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.08);
+            box-shadow: 0 10px 30px rgba(124,58,237,0.08);
             position: sticky;
             top: 0;
             z-index: 100;
             flex-wrap: wrap;
             gap: 15px;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+            border-bottom: 1px solid rgba(168,85,247,0.15);
         }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-purple);
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-        .logo span {
-            font-size: 22px;
-            color: var(--secondary-purple);
-        }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--primary-purple); display: flex; flex-direction: column; line-height: 1.1; }
+        .logo span { font-size: 22px; color: var(--secondary-purple); }
         .user-badge {
-            background: rgba(168, 85, 247, 0.1);
+            background: rgba(168,85,247,0.1);
             color: var(--primary-purple);
             padding: 8px 16px;
             border-radius: 30px;
             font-size: 13px;
             font-weight: 600;
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            border: 1px solid rgba(168,85,247,0.3);
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
-        nav {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         nav button {
             background: transparent;
             border: none;
@@ -224,51 +164,39 @@
             transition: 0.3s;
             white-space: nowrap;
         }
-        nav button:hover {
-            background: rgba(168, 85, 247, 0.12);
-            color: var(--primary-purple);
-        }
+        nav button:hover { background: rgba(168,85,247,0.12); color: var(--primary-purple); }
         nav button.active {
             background: linear-gradient(135deg, #7C3AED, #9333EA);
             color: #FFFFFF;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+            box-shadow: 0 4px 15px rgba(124,58,237,0.35);
         }
         .btn-logout {
             background: linear-gradient(135deg, #EF4444, #DC2626) !important;
             color: white !important;
             font-weight: 600 !important;
         }
-        /* ===== MAIN ===== */
         main {
             max-width: 1250px;
             margin: 20px auto;
             padding: 25px;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(24px);
             border-radius: 28px;
-            box-shadow: 0 25px 50px rgba(124, 58, 237, 0.12);
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            box-shadow: 0 25px 50px rgba(124,58,237,0.12);
+            border: 1px solid rgba(168,85,247,0.2);
         }
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         .card {
-            background: linear-gradient(135deg, rgba(243, 232, 255, 0.6), rgba(255, 255, 255, 0.9));
+            background: linear-gradient(135deg, rgba(243,232,255,0.6), rgba(255,255,255,0.9));
             border-left: 6px solid #7C3AED;
             padding: 22px;
             border-radius: 20px;
             margin-bottom: 25px;
-            border: 1px solid rgba(168, 85, 247, 0.15);
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(168,85,247,0.15);
+            box-shadow: 0 10px 30px rgba(124,58,237,0.05);
             overflow-x: auto;
         }
         .hero {
@@ -278,88 +206,26 @@
             color: white;
             border-radius: 24px;
             margin-bottom: 30px;
-            box-shadow: 0 20px 45px rgba(124, 58, 237, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 45px rgba(124,58,237,0.3);
+            border: 1px solid rgba(255,255,255,0.3);
         }
-        .hero h1 {
-            color: #FFFFFF;
-            margin: 0 0 10px 0;
-            font-size: 26px;
-            font-weight: 700;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        }
-        .hero h2 {
-            font-size: 16px;
-            font-weight: 400;
-            opacity: 0.95;
-            color: #F3E8FF;
-        }
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: 16px;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            margin-top: 15px;
-            background: #FFFFFF;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid rgba(168, 85, 247, 0.15);
-        }
-        th, td {
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 13px;
-        }
-        th {
-            background: linear-gradient(135deg, #7C3AED, #9333EA);
-            color: #FFFFFF;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        tr:nth-child(even) {
-            background-color: rgba(243, 232, 255, 0.3);
-        }
-        .badge {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .badge-done {
-            background: rgba(16, 185, 129, 0.15);
-            color: #059669;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .badge-purple {
-            background: rgba(124, 58, 237, 0.15);
-            color: #7C3AED;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-        }
-        .badge-blue {
-            background: rgba(14, 165, 233, 0.15);
-            color: #0284C7;
-            border: 1px solid rgba(14, 165, 233, 0.3);
-        }
-        .badge-yellow {
-            background: rgba(245, 158, 11, 0.15);
-            color: #D97706;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-        .img-preview {
-            max-width: 100%;
-            max-height: 500px;
-            border-radius: 14px;
-            margin-top: 10px;
-            object-fit: contain;
-        }
+        .hero h1 { color: #FFFFFF; margin: 0 0 10px 0; font-size: 26px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .hero h2 { font-size: 16px; font-weight: 400; opacity: 0.95; color: #F3E8FF; }
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: 16px; border: 1px solid rgba(168,85,247,0.2); margin-top: 15px; background: #FFFFFF; }
+        table { width: 100%; border-collapse: collapse; }
+        table, th, td { border: 1px solid rgba(168,85,247,0.15); }
+        th, td { padding: 12px 14px; text-align: left; font-size: 13px; }
+        th { background: linear-gradient(135deg, #7C3AED, #9333EA); color: #FFFFFF; font-weight: 600; white-space: nowrap; }
+        tr:nth-child(even) { background-color: rgba(243,232,255,0.3); }
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .badge-done { background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-purple { background: rgba(124,58,237,0.15); color: #7C3AED; border: 1px solid rgba(124,58,237,0.3); }
+        .badge-blue { background: rgba(14,165,233,0.15); color: #0284C7; border: 1px solid rgba(14,165,233,0.3); }
+        .badge-yellow { background: rgba(245,158,11,0.15); color: #D97706; border: 1px solid rgba(245,158,11,0.3); }
+        .img-preview { max-width: 100%; max-height: 500px; border-radius: 14px; margin-top: 10px; object-fit: contain; }
         .file-link {
             display: inline-block;
-            background: rgba(124, 58, 237, 0.1);
+            background: rgba(124,58,237,0.1);
             color: #7C3AED;
             padding: 8px 16px;
             border-radius: 10px;
@@ -367,142 +233,28 @@
             text-decoration: none;
             font-weight: 600;
             margin-top: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124,58,237,0.2);
             transition: 0.2s;
         }
-        .file-link:hover {
-            background: rgba(124, 58, 237, 0.2);
-            transform: translateY(-1px);
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 500;
-        }
-        .btn-external {
-            background: linear-gradient(135deg, #0284C7, #0EA5E9);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-            transition: 0.3s;
-            display: inline-block;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn-external:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .btn-success {
-            background: linear-gradient(135deg, #10B981, #059669);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            transition: 0.3s;
-            display: inline-block;
-            text-align: center;
-        }
-        .btn-success:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .btn-game {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-            transition: 0.3s;
-            display: inline-block;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn-game:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .btn-sm {
-            padding: 6px 14px !important;
-            font-size: 12px !important;
-            width: auto !important;
-        }
-        .instruction-box {
-            background: #f0f7ff;
-            border-left: 5px solid #0284C7;
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin: 10px 0 15px 0;
-        }
-        .instruction-box p {
-            margin: 5px 0;
-            color: var(--text-dark);
-            font-size: 14px;
-        }
-        .instruction-box strong {
-            color: var(--primary-purple);
-        }
-        .step-list {
-            padding-left: 20px;
-        }
-        .step-list li {
-            margin-bottom: 6px;
-        }
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .preview-container {
-            max-height: 250px;
-            overflow-y: auto;
-            font-size: 0.875rem;
-            padding: 12px;
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .lkpd-iframe-wrapper {
-            width: 100%;
-            height: 700px;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            background: #fff;
-            overflow: hidden;
-        }
-        .lkpd-iframe-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 16px;
-        }
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
+        .file-link:hover { background: rgba(124,58,237,0.2); transform: translateY(-1px); }
+        .btn-danger { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; }
+        .btn-external { background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; border: none; padding: 12px 24px; border-radius: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(14,165,233,0.3); transition: 0.3s; display: inline-block; text-align: center; text-decoration: none; }
+        .btn-external:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-success { background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 12px 24px; border-radius: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(16,185,129,0.3); transition: 0.3s; display: inline-block; text-align: center; }
+        .btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-game { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; padding: 12px 24px; border-radius: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(245,158,11,0.3); transition: 0.3s; display: inline-block; text-align: center; text-decoration: none; }
+        .btn-game:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-sm { padding: 6px 14px !important; font-size: 12px !important; width: auto !important; }
+        .instruction-box { background: #f0f7ff; border-left: 5px solid #0284C7; padding: 15px 20px; border-radius: 12px; margin: 10px 0 15px 0; }
+        .instruction-box p { margin: 5px 0; color: var(--text-dark); font-size: 14px; }
+        .instruction-box strong { color: var(--primary-purple); }
+        .step-list { padding-left: 20px; }
+        .step-list li { margin-bottom: 6px; }
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .preview-container { max-height: 250px; overflow-y: auto; font-size: 0.875rem; padding: 12px; background: #fff; border-radius: 8px; border: 1px solid rgba(168,85,247,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .lkpd-iframe-wrapper { width: 100%; height: 700px; border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); background: #fff; overflow: hidden; }
+        .lkpd-iframe-wrapper iframe { width: 100%; height: 100%; border: none; border-radius: 16px; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
         .toast {
             background: linear-gradient(135deg, #10B981, #059669);
             color: #fff;
@@ -513,17 +265,12 @@
             transition: all 0.3s;
             transform: translateY(20px);
             font-size: 14px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .toast.error {
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: linear-gradient(135deg, #EF4444, #DC2626); }
         .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top: 3px solid #7C3AED;
             width: 24px;
@@ -533,34 +280,10 @@
             vertical-align: middle;
             margin-right: 8px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* ===== TABEL ABSENSI MATRIKS ===== */
-        .absensi-table-container {
-            width: 100%;
-            overflow-x: auto;
-            background: #FFFFFF;
-            border-radius: 16px;
-            margin-top: 20px;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-        }
-        .absensi-table {
-            width: max-content;
-            min-width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            text-align: center;
-            font-size: 12px;
-        }
-        .absensi-table th,
-        .absensi-table td {
-            padding: 8px 6px;
-            text-align: center;
-            white-space: nowrap;
-            border: 1px solid rgba(168, 85, 247, 0.15);
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .absensi-table-container { width: 100%; overflow-x: auto; background: #FFFFFF; border-radius: 16px; margin-top: 20px; border: 1px solid rgba(168,85,247,0.2); }
+        .absensi-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; font-size: 12px; }
+        .absensi-table th, .absensi-table td { padding: 8px 6px; text-align: center; white-space: nowrap; border: 1px solid rgba(168,85,247,0.15); }
         .sticky-col-header {
             position: sticky;
             left: 0;
@@ -572,8 +295,8 @@
             text-align: left !important;
             padding-left: 14px !important;
             padding-right: 14px !important;
-            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.12);
-            border-right: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 4px 0 12px rgba(0,0,0,0.12);
+            border-right: 2px solid rgba(255,255,255,0.25);
         }
         .sticky-col-cell {
             position: sticky;
@@ -587,152 +310,50 @@
             padding-right: 14px !important;
             font-weight: 600;
             font-size: 12px;
-            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.06);
-            border-right: 2px solid rgba(168, 85, 247, 0.15);
+            box-shadow: 4px 0 12px rgba(0,0,0,0.06);
+            border-right: 2px solid rgba(168,85,247,0.15);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        tr:nth-child(even) .sticky-col-cell {
-            background: #F9F5FF !important;
-        }
-        .absensi-cell {
-            cursor: pointer !important;
-            font-weight: bold;
-            transition: background-color 0.2s;
-            user-select: none;
-            min-width: 38px;
-            width: 38px;
-        }
-        .absensi-cell:hover {
-            background-color: rgba(124, 58, 237, 0.15) !important;
-        }
-        /* ===== REFLEKSI ===== */
+        tr:nth-child(even) .sticky-col-cell { background: #F9F5FF !important; }
+        .absensi-cell { cursor: pointer !important; font-weight: bold; transition: background-color 0.2s; user-select: none; min-width: 38px; width: 38px; }
+        .absensi-cell:hover { background-color: rgba(124,58,237,0.15) !important; }
         .refleksi-thread {
             background: #ffffff;
             border-radius: 16px;
             padding: 18px 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(168, 85, 247, 0.15);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.06);
+            border: 1px solid rgba(168,85,247,0.15);
+            box-shadow: 0 4px 12px rgba(124,58,237,0.06);
         }
-        .refleksi-thread h4 {
-            font-weight: 700;
-            color: var(--secondary-purple);
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-        .refleksi-komentar {
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            background: #f8f5ff;
-            border-radius: 12px;
-            border-left: 4px solid #7C3AED;
-        }
-        .refleksi-komentar .nama {
-            font-weight: 600;
-            color: var(--primary-purple);
-            font-size: 13px;
-        }
-        .refleksi-komentar .waktu {
-            font-size: 11px;
-            color: var(--text-light);
-            margin-left: 10px;
-        }
-        .refleksi-komentar .isi {
-            margin: 6px 0 6px 0;
-            font-size: 14px;
-            color: var(--text-dark);
-            word-break: break-word;
-        }
-        .refleksi-komentar .aksi {
-            display: flex;
-            gap: 12px;
-            margin-top: 6px;
-            flex-wrap: wrap;
-        }
-        .refleksi-komentar .aksi button {
-            background: none;
-            border: none;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            padding: 2px 6px;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
-        .refleksi-komentar .aksi .btn-delete {
-            color: #DC2626;
-        }
-        .refleksi-komentar .aksi .btn-delete:hover {
-            background: rgba(220, 38, 38, 0.1);
-        }
-        .refleksi-input-area {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        .refleksi-input-area input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 2px solid rgba(168, 85, 247, 0.25);
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            min-width: 180px;
-        }
-        .refleksi-input-area input:focus {
-            border-color: #7C3AED;
-            outline: none;
-        }
-        .refleksi-input-area .btn-submit {
-            width: auto;
-            padding: 10px 24px;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-        .empty-refleksi {
-            color: var(--text-light);
-            font-style: italic;
-            padding: 20px 0;
-            text-align: center;
-        }
+        .refleksi-thread h4 { font-weight: 700; color: var(--secondary-purple); margin-bottom: 12px; font-size: 16px; }
+        .refleksi-komentar { padding: 12px 16px; margin-bottom: 10px; background: #f8f5ff; border-radius: 12px; border-left: 4px solid #7C3AED; }
+        .refleksi-komentar .nama { font-weight: 600; color: var(--primary-purple); font-size: 13px; }
+        .refleksi-komentar .waktu { font-size: 11px; color: var(--text-light); margin-left: 10px; }
+        .refleksi-komentar .isi { margin: 6px 0 6px 0; font-size: 14px; color: var(--text-dark); word-break: break-word; }
+        .refleksi-komentar .aksi { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+        .refleksi-komentar .aksi button { background: none; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 2px 6px; border-radius: 6px; transition: 0.2s; }
+        .refleksi-komentar .aksi .btn-delete { color: #DC2626; }
+        .refleksi-komentar .aksi .btn-delete:hover { background: rgba(220,38,38,0.1); }
+        .refleksi-input-area { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .refleksi-input-area input { flex: 1; padding: 10px 14px; border: 2px solid rgba(168,85,247,0.25); border-radius: 12px; font-family: 'Poppins', sans-serif; font-size: 13px; min-width: 180px; }
+        .refleksi-input-area input:focus { border-color: #7C3AED; outline: none; }
+        .refleksi-input-area .btn-submit { width: auto; padding: 10px 24px; font-size: 13px; flex-shrink: 0; }
+        .empty-refleksi { color: var(--text-light); font-style: italic; padding: 20px 0; text-align: center; }
         @media print {
             body * { visibility: hidden; }
             #printablePortofolioArea, #printablePortofolioArea * { visibility: visible; }
-            #printablePortofolioArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                padding: 20px;
-                background: white !important;
-            }
+            #printablePortofolioArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white !important; }
             .no-print { display: none !important; }
         }
         @media (max-width: 768px) {
             .login-card { padding: 28px 18px; }
             .login-card .school-logo { font-size: 18px; }
             .login-card h2 { font-size: 20px; }
-            .sticky-col-header, .sticky-col-cell {
-                min-width: 140px !important;
-                max-width: 160px !important;
-                font-size: 11px !important;
-                padding-left: 8px !important;
-                padding-right: 8px !important;
-            }
-            .absensi-table th, .absensi-table td {
-                padding: 4px 3px !important;
-                font-size: 10px !important;
-                min-width: 28px !important;
-                width: 28px !important;
-            }
-            .absensi-cell {
-                min-width: 28px !important;
-                width: 28px !important;
-            }
+            .sticky-col-header, .sticky-col-cell { min-width: 140px !important; max-width: 160px !important; font-size: 11px !important; padding-left: 8px !important; padding-right: 8px !important; }
+            .absensi-table th, .absensi-table td { padding: 4px 3px !important; font-size: 10px !important; min-width: 28px !important; width: 28px !important; }
+            .absensi-cell { min-width: 28px !important; width: 28px !important; }
             header { padding: 10px 14px; }
             .logo { font-size: 16px; }
             .logo span { font-size: 18px; }
@@ -740,29 +361,12 @@
             .card { padding: 14px; }
             .hero h1 { font-size: 20px; }
             .hero h2 { font-size: 13px; }
-            .btn-game, .btn-submit, .btn-external, .btn-success {
-                padding: 10px 16px;
-                font-size: 13px;
-            }
+            .btn-game, .btn-submit, .btn-external, .btn-success { padding: 10px 16px; font-size: 13px; }
         }
         @media (max-width: 480px) {
-            .sticky-col-header, .sticky-col-cell {
-                min-width: 110px !important;
-                max-width: 130px !important;
-                font-size: 9px !important;
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-            .absensi-table th, .absensi-table td {
-                padding: 2px 2px !important;
-                font-size: 8px !important;
-                min-width: 22px !important;
-                width: 22px !important;
-            }
-            .absensi-cell {
-                min-width: 22px !important;
-                width: 22px !important;
-            }
+            .sticky-col-header, .sticky-col-cell { min-width: 110px !important; max-width: 130px !important; font-size: 9px !important; padding-left: 5px !important; padding-right: 5px !important; }
+            .absensi-table th, .absensi-table td { padding: 2px 2px !important; font-size: 8px !important; min-width: 22px !important; width: 22px !important; }
+            .absensi-cell { min-width: 22px !important; width: 22px !important; }
         }
     </style>
 </head>
@@ -810,7 +414,7 @@
 
 <!-- ======== MAIN ======== -->
 <main>
-    <!-- ===== SISWA: BERANDA ===== -->
+    <!-- SISWA: BERANDA -->
     <section id="s_beranda" class="section">
         <div class="hero">
             <h1>Selamat Datang Murid hebat di Pembelajaran Informatika!!</h1>
@@ -841,7 +445,7 @@
         </div>
     </section>
 
-    <!-- ===== SISWA: MATERI ===== -->
+    <!-- SISWA: MATERI -->
     <section id="s_materi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📚 Materi Pembelajaran</h2>
         <div class="form-group" style="max-width:400px;">
@@ -855,7 +459,7 @@
         </div>
     </section>
 
-    <!-- ===== SISWA: TUGAS LKPD ===== -->
+    <!-- SISWA: TUGAS LKPD -->
     <section id="s_tugas" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📝 Tugas LKPD</h2>
         <div class="card">
@@ -868,7 +472,7 @@
         <div id="contentTugasSiswa"></div>
     </section>
 
-    <!-- ===== SISWA: ASESMEN ===== -->
+    <!-- SISWA: ASESMEN -->
     <section id="s_kuis" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">🧠 Asesmen &amp; Evaluasi</h2>
         <div class="card">
@@ -895,7 +499,7 @@
         </div>
     </section>
 
-    <!-- ===== SISWA: PORTOFOLIO ===== -->
+    <!-- SISWA: PORTOFOLIO -->
     <section id="s_portofolio" class="section">
         <div id="printablePortofolioArea">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
@@ -934,7 +538,7 @@
         </div>
     </section>
 
-    <!-- ===== SISWA: REFLEKSI ===== -->
+    <!-- SISWA: REFLEKSI -->
     <section id="s_refleksi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">💬 Ruang Refleksi &amp; Diskusi Kelas</h2>
         <div class="card">
@@ -951,7 +555,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: PORTOFOLIO MURID ===== -->
+    <!-- GURU: PORTOFOLIO MURID -->
     <section id="g_portofolio" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📂 Portofolio Hasil Kerja &amp; Penilaian Murid</h2>
         <div class="card">
@@ -981,7 +585,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: DAFTAR PERTEMUAN ===== -->
+    <!-- GURU: DAFTAR PERTEMUAN -->
     <section id="g_daftar_pertemuan" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📋 Daftar Pertemuan &amp; Materi Tersimpan</h2>
         <div class="card">
@@ -996,7 +600,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: BUAT PERTEMUAN ===== -->
+    <!-- GURU: BUAT PERTEMUAN -->
     <section id="g_kelola" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">✨ Buat / Unggah Modul Pertemuan Baru</h2>
         <div class="card">
@@ -1026,7 +630,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: KELOLA ASESMEN ===== -->
+    <!-- GURU: KELOLA ASESMEN -->
     <section id="g_kuis" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">✨ Buat &amp; Kelola Asesmen</h2>
         <div class="card">
@@ -1074,7 +678,7 @@
         <div id="containerHasilKuisGuru" style="margin-top:20px; display:none;"></div>
     </section>
 
-    <!-- ===== GURU: DATA MURID ===== -->
+    <!-- GURU: DATA MURID -->
     <section id="g_siswa" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">👥 Kelola Daftar Nama Murid (Whitelist)</h2>
         <div class="card">
@@ -1096,7 +700,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: ABSENSI ===== -->
+    <!-- GURU: ABSENSI -->
     <section id="g_absensi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">📊 Absensi Kelas &amp; Rekapitulasi Kehadiran</h2>
         <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
@@ -1156,7 +760,7 @@
         </div>
     </section>
 
-    <!-- ===== GURU: REFLEKSI ===== -->
+    <!-- GURU: REFLEKSI -->
     <section id="g_refleksi" class="section">
         <h2 style="color:var(--primary-purple); font-weight:700; font-size:20px; margin-bottom:15px;">💬 Kelola Refleksi &amp; Diskusi Kelas</h2>
         <div class="card">
@@ -1314,8 +918,7 @@
         if (!error) return false;
         console.error(`Supabase Error (${actionName}):`, error);
         if (error.code === '42501' || error.message.includes('permission') || error.message.includes('policy')) {
-            showToast(`Peringatan Supabase (${actionName}): Izin ditolak RLS. Aktifkan RLS Policy di Supabase Dashboard.`,
-            true);
+            showToast(`Peringatan Supabase (${actionName}): Izin ditolak RLS. Aktifkan RLS Policy di Supabase Dashboard.`, true);
         } else {
             showToast(`Peringatan Supabase (${actionName}): ${error.message || 'Gagal menyimpan'}`, true);
         }
@@ -1351,7 +954,7 @@
                 fetchWithTimeout(_supabase.from('refleksi_jawaban').select('*').order('created_at', { ascending: true }))
             ]);
 
-            // ----- Siswa -----
+            // Siswa
             if (stRes.status === 'fulfilled' && stRes.value.data && stRes.value.data.length > 0) {
                 const fetchedNames = stRes.value.data.map(s => s.nama_siswa || s.nama).filter(Boolean);
                 if (fetchedNames.length > 0) {
@@ -1362,7 +965,7 @@
                 APP_DATA.students = [...listMuridTetap];
             }
 
-            // ----- Pertemuan -----
+            // Pertemuan
             if (pRes.status === 'fulfilled' && pRes.value.data && pRes.value.data.length > 0) {
                 const localMap = new Map();
                 (APP_DATA.pertemuan || []).forEach(p => localMap.set(p.id, p));
@@ -1373,14 +976,12 @@
                     let parsedLkpdFile = null;
 
                     if (typeof p.materi_file === 'string') {
-                        try { parsedMateriFile = JSON.parse(p.materi_file); } catch (_) { parsedMateriFile = p
-                                .materi_file; }
+                        try { parsedMateriFile = JSON.parse(p.materi_file); } catch (_) { parsedMateriFile = p.materi_file; }
                     } else {
                         parsedMateriFile = p.materi_file || null;
                     }
                     if (typeof p.lkpd_file === 'string') {
-                        try { parsedLkpdFile = JSON.parse(p.lkpd_file); } catch (_) { parsedLkpdFile = p
-                                .lkpd_file; }
+                        try { parsedLkpdFile = JSON.parse(p.lkpd_file); } catch (_) { parsedLkpdFile = p.lkpd_file; }
                     } else {
                         parsedLkpdFile = p.lkpd_file || null;
                     }
@@ -1408,7 +1009,7 @@
                 APP_DATA.pertemuan = Array.from(localMap.values());
             }
 
-            // ----- Submissions -----
+            // Submissions
             if (subRes.status === 'fulfilled' && subRes.value.data) {
                 APP_DATA.submissions = subRes.value.data.map(s => ({
                     id: s.id,
@@ -1424,7 +1025,7 @@
                 }));
             }
 
-            // ----- Absensi -----
+            // Absensi
             if (absRes.status === 'fulfilled' && absRes.value.data) {
                 if (!APP_DATA.absensi) APP_DATA.absensi = {};
                 absRes.value.data.forEach(item => {
@@ -1438,7 +1039,7 @@
                 });
             }
 
-            // ----- Kuis -----
+            // Kuis
             if (kuisRes.status === 'fulfilled' && kuisRes.value.data && kuisRes.value.data.length > 0) {
                 APP_DATA.kuisList = kuisRes.value.data.map(k => {
                     const parsed = parseDescWithGameUrl(k.desc || k.deskripsi || '');
@@ -1454,7 +1055,7 @@
                 });
             }
 
-            // ----- Skor Kuis -----
+            // Skor Kuis
             if (qaRes.status === 'fulfilled' && qaRes.value.data) {
                 APP_DATA.kuisScores = qaRes.value.data.map(q => ({
                     id: q.id,
@@ -1468,7 +1069,7 @@
                 }));
             }
 
-            // ----- Refleksi (Pertanyaan & Jawaban) -----
+            // Refleksi
             if (refTanyaRes.status === 'fulfilled' && refTanyaRes.value.data) {
                 APP_DATA.refleksi.pertanyaan = refTanyaRes.value.data.map(q => ({
                     ...q,
@@ -1481,7 +1082,6 @@
                     created_at: j.created_at ? new Date(j.created_at).toLocaleString('id-ID') : new Date().toLocaleString('id-ID')
                 }));
             }
-            // Pastikan struktur refleksi selalu ada
             if (!APP_DATA.refleksi) APP_DATA.refleksi = { pertanyaan: [], jawaban: [] };
             if (!APP_DATA.refleksi.pertanyaan) APP_DATA.refleksi.pertanyaan = [];
             if (!APP_DATA.refleksi.jawaban) APP_DATA.refleksi.jawaban = [];
@@ -1593,7 +1193,7 @@
     window.logout = logout;
 
     // ============================================================
-    //  INSET APPLIKASI & NAVIGASI
+    //  INISIALISASI APP & NAVIGASI
     // ============================================================
     async function initApp() {
         document.getElementById('loginModal').style.display = 'none';
@@ -1633,7 +1233,7 @@
             renderAbsensiMatrix();
             renderRekapAbsensiGuru();
             populateRefleksiPertemuanSelects();
-            
+
             const tabBtn = document.querySelector('#g_kuis .login-tab button:first-child');
             if (tabBtn) {
                 switchKuisKategoriGuru('Asesmen Diagnostik', tabBtn);
@@ -1846,35 +1446,28 @@
                 fileType = fileData.type || '';
             } else if (typeof fileData === 'string' && fileData.startsWith('data:')) {
                 base64Data = fileData;
-                const match = fileData.match(
-                    /^data:(image\/[a-z]+|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document);base64,/
-                    );
+                const match = fileData.match(/^data:(image\/[a-z]+|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document);base64,/);
                 if (match) fileType = match[1];
                 else fileType = 'application/octet-stream';
             }
 
             if (base64Data) {
                 if (fileType.startsWith('image/')) {
-                    html +=
-                        `<img src="${base64Data}" class="img-preview" style="width:100%; height:auto; max-height:500px; object-fit:contain;" alt="Materi">`;
+                    html += `<img src="${base64Data}" class="img-preview" style="width:100%; height:auto; max-height:500px; object-fit:contain;" alt="Materi">`;
                     hasContent = true;
                 } else if (fileType === 'application/pdf') {
-                    html +=
-                        `<iframe src="${base64Data}" style="width:100%; height:600px; border:1px solid #ddd; border-radius:12px;" frameborder="0"></iframe>`;
-                    html +=
-                        `<div style="margin-top:12px;"><a href="${base64Data}" download="${fileName}" class="file-link">⬇️ Unduh File / Lampiran: ${fileName}</a></div>`;
+                    html += `<iframe src="${base64Data}" style="width:100%; height:600px; border:1px solid #ddd; border-radius:12px;" frameborder="0"></iframe>`;
+                    html += `<div style="margin-top:12px;"><a href="${base64Data}" download="${fileName}" class="file-link">⬇️ Unduh File / Lampiran: ${fileName}</a></div>`;
                     hasContent = true;
                 } else if (base64Data) {
-                    html +=
-                        `<a href="${base64Data}" download="${fileName}" class="file-link">⬇️ Unduh File / Lampiran: ${fileName}</a>`;
+                    html += `<a href="${base64Data}" download="${fileName}" class="file-link">⬇️ Unduh File / Lampiran: ${fileName}</a>`;
                     hasContent = true;
                 }
             }
         }
 
         if (!hasContent) {
-            html +=
-                `<div class="text-center p-6 text-gray-500 italic bg-gray-50 rounded-lg border border-dashed border-gray-300">Belum ada lampiran materi untuk pertemuan ini.</div>`;
+            html += `<div class="text-center p-6 text-gray-500 italic bg-gray-50 rounded-lg border border-dashed border-gray-300">Belum ada lampiran materi untuk pertemuan ini.</div>`;
         }
         html += `</div>`;
         return html;
@@ -2134,7 +1727,7 @@
         const containerTugas = document.getElementById('rekapPortofolioSiswa');
         if (containerTugas) {
             const mySubs = (APP_DATA.submissions || []).filter(sub => normalizeName(sub.namaSiswa || sub.nama_siswa) ===
-            sName);
+                sName);
             let html = `<h3 style="color:var(--primary-purple); font-weight:700;">📝 Rekap Seluruh Tugas LKPD Dikerjakan</h3>`;
             if (mySubs.length === 0) {
                 html += '<p style="color:var(--text-light); margin-top:10px;">Anda belum mengumpulkan tugas LKPD apa pun.</p>';
@@ -2651,11 +2244,16 @@
     }
     window.tampilkanKuisDanSoalSiswa = tampilkanKuisDanSoalSiswa;
 
-    // ----- FUNGSI YANG DIPERBAIKI (TIDAK LAGI TERPOTONG) -----
+    // ============================================================
+    //  FUNGSI ASESMEN (SUBMIT JAWABAN) - DIPERBAIKI
+    // ============================================================
     async function submitJawabanKuisSiswa(e, kuisId) {
         e.preventDefault();
         const k = (APP_DATA.kuisList || []).find(x => x.id == kuisId);
-        if (!k || !k.soal) return;
+        if (!k || !k.soal) {
+            showToast("Asesmen tidak ditemukan atau tidak memiliki soal.", true);
+            return;
+        }
 
         let benar = 0;
         let salah = 0;
@@ -2669,36 +2267,11 @@
             }
         });
 
-        const score = Math.round((benar / k.soal.length) * 100);
+        const totalSoal = k.soal.length;
+        const score = Math.round((benar / totalSoal) * 100);
         const namaSiswa = currentUser ? normalizeName(currentUser.name) : 'SISWA';
 
         const attemptData = {
             id: Math.floor(Date.now() / 1000),
             studentName: namaSiswa,
             quizId: k.id,
-            quizTitle: k.judul,
-            score,
-            totalCorrect: benar,
-            totalWrong: salah,
-            submittedAt: new Date().toLocaleString('id-ID')
-        };
-
-        if (!APP_DATA.kuisScores) APP_DATA.kuisScores = [];
-        APP_DATA.kuisScores.push(attemptData);
-        saveDB();
-
-        if (_supabase) {
-            const { error } = await _supabase.from('quiz_attempts').insert([{
-                id: attemptData.id,
-                student_name: namaSiswa,
-                quiz_id: k.id,
-                quiz_title: k.judul,
-                score,
-                total_correct: benar,
-                total_wrong: salah,
-                submitted_at: attemptData.submittedAt
-            }]);
-            handleSupabaseError(error, "Simpan Skor Asesmen");
-        }
-
-        showToast(`Asesmen Selesai
